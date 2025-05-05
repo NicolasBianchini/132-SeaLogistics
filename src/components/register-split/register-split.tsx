@@ -38,6 +38,8 @@ export default function RegisterSplit() {
 
     const { name, email, password, confirmPassword } = userCredentials;
 
+    console.log(userCredentials);
+
     if (password !== confirmPassword) {
       alert("As senhas não coincidem.");
       return;

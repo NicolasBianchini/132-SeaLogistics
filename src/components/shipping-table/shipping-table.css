@@ -79,6 +79,30 @@
   color: #333;
 }
 
+@media screen and (max-width: 1400px) {
+  .shipping-table-container {
+    max-width: 1000px;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .shipping-table-container {
+    max-width: 800px;
+  }
+}
+
+@media screen and (max-width: 1010px) {
+  .shipping-table-container {
+    max-width: 700px;
+  }
+}
+
+@media screen and (max-width: 910px) {
+  .shipping-table-container {
+    max-width: 600px;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .shipping-table-container {
     padding: 10px;
