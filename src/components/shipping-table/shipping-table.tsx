@@ -4,7 +4,7 @@ import { useState } from "react";
 import "./shipping-table.css";
 
 const ShippingTable = () => {
-  const [shipments, setShipments] = useState([
+  const [shipments] = useState([
     {
       id: 1,
       cliente: "Empresa ABC",

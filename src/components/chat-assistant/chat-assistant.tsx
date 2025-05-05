@@ -45,7 +45,7 @@ const ChatAssistant = () => {
     scrollToBottom();
   }, [messages]);
 
-  const simulateResponse = (userMessage: any) => {
+  const simulateResponse = () => {
     const responses = [
       "Entendi! Vou verificar essa informação para você.",
       "Obrigado pela sua mensagem. Posso ajudar com mais alguma coisa?",
@@ -84,7 +84,7 @@ const ChatAssistant = () => {
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInputValue("");
 
-    simulateResponse(inputValue);
+    simulateResponse();
   };
 
   const handleKeyPress = (e: any) => {
