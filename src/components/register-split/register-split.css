@@ -1,0 +1,148 @@
+.split-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 90%;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+
+.split-branding {
+  background-color: var(--secondary-color);
+  padding: 1.5rem;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.split-branding-content {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.split-logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.split-description {
+  margin-top: 1rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.split-form-container {
+  padding: 1.5rem;
+}
+
+.split-title {
+  font-size: 1.25rem;
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.split-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.split-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.split-password-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.split-form-group label {
+  font-weight: bold;
+  color: var(--secondary-color);
+}
+
+.split-form-group input {
+  padding: 0.75rem;
+  border: 1px solid var(--light-gray);
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.split-form-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.split-button {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 0.5rem;
+}
+
+.split-button:hover {
+  background-color: var(--secondary-color);
+}
+
+.split-login-link {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.split-link {
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.split-link:hover {
+  color: #9333ea;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.split-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .split-card {
+    flex-direction: row;
+  }
+
+  .split-branding {
+    width: 40%;
+    padding: 2rem;
+  }
+
+  .split-form-container {
+    width: 60%;
+    padding: 2rem;
+  }
+
+  .split-password-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

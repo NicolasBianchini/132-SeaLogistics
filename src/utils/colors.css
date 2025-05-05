@@ -1,0 +1,13 @@
+:root {
+  --primary-color: #789170;
+  --primary-dark: #5a6e55;
+  --secondary-color: #305951;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --text-color: #333;
+  --background-color: #955a5a;
+  --white: #ffffff;
+  --light-gray: #e0e0e0;
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --error: #e63946;
+  --transition-speed: 0.3s;
+}

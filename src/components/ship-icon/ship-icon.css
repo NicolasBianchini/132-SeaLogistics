@@ -1,0 +1,5 @@
+.ship-icon {
+  background-color: var(--primary-color);
+  padding: 10px;
+  border-radius: 50%;
+}

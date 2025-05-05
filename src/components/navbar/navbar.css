@@ -1,0 +1,227 @@
+:root {
+  --primary-color: #789170;
+  --primary-dark: #5a6e55;
+  --secondary-color: #305951;
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --background-color: #f5f5f5;
+  --white: #ffffff;
+  --light-gray: rgba(255, 255, 255, 0.15);
+  --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  --transition-speed: 0.3s;
+}
+
+.navbar {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  bottom: 20px;
+  width: 240px;
+  background-color: var(--primary-color);
+  background-image: linear-gradient(
+    to bottom,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  box-shadow: var(--box-shadow);
+  border-radius: 16px;
+  padding: 20px 16px;
+  transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.navbar.collapsed {
+  width: 80px;
+}
+
+.navbar-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.toggle-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-color);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-right: 12px;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.company-logo {
+  display: flex;
+  align-items: center;
+  color: var(--text-color);
+}
+
+.ship-icon {
+  transition: transform 0.3s ease;
+}
+
+.collapsed .ship-icon {
+  transform: translateX(10px);
+}
+
+.company-name {
+  margin-left: 10px;
+  transition: opacity var(--transition-speed) ease,
+    transform var(--transition-speed) ease;
+  transform: translateX(0);
+  opacity: 1;
+  white-space: nowrap;
+}
+
+.company-name.hidden {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.company-name-text {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.5px;
+}
+
+.nav-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  flex-grow: 1;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 12px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item:hover {
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  transform: translateX(5px);
+}
+
+.nav-item.active {
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: var(--white);
+  border-radius: 0 4px 4px 0;
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  transition: transform 0.3s ease;
+}
+
+.collapsed .icon-container {
+  transform: translateX(10px);
+}
+
+.nav-text {
+  transition: opacity var(--transition-speed) ease,
+    transform var(--transition-speed) ease;
+  transform: translateX(0);
+  opacity: 1;
+  white-space: nowrap;
+}
+
+.nav-text.hidden {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+.navbar-footer {
+  margin-top: 20px;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animation for expanding/collapsing */
+.navbar {
+  animation: slideInNavbar 0.5s ease;
+}
+
+@keyframes slideInNavbar {
+  from {
+    transform: translateX(-20px);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    left: 10px;
+    top: 10px;
+    bottom: 10px;
+    width: 220px;
+  }
+
+  .navbar.collapsed {
+    width: 70px;
+  }
+}

@@ -1,0 +1,110 @@
+.shipping-table-container {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--box-shadow);
+}
+
+.shipping-table-title {
+  color: var(--secondary-color);
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 24px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.shipping-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.shipping-table th,
+.shipping-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.shipping-table th {
+  background-color: var(--primary-color);
+  color: var(--white);
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+}
+
+.shipping-table tr:nth-child(even) {
+  background-color: rgba(120, 145, 112, 0.1);
+}
+
+.shipping-table tr:hover {
+  background-color: rgba(120, 145, 112, 0.2);
+  transition: background-color var(--transition-speed);
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.status-em-trânsito {
+  background-color: #ffd166;
+  color: #333;
+}
+
+.status-agendado {
+  background-color: #118ab2;
+  color: white;
+}
+
+.status-documentação {
+  background-color: #073b4c;
+  color: white;
+}
+
+.status-concluído {
+  background-color: #06d6a0;
+  color: #333;
+}
+
+@media screen and (max-width: 768px) {
+  .shipping-table-container {
+    padding: 10px;
+  }
+
+  .shipping-table th,
+  .shipping-table td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--light-gray);
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--primary-dark);
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: var(--secondary-color);
+}
