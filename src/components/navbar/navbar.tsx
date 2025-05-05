@@ -1,7 +1,7 @@
 import { Home, Menu, Settings, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "./Navbar.css";
+import "./navbar.css";
 
 const Navbar = () => {
   const [expanded, setExpanded] = useState(true);
