@@ -1,0 +1,228 @@
+.status-picker {
+  width: 200px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.status-picker-header {
+  background: #789170;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.status-picker-title {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.status-options-container {
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.status-option-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  min-height: 44px;
+  width: 100%;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-option-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.status-option-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-option-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+.status-option-button.selected {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.status-option-button.selected::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+.status-option-text {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+}
+
+.status-selected-indicator {
+  position: absolute;
+  right: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  opacity: 0.9;
+}
+
+/* Estilos específicos para cada status (cores da imagem) */
+
+/* Em trânsito - Amarelo */
+.status-option-button[style*="#ffd166"] {
+  background-color: #ffd166 !important;
+  color: #333 !important;
+}
+
+/* Agendado - Azul */
+.status-option-button[style*="#118ab2"] {
+  background-color: #118ab2 !important;
+  color: white !important;
+}
+
+/* Documentação - Azul escuro */
+.status-option-button[style*="#073b4c"] {
+  background-color: #073b4c !important;
+  color: white !important;
+}
+
+/* Concluído - Verde */
+.status-option-button[style*="#06d6a0"] {
+  background-color: #06d6a0 !important;
+  color: #333 !important;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .status-picker {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .status-picker-header {
+    padding: 12px 16px;
+  }
+
+  .status-picker-title {
+    font-size: 16px;
+  }
+
+  .status-options-container {
+    padding: 20px 16px;
+    gap: 12px;
+  }
+
+  .status-option-button {
+    padding: 10px 16px;
+    font-size: 13px;
+    min-height: 40px;
+  }
+}
+
+/* Variante compacta */
+.status-picker.compact {
+  width: 160px;
+}
+
+.status-picker.compact .status-picker-header {
+  padding: 12px 16px;
+}
+
+.status-picker.compact .status-picker-title {
+  font-size: 16px;
+}
+
+.status-picker.compact .status-options-container {
+  padding: 16px 12px;
+  gap: 12px;
+}
+
+.status-picker.compact .status-option-button {
+  padding: 8px 16px;
+  font-size: 12px;
+  min-height: 36px;
+}
+
+/* Tema escuro */
+.status-picker.dark {
+  background: #2d3748;
+}
+
+.status-picker.dark .status-picker-header {
+  background: #4a5568;
+}
+
+.status-picker.dark .status-picker-title {
+  color: #f7fafc;
+}
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .status-option-button {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .status-picker {
+    border: 2px solid #000;
+  }
+
+  .status-option-button {
+    border: 1px solid currentColor;
+  }
+
+  .status-option-button.selected::before {
+    border: 3px solid #000;
+  }
+}
+
+/* Estado de loading */
+.status-picker.loading .status-option-button {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.status-picker.loading .status-option-button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+} 

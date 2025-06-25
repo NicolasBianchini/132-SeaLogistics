@@ -1,4 +1,4 @@
-import { Home, Menu, Settings, X } from "lucide-react";
+import { Home, Menu, Settings, X, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "./navbar.css";
@@ -15,6 +15,7 @@ const Navbar = () => {
 
   const getActiveItem = () => {
     if (location.pathname.includes("settings")) return "settings";
+    if (location.pathname.includes("novo-envio")) return "novo-envio";
     return "home";
   };
 
@@ -42,6 +43,9 @@ const Navbar = () => {
         <div
           className={`nav-item ${activeItem === "home" ? "active" : ""}`}
           onClick={() => navigate("/home")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate("/home")}
         >
           <div className="icon-container">
             <Home size={20} />
@@ -52,8 +56,26 @@ const Navbar = () => {
         </div>
 
         <div
+          className={`nav-item ${activeItem === "novo-envio" ? "active" : ""}`}
+          onClick={() => navigate("/novo-envio")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate("/novo-envio")}
+        >
+          <div className="icon-container">
+            <Plus size={20} />
+          </div>
+          <span className={`nav-text ${expanded ? "visible" : "hidden"}`}>
+            Novo Envio
+          </span>
+        </div>
+
+        <div
           className={`nav-item ${activeItem === "settings" ? "active" : ""}`}
           onClick={() => navigate("/settings")}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate("/settings")}
         >
           <div className="icon-container">
             <Settings size={20} />
@@ -64,9 +86,11 @@ const Navbar = () => {
         </div>
       </nav>
 
-      <div className="navbar-footer">
-        {expanded && <div className="footer-text">© 2024 SeaLogistics</div>}
-      </div>
+      {expanded && (
+        <div className="navbar-footer">
+          <span>SeaLogistics © 2024</span>
+        </div>
+      )}
     </div>
   );
 };

@@ -132,3 +132,13 @@
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: var(--secondary-color);
 }
+
+.shipping-table-empty {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+  background: white;
+  border-radius: 8px;
+  border: 2px dashed #dee2e6;
+}

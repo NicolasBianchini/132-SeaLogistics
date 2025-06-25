@@ -1,0 +1,127 @@
+/* Temas alternativos para a Navbar */
+
+/* Tema Oceano Profundo */
+.navbar.theme-ocean {
+  --primary-color: #1e3a5f;
+  --primary-dark: #0f2a44;
+  --secondary-color: #2c5f7c;
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --hover-background: rgba(255, 255, 255, 0.15);
+  --active-background: rgba(255, 255, 255, 0.25);
+}
+
+/* Tema Floresta */
+.navbar.theme-forest {
+  --primary-color: #2d5a3d;
+  --primary-dark: #1a3326;
+  --secondary-color: #3e7a5c;
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --hover-background: rgba(255, 255, 255, 0.15);
+  --active-background: rgba(255, 255, 255, 0.25);
+}
+
+/* Tema Minimalista */
+.navbar.theme-minimal {
+  --primary-color: #f8f9fa;
+  --primary-dark: #e9ecef;
+  --secondary-color: #dee2e6;
+  --text-color: #343a40;
+  --text-muted: rgba(52, 58, 64, 0.7);
+  --hover-background: rgba(52, 58, 64, 0.1);
+  --active-background: rgba(52, 58, 64, 0.15);
+  --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.navbar.theme-minimal {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  border: 1px solid rgba(52, 58, 64, 0.1);
+}
+
+/* Tema Noturno */
+.navbar.theme-dark {
+  --primary-color: #212529;
+  --primary-dark: #161b1e;
+  --secondary-color: #343a40;
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.7);
+  --hover-background: rgba(255, 255, 255, 0.1);
+  --active-background: rgba(255, 255, 255, 0.15);
+  --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Tema Sunset */
+.navbar.theme-sunset {
+  --primary-color: #ff6b6b;
+  --primary-dark: #e55656;
+  --secondary-color: #ffa726;
+  --text-color: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.8);
+  --hover-background: rgba(255, 255, 255, 0.2);
+  --active-background: rgba(255, 255, 255, 0.3);
+}
+
+/* Animações específicas para temas */
+.navbar.theme-minimal .nav-item.active::before {
+  background-color: var(--primary-dark);
+}
+
+.navbar.theme-dark .nav-item:hover {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* Modo High Contrast para acessibilidade */
+.navbar.high-contrast {
+  --primary-color: #000000;
+  --primary-dark: #000000;
+  --secondary-color: #1a1a1a;
+  --text-color: #ffffff;
+  --text-muted: #ffffff;
+  --hover-background: #333333;
+  --active-background: #444444;
+  --box-shadow: 0 0 0 2px #ffffff;
+}
+
+.navbar.high-contrast .nav-item.active::before {
+  background-color: #ffffff;
+  width: 6px;
+}
+
+.navbar.high-contrast .toggle-btn,
+.navbar.high-contrast .nav-item {
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Responsividade aprimorada para temas */
+@media (prefers-reduced-motion: reduce) {
+  .navbar,
+  .navbar *,
+  .navbar *::before,
+  .navbar *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .navbar:not([class*="theme-"]) {
+    --primary-color: #2d3748;
+    --primary-dark: #1a202c;
+    --secondary-color: #4a5568;
+  }
+}
+
+/* Estados de foco melhorados para diferentes temas */
+.navbar.theme-minimal .toggle-btn:focus,
+.navbar.theme-minimal .nav-item:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+.navbar.theme-dark .toggle-btn:focus,
+.navbar.theme-dark .nav-item:focus {
+  outline: 2px solid #ffd700;
+  outline-offset: 2px;
+} 

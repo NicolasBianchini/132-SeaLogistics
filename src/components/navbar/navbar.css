@@ -9,6 +9,8 @@
   --light-gray: rgba(255, 255, 255, 0.15);
   --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   --transition-speed: 0.3s;
+  --hover-background: rgba(255, 255, 255, 0.2);
+  --active-background: rgba(255, 255, 255, 0.25);
 }
 
 .navbar {
@@ -16,94 +18,104 @@
   left: 20px;
   top: 20px;
   bottom: 20px;
-  width: 240px;
-  background-color: var(--primary-color);
-  background-image: linear-gradient(
-    to bottom,
-    var(--primary-color),
-    var(--secondary-color)
-  );
+  width: 280px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   box-shadow: var(--box-shadow);
-  border-radius: 16px;
-  padding: 20px 16px;
+  border-radius: 20px;
+  padding: 24px 20px;
   transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   overflow: hidden;
   z-index: 100;
+  backdrop-filter: blur(10px);
 }
 
 .navbar.collapsed {
-  width: 80px;
+  width: 88px;
 }
 
 .navbar-header {
   display: flex;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
   position: relative;
+  height: 48px;
 }
 
 .toggle-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--hover-background);
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   color: var(--text-color);
-  padding: 8px;
+  padding: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  margin-right: 12px;
+  margin-right: 16px;
+  min-width: 48px;
+  height: 48px;
+  position: relative;
+  overflow: hidden;
 }
 
 .toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--active-background);
   transform: scale(1.05);
+}
+
+.toggle-btn:active {
+  transform: scale(0.95);
 }
 
 .company-logo {
   display: flex;
   align-items: center;
   color: var(--text-color);
+  flex: 1;
 }
 
 .ship-icon {
   transition: transform 0.3s ease;
+  min-width: 24px;
 }
 
 .collapsed .ship-icon {
-  transform: translateX(10px);
+  transform: translateX(4px);
 }
 
 .company-name {
-  margin-left: 10px;
+  margin-left: 12px;
   transition: opacity var(--transition-speed) ease,
     transform var(--transition-speed) ease;
   transform: translateX(0);
   opacity: 1;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .company-name.hidden {
   opacity: 0;
   transform: translateX(-20px);
+  pointer-events: none;
 }
 
 .company-name-text {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 20px;
   letter-spacing: 0.5px;
+  line-height: 1.2;
 }
 
 .nav-items {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   flex-grow: 1;
+  padding: 0 4px;
 }
 
 .nav-item {
@@ -112,43 +124,58 @@
   gap: 16px;
   cursor: pointer;
   color: var(--text-muted);
-  padding: 12px;
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  padding: 16px 16px;
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  min-height: 56px;
+  text-decoration: none;
+  user-select: none;
 }
 
 .nav-item:hover {
-  background-color: var(--light-gray);
+  background-color: var(--hover-background);
   color: var(--text-color);
-  transform: translateX(5px);
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .nav-item.active {
-  background-color: var(--light-gray);
+  background-color: var(--active-background);
   color: var(--text-color);
-  font-weight: 500;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
 .nav-item.active::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 0;
-  height: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 60%;
   width: 4px;
   background-color: var(--white);
   border-radius: 0 4px 4px 0;
   animation: slideIn 0.3s ease forwards;
 }
 
+.nav-item.active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
 @keyframes slideIn {
   from {
-    transform: translateX(-100%);
+    transform: translateY(-50%) scaleY(0);
   }
   to {
-    transform: translateX(0);
+    transform: translateY(-50%) scaleY(1);
   }
 }
 
@@ -157,11 +184,13 @@
   align-items: center;
   justify-content: center;
   min-width: 24px;
+  height: 24px;
   transition: transform 0.3s ease;
+  position: relative;
 }
 
 .collapsed .icon-container {
-  transform: translateX(10px);
+  transform: translateX(0);
 }
 
 .nav-text {
@@ -170,29 +199,41 @@
   transform: translateX(0);
   opacity: 1;
   white-space: nowrap;
+  font-size: 15px;
+  font-weight: 500;
+  overflow: hidden;
 }
 
 .nav-text.hidden {
   opacity: 0;
   transform: translateX(-20px);
+  pointer-events: none;
 }
 
 .navbar-footer {
-  margin-top: 20px;
+  margin-top: 24px;
   color: var(--text-muted);
   font-size: 12px;
   text-align: center;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
   animation: fadeIn 0.5s ease;
+  transition: opacity var(--transition-speed) ease;
+}
+
+.collapsed .navbar-footer {
+  opacity: 0;
+  pointer-events: none;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -213,15 +254,146 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .navbar {
-    left: 10px;
-    top: 10px;
-    bottom: 10px;
-    width: 220px;
+    left: 16px;
+    top: 16px;
+    bottom: 16px;
+    width: 260px;
   }
 
   .navbar.collapsed {
-    width: 70px;
+    width: 80px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    left: 12px;
+    top: 12px;
+    bottom: 12px;
+    width: 240px;
+    border-radius: 16px;
+    padding: 20px 16px;
+  }
+
+  .navbar.collapsed {
+    width: 72px;
+  }
+
+  .nav-item {
+    padding: 12px 12px;
+    min-height: 48px;
+  }
+
+  .toggle-btn {
+    min-width: 40px;
+    height: 40px;
+    padding: 10px;
+  }
+
+  .company-name-text {
+    font-size: 18px;
+  }
+
+  .nav-text {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar {
+    left: 8px;
+    top: 8px;
+    bottom: 8px;
+    width: calc(100vw - 16px);
+    max-width: 220px;
+  }
+
+  .navbar.collapsed {
+    width: 64px;
+  }
+}
+
+/* Focus styles for accessibility */
+.toggle-btn:focus,
+.nav-item:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling for nav items */
+.nav-items::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-items {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Loading and hover animations */
+.navbar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Collapsed state optimizations */
+.collapsed .nav-item {
+  justify-content: center;
+  padding: 16px 12px;
+}
+
+.collapsed .nav-item .icon-container {
+  margin: 0;
+}
+
+/* Better transitions for text visibility */
+.nav-text.visible {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.1s;
+}
+
+.company-name.visible {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.1s;
+}
+
+/* Enhanced active state */
+.nav-item.active {
+  position: relative;
+}
+
+.nav-item.active .icon-container {
+  color: var(--white);
+}
+
+/* Improved backdrop blur support */
+@supports (backdrop-filter: blur(10px)) {
+  .navbar {
+    backdrop-filter: blur(10px);
+    background: linear-gradient(135deg, 
+      rgba(120, 145, 112, 0.95) 0%, 
+      rgba(48, 89, 81, 0.95) 100%);
+  }
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(10px)) {
+  .navbar {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   }
 }
