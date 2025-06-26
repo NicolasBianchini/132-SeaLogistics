@@ -6,8 +6,9 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/language-context";
 import { createRegisterSchema } from "../../schemas/registerSchema";
-import { saveUserData, signUp } from "../../services/auth";
 import { userCredentials } from "../../types/user";
+import { db } from "../../lib/firebaseConfig";
+import { doc, setDoc } from "firebase/firestore";
 import LanguageSwitcher from "../language-switcher/language-switcher";
 import ShipIcon from "./../ship-icon/ship-icon";
 import "./register-split.css";
@@ -60,13 +61,33 @@ export default function RegisterSplit() {
     setFormErrors({});
 
     try {
-      const user = await signUp(email, password);
-      console.log("Usuário cadastrado com sucesso:", user);
+      // Simulação de cadastro sem Firebase Auth
+      console.log("Dados do usuário:", { name, email });
 
-      await saveUserData(user.uid, { name: name ?? "", email });
+      // Simular delay de cadastro
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Gerar ID único simples para demonstração
+      const userId = `user_${Date.now()}`;
+
+      // Salvar dados do usuário no Firestore
+      await setDoc(doc(db, "users", userId), {
+        name: name ?? "",
+        email,
+        createdAt: new Date(),
+      });
+
+      // Salvar dados do usuário logado no localStorage
+      localStorage.setItem('currentUser', JSON.stringify({
+        email,
+        name: name ?? "Usuário",
+        id: userId
+      }));
+
+      console.log("Usuário cadastrado com sucesso");
       navigate("/home");
-    } catch (error) {
+    } catch (err) {
+      console.error("Erro ao cadastrar:", err);
       alert("Erro ao cadastrar. Verifique os dados e tente novamente.");
     }
   };

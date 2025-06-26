@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { addDoc, collection, onSnapshot, query, orderBy, Timestamp } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, query, orderBy, Timestamp, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../lib/firebaseConfig';
 
 export interface Shipment {
@@ -21,7 +21,7 @@ export interface Shipment {
 interface ShipmentsContextType {
     shipments: Shipment[];
     addShipment: (shipment: Omit<Shipment, 'id' | 'createdAt'>) => Promise<void>;
-    updateShipment: (shipment: Shipment) => void;
+    updateShipment: (shipment: Shipment) => Promise<void>;
     loading: boolean;
 }
 
@@ -77,12 +77,37 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({ children }
         }
     };
 
-    const updateShipment = (updatedShipment: Shipment) => {
-        setShipments(prev =>
-            prev.map(shipment =>
-                shipment.id === updatedShipment.id ? updatedShipment : shipment
-            )
-        );
+    const updateShipment = async (updatedShipment: Shipment) => {
+        try {
+            if (!updatedShipment.id) {
+                throw new Error('Shipment ID is required for updates');
+            }
+
+            // Atualizar no Firebase
+            const shipmentRef = doc(db, 'shipments', updatedShipment.id);
+
+            await updateDoc(shipmentRef, {
+                cliente: updatedShipment.cliente,
+                operador: updatedShipment.operador,
+                pol: updatedShipment.pol,
+                pod: updatedShipment.pod,
+                etdOrigem: updatedShipment.etdOrigem,
+                etaDestino: updatedShipment.etaDestino,
+                quantBox: updatedShipment.quantBox,
+                status: updatedShipment.status,
+                numeroBl: updatedShipment.numeroBl,
+                armador: updatedShipment.armador,
+                booking: updatedShipment.booking,
+                updatedAt: new Date()
+            });
+
+            console.log('Shipment updated successfully:', updatedShipment.id);
+
+            // O estado local será atualizado automaticamente via onSnapshot
+        } catch (error) {
+            console.error('Error updating shipment: ', error);
+            throw error;
+        }
     };
 
     const value: ShipmentsContextType = {

@@ -55,24 +55,44 @@
 }
 
 .status-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  position: fixed;
   background: white;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  margin-top: 4px;
-  z-index: 1000;
+  z-index: 9999;
   overflow: hidden;
-  animation: dropdownSlide 0.2s ease-out;
+  min-width: 140px;
+  width: 140px;
 }
 
-@keyframes dropdownSlide {
+.status-dropdown.dropdown-down {
+  animation: dropdownSlideDown 0.2s ease-out;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.status-dropdown.dropdown-up {
+  animation: dropdownSlideUp 0.2s ease-out;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+@keyframes dropdownSlideDown {
   from {
     opacity: 0;
     transform: translateY(-8px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dropdownSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.95);
   }
   to {
     opacity: 1;
@@ -123,6 +143,18 @@
   bottom: 0;
   z-index: 999;
   background: transparent;
+}
+
+/* Overlay para o modal de confirmação */
+.confirmation-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
 }
 
 /* Garantir que dropdowns não fiquem sobrepostos */
@@ -263,6 +295,173 @@
   }
 }
 
+/* Modal de Confirmação */
+.status-confirmation-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10001;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.confirmation-content {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 400px;
+  max-width: 500px;
+}
+
+.confirmation-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f1f3f5;
+}
+
+.confirmation-icon {
+  color: #f39c12;
+  flex-shrink: 0;
+}
+
+.confirmation-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.confirmation-body {
+  margin-bottom: 24px;
+}
+
+.confirmation-body p {
+  margin: 0 0 16px 0;
+  color: #5a6c7d;
+  font-size: 14px;
+}
+
+.status-change-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.arrow {
+  font-size: 20px;
+  font-weight: bold;
+  color: #6c757d;
+}
+
+.confirmation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancel,
+.btn-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 100px;
+  justify-content: center;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.btn-confirm {
+  background: #118ab2;
+  color: white;
+  box-shadow: 0 4px 12px rgba(17, 138, 178, 0.3);
+}
+
+.btn-confirm:hover:not(:disabled) {
+  background: #0f7a9c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(17, 138, 178, 0.4);
+}
+
+.btn-confirm:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Responsividade do modal */
+@media (max-width: 768px) {
+  .confirmation-content {
+    margin: 20px;
+    min-width: auto;
+    max-width: none;
+    width: calc(100vw - 40px);
+  }
+  
+  .status-change-preview {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .arrow {
+    transform: rotate(90deg);
+  }
+  
+  .confirmation-actions {
+    flex-direction: column;
+  }
+  
+  .btn-cancel,
+  .btn-confirm {
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .status-selector-trigger,
   .status-option,
@@ -272,6 +471,10 @@
   }
 
   .status-dropdown {
+    animation: none;
+  }
+  
+  .status-confirmation-modal {
     animation: none;
   }
 } 

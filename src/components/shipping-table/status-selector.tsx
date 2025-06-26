@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { ChevronDown, AlertCircle, Check, X } from "lucide-react";
 import { useDropdown } from "./dropdown-context";
 import "./status-selector.css";
 
@@ -12,7 +12,7 @@ export interface StatusOption {
 
 interface StatusSelectorProps {
     currentStatus: string;
-    onStatusChange: (newStatus: string) => void;
+    onStatusChange: (newStatus: string) => Promise<void> | void;
     disabled?: boolean;
     instanceId: string;
 }
@@ -48,32 +48,131 @@ const StatusSelector = ({ currentStatus, onStatusChange, disabled = false, insta
     const dropdownRef = useRef<HTMLDivElement>(null);
     const triggerRef = useRef<HTMLButtonElement>(null);
     const { isDropdownOpen, openDropdown, closeDropdown, closeAllDropdowns } = useDropdown();
+    const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>('bottom');
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [pendingStatus, setPendingStatus] = useState<string>('');
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const isOpen = isDropdownOpen(instanceId);
     const currentOption = statusOptions.find(option => option.value === currentStatus) || statusOptions[0];
+    const pendingOption = statusOptions.find(option => option.value === pendingStatus);
 
-    // Fechar dropdown com ESC
+    // Função para calcular a melhor posição do dropdown
+    const calculateDropdownPosition = () => {
+        if (triggerRef.current && dropdownRef.current) {
+            const triggerRect = triggerRef.current.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const dropdownHeight = 120; // Altura mais realista do dropdown (3-4 opções)
+            const padding = 20; // Margem de segurança
+
+            const spaceBelow = viewportHeight - triggerRect.bottom - padding;
+            const spaceAbove = triggerRect.top - padding;
+
+            // Calcular posição para position: fixed
+            const dropdownElement = dropdownRef.current.querySelector('.status-dropdown');
+            if (dropdownElement) {
+                // Posicionar o dropdown exatamente abaixo ou acima do trigger
+                const left = triggerRect.left;
+                const width = triggerRect.width;
+
+                (dropdownElement as HTMLElement).style.left = `${left}px`;
+                (dropdownElement as HTMLElement).style.width = `${width}px`;
+
+                if (spaceBelow >= dropdownHeight) {
+                    setDropdownPosition('bottom');
+                    (dropdownElement as HTMLElement).style.top = `${triggerRect.bottom + 4}px`;
+                    (dropdownElement as HTMLElement).style.bottom = 'auto';
+                } else if (spaceAbove >= dropdownHeight) {
+                    setDropdownPosition('top');
+                    (dropdownElement as HTMLElement).style.bottom = `${viewportHeight - triggerRect.top + 4}px`;
+                    (dropdownElement as HTMLElement).style.top = 'auto';
+                } else {
+                    // Se não há espaço suficiente, preferir para cima
+                    setDropdownPosition('top');
+                    (dropdownElement as HTMLElement).style.bottom = `${viewportHeight - triggerRect.top + 4}px`;
+                    (dropdownElement as HTMLElement).style.top = 'auto';
+                }
+            }
+        }
+    };
+
+    const handleConfirmChange = async () => {
+        if (pendingStatus) {
+            setIsUpdating(true);
+            try {
+                await onStatusChange(pendingStatus);
+                setShowConfirmation(false);
+                setPendingStatus('');
+            } catch (error) {
+                console.error('Erro ao confirmar mudança de status:', error);
+                // Não fechar modal em caso de erro para permitir nova tentativa
+            } finally {
+                setIsUpdating(false);
+            }
+        }
+    };
+
+    const handleCancelChange = () => {
+        setShowConfirmation(false);
+        setPendingStatus('');
+    };
+
+    // Fechar dropdown com ESC e reposicionar com scroll
     useEffect(() => {
         const handleEscape = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && isOpen) {
-                closeAllDropdowns();
+            if (event.key === "Escape") {
+                if (showConfirmation) {
+                    handleCancelChange();
+                } else if (isOpen) {
+                    closeAllDropdowns();
+                }
             }
         };
 
-        if (isOpen) {
+        const handleScroll = () => {
+            if (isOpen) {
+                calculateDropdownPosition();
+            }
+        };
+
+        const handleResize = () => {
+            if (isOpen) {
+                calculateDropdownPosition();
+            }
+        };
+
+        if (isOpen || showConfirmation) {
             document.addEventListener("keydown", handleEscape);
-            return () => document.removeEventListener("keydown", handleEscape);
+
+            if (isOpen) {
+                window.addEventListener("scroll", handleScroll, true);
+                window.addEventListener("resize", handleResize);
+
+                // Calcular posição quando o dropdown abrir
+                setTimeout(() => {
+                    calculateDropdownPosition();
+                }, 10);
+            }
+
+            return () => {
+                document.removeEventListener("keydown", handleEscape);
+                window.removeEventListener("scroll", handleScroll, true);
+                window.removeEventListener("resize", handleResize);
+            };
         }
-    }, [isOpen, closeAllDropdowns]);
+    }, [isOpen, showConfirmation, closeAllDropdowns]);
 
     const handleStatusSelect = (newStatus: string, event: React.MouseEvent) => {
         event.preventDefault();
         event.stopPropagation();
 
         if (newStatus !== currentStatus) {
-            onStatusChange(newStatus);
+            setPendingStatus(newStatus);
+            setShowConfirmation(true);
+            closeDropdown(instanceId);
+        } else {
+            closeDropdown(instanceId);
         }
-        closeDropdown(instanceId);
     };
 
     const handleToggle = (event: React.MouseEvent) => {
@@ -86,6 +185,10 @@ const StatusSelector = ({ currentStatus, onStatusChange, disabled = false, insta
             closeDropdown(instanceId);
         } else {
             openDropdown(instanceId);
+            // Usar setTimeout para garantir que o dropdown foi renderizado
+            setTimeout(() => {
+                calculateDropdownPosition();
+            }, 0);
         }
     };
 
@@ -111,6 +214,7 @@ const StatusSelector = ({ currentStatus, onStatusChange, disabled = false, insta
     return (
         <>
             {isOpen && <div className="dropdown-overlay" onClick={handleOverlayClick} />}
+            {showConfirmation && <div className="confirmation-overlay" onClick={handleCancelChange} />}
 
             <div className="status-selector" ref={dropdownRef}>
                 <button
@@ -137,7 +241,10 @@ const StatusSelector = ({ currentStatus, onStatusChange, disabled = false, insta
                 </button>
 
                 {isOpen && !disabled && (
-                    <div className="status-dropdown" role="listbox">
+                    <div
+                        className={`status-dropdown ${dropdownPosition === 'top' ? 'dropdown-up' : 'dropdown-down'}`}
+                        role="listbox"
+                    >
                         {statusOptions
                             .filter(option => option.value !== currentStatus)
                             .map((option) => (
@@ -159,6 +266,67 @@ const StatusSelector = ({ currentStatus, onStatusChange, disabled = false, insta
                     </div>
                 )}
             </div>
+
+            {/* Modal de Confirmação */}
+            {showConfirmation && pendingOption && (
+                <div className="status-confirmation-modal">
+                    <div className="confirmation-content">
+                        <div className="confirmation-header">
+                            <AlertCircle size={24} className="confirmation-icon" />
+                            <h3>Confirmar alteração de status</h3>
+                        </div>
+
+                        <div className="confirmation-body">
+                            <p>Deseja realmente alterar o status de:</p>
+                            <div className="status-change-preview">
+                                <div className="status-from">
+                                    <span
+                                        className="status-badge"
+                                        style={{
+                                            backgroundColor: currentOption.bgColor,
+                                            color: currentOption.color
+                                        }}
+                                    >
+                                        {currentOption.label}
+                                    </span>
+                                </div>
+                                <span className="arrow">→</span>
+                                <div className="status-to">
+                                    <span
+                                        className="status-badge"
+                                        style={{
+                                            backgroundColor: pendingOption.bgColor,
+                                            color: pendingOption.color
+                                        }}
+                                    >
+                                        {pendingOption.label}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="confirmation-actions">
+                            <button
+                                className="btn-cancel"
+                                onClick={handleCancelChange}
+                                type="button"
+                            >
+                                <X size={16} />
+                                Cancelar
+                            </button>
+                            <button
+                                className="btn-confirm"
+                                onClick={handleConfirmChange}
+                                disabled={isUpdating}
+                                type="button"
+                            >
+                                <Check size={16} />
+                                {isUpdating ? 'Salvando...' : 'Confirmar'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

@@ -6,6 +6,7 @@
   background-color: var(--white);
   border-radius: 8px;
   box-shadow: var(--box-shadow);
+  overflow: visible;
 }
 
 .shipping-table-title {
@@ -18,12 +19,14 @@
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
+  overflow-y: visible;
 }
 
 .shipping-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 14px;
+  position: relative;
 }
 
 .shipping-table th,
@@ -31,6 +34,11 @@
   padding: 12px 15px;
   text-align: left;
   border-bottom: 1px solid var(--light-gray);
+}
+
+.shipping-table td {
+  position: relative;
+  overflow: visible;
 }
 
 .shipping-table th {

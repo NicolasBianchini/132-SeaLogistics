@@ -16,17 +16,23 @@ const ShippingTable = ({ shipments: propShipments, onShipmentUpdate }: ShippingT
   // Use shipments from props if provided, otherwise use context
   const shipments = propShipments || contextShipments;
 
-  const handleStatusChange = (shipmentId: string, newStatus: string) => {
+  const handleStatusChange = async (shipmentId: string, newStatus: string) => {
     const updatedShipment = shipments.find(s => s.id === shipmentId);
     if (updatedShipment) {
-      const updated = { ...updatedShipment, status: newStatus };
-      updateShipment(updated);
+      try {
+        const updated = { ...updatedShipment, status: newStatus };
+        await updateShipment(updated);
 
-      if (onShipmentUpdate) {
-        onShipmentUpdate(updated);
+        if (onShipmentUpdate) {
+          onShipmentUpdate(updated);
+        }
+
+        console.log(`Status do envio ${shipmentId} alterado para: ${newStatus}`);
+      } catch (error) {
+        console.error('Erro ao atualizar status:', error);
+        alert('Erro ao atualizar o status. Tente novamente.');
       }
     }
-    console.log(`Status do envio ${shipmentId} alterado para: ${newStatus}`);
   };
 
   if (loading) {
@@ -85,9 +91,11 @@ const ShippingTable = ({ shipments: propShipments, onShipmentUpdate }: ShippingT
                   <td>
                     <StatusSelector
                       currentStatus={shipment.status}
-                      onStatusChange={(newStatus) =>
-                        shipment.id && handleStatusChange(shipment.id, newStatus)
-                      }
+                      onStatusChange={(newStatus) => {
+                        if (shipment.id) {
+                          return handleStatusChange(shipment.id, newStatus);
+                        }
+                      }}
                       instanceId={`shipment-${shipment.id}`}
                     />
                   </td>

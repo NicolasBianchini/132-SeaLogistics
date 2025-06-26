@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import { createLoginSchema } from "../../schemas/loginSchema";
-import { signIn } from "../../services/auth";
 import { userForm } from "../../types/user";
 import { useLanguage } from "./../../context/language-context";
 import ShipIcon from "./../ship-icon/ship-icon";
@@ -42,9 +41,20 @@ export default function LoginForm() {
     setFormErrors({});
 
     try {
-      await signIn(user.email, user.password);
-      console.log("Usuario logado com sucesso");
+      // Simulação de login simples (sem Firebase Auth)
+      console.log("Login attempt with:", result.data);
 
+      // Simular delay de autenticação
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Salvar dados do usuário logado no localStorage para demonstração
+      localStorage.setItem('currentUser', JSON.stringify({
+        email: user.email,
+        name: 'Usuário Demo',
+        id: 'demo-user-123'
+      }));
+
+      console.log("Usuario logado com sucesso");
       navigate("/home");
     } catch (err) {
       console.log("Erro ao logar:", err);
