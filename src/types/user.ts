@@ -8,13 +8,37 @@ export interface userCredentials {
   email: string;
   password: string;
   confirmPassword?: string;
+  companyName?: string;
+  companyCode?: string;
+  role?: UserRole;
+}
+
+export enum UserRole {
+  ADMIN = 'admin',
+  COMPANY_USER = 'company_user'
+}
+
+export interface Company {
+  id: string;
+  name: string;
+  code: string;
+  contactEmail: string;
+  phone?: string;
+  address?: string;
+  createdAt: Date;
+  isActive: boolean;
 }
 
 export interface User {
   uid: string;
   email: string;
   displayName?: string;
-  role?: string;
+  role: UserRole;
+  companyId?: string; // Para usuários de empresa
+  companyName?: string; // Cache do nome da empresa
+  isActive: boolean;
+  createdAt: Date;
+  lastLogin?: Date;
 }
 
 export interface UserSettings {

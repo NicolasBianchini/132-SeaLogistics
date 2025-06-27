@@ -1,20 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Ship, User, MapPin, Package, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar/navbar";
 import { LanguageProvider } from "../../context/language-context";
 import { useShipments } from "../../context/shipments-context";
+import { useAuth } from "../../context/auth-context";
+import { db } from "../../lib/firebaseConfig";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import "./novo-envio.css";
 
 interface Cliente {
-    id: number;
+    id: string;
     nome: string;
     empresa: string;
     email: string;
+    companyId?: string;
 }
 
 interface NovoEnvio {
-    clienteId: number;
+    clienteId: string;
     operador: string;
     pol: string;
     pod: string;
@@ -30,9 +34,18 @@ interface NovoEnvio {
 const NovoEnvioPage = () => {
     const navigate = useNavigate();
     const { addShipment } = useShipments();
+    const { isAdmin } = useAuth();
+
+    // Verificar permissões ao carregar a página
+    useEffect(() => {
+        if (!isAdmin()) {
+            alert("Acesso negado. Apenas administradores podem criar novos shipments.");
+            navigate("/home");
+        }
+    }, [isAdmin, navigate]);
 
     const [formData, setFormData] = useState<NovoEnvio>({
-        clienteId: 0,
+        clienteId: "",
         operador: "",
         pol: "",
         pod: "",
@@ -46,15 +59,39 @@ const NovoEnvioPage = () => {
     });
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [clientes, setClientes] = useState<Cliente[]>([]);
+    const [loadingClientes, setLoadingClientes] = useState(true);
 
-    // Lista de clientes mockada
-    const clientes: Cliente[] = [
-        { id: 1, nome: "João Silva", empresa: "Empresa ABC", email: "joao@empresa-abc.com" },
-        { id: 2, nome: "Maria Oliveira", empresa: "Indústria XYZ", email: "maria@industria-xyz.com" },
-        { id: 3, nome: "Carlos Mendes", empresa: "Comércio Global", email: "carlos@comercio-global.com" },
-        { id: 4, nome: "Ana Pereira", empresa: "Exportadora Sul", email: "ana@exportadora-sul.com" },
-        { id: 5, nome: "Roberto Costa", empresa: "Importações Norte", email: "roberto@imp-norte.com" },
-    ];
+    // Buscar clientes reais do Firestore (apenas usuários não-admin)
+    useEffect(() => {
+        const fetchClientes = async () => {
+            setLoadingClientes(true);
+            try {
+                const usersQuery = query(
+                    collection(db, "users"),
+                    where("role", "!=", "admin")
+                );
+                const snapshot = await getDocs(usersQuery);
+                const clientesData: Cliente[] = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        nome: data.displayName || data.name || "Usuário",
+                        empresa: data.companyName || "-",
+                        email: data.email || "-",
+                        companyId: data.companyId || undefined
+                    };
+                });
+                setClientes(clientesData);
+            } catch (error) {
+                console.error("Erro ao buscar clientes:", error);
+                setClientes([]);
+            } finally {
+                setLoadingClientes(false);
+            }
+        };
+        fetchClientes();
+    }, []);
 
     const operadores = [
         "João Silva",
@@ -100,12 +137,18 @@ const NovoEnvioPage = () => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'clienteId' || name === 'quantBox' ? parseInt(value) : value
+            [name]: name === 'quantBox' ? parseInt(value) : value
         }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!isAdmin()) {
+            alert("Erro: Você não tem permissão para criar shipments.");
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -127,16 +170,16 @@ const NovoEnvioPage = () => {
                 status: formData.status,
                 numeroBl: formData.numeroBl,
                 armador: formData.armador,
-                booking: formData.booking
+                booking: formData.booking,
+                companyId: clienteSelecionado.companyId
             };
 
             await addShipment(shipmentData);
 
             alert("Envio registrado com sucesso!");
 
-            // Reset form
             setFormData({
-                clienteId: 0,
+                clienteId: "",
                 operador: "",
                 pol: "",
                 pod: "",
@@ -149,7 +192,6 @@ const NovoEnvioPage = () => {
                 booking: ""
             });
 
-            // Redirect to home to see the new shipment
             navigate("/home");
         } catch (error) {
             console.error("Erro ao criar envio:", error);
@@ -160,6 +202,24 @@ const NovoEnvioPage = () => {
     };
 
     const clienteSelecionado = clientes.find(c => c.id === formData.clienteId);
+
+    if (!isAdmin()) {
+        return (
+            <LanguageProvider>
+                <main className="novo-envio-main">
+                    <Navbar />
+                    <div className="novo-envio-content">
+                        <div className="novo-envio-container">
+                            <div className="access-denied">
+                                <h2>Acesso Negado</h2>
+                                <p>Apenas administradores podem criar novos shipments.</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </LanguageProvider>
+        );
+    }
 
     return (
         <LanguageProvider>
@@ -185,29 +245,32 @@ const NovoEnvioPage = () => {
                                     <h2>Informações do Cliente</h2>
                                 </div>
 
-                                <div className="form-group">
-                                    <label htmlFor="clienteId">Cliente *</label>
-                                    <select
-                                        id="clienteId"
-                                        name="clienteId"
-                                        value={formData.clienteId}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                        <option value={0}>Selecione um cliente</option>
-                                        {clientes.map(cliente => (
-                                            <option key={cliente.id} value={cliente.id}>
-                                                {cliente.empresa} - {cliente.nome}
-                                            </option>
-                                        ))}
-                                    </select>
+                                <div className="form-row">
+                                    <div className="form-group">
+                                        <label htmlFor="clienteId">Cliente *</label>
+                                        <select
+                                            id="clienteId"
+                                            name="clienteId"
+                                            value={formData.clienteId}
+                                            onChange={handleInputChange}
+                                            required
+                                            disabled={loadingClientes}
+                                        >
+                                            <option value="">{loadingClientes ? "Carregando clientes..." : "Selecione um cliente"}</option>
+                                            {clientes.map(cliente => (
+                                                <option key={cliente.id} value={cliente.id}>
+                                                    {cliente.nome} - {cliente.empresa}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
 
                                 {clienteSelecionado && (
                                     <div className="cliente-info">
                                         <div className="cliente-card">
-                                            <h3>{clienteSelecionado.empresa}</h3>
-                                            <p><strong>Contato:</strong> {clienteSelecionado.nome}</p>
+                                            <h3>{clienteSelecionado.nome}</h3>
+                                            <p><strong>Empresa:</strong> {clienteSelecionado.empresa}</p>
                                             <p><strong>Email:</strong> {clienteSelecionado.email}</p>
                                         </div>
                                     </div>
@@ -290,7 +353,7 @@ const NovoEnvioPage = () => {
                             <div className="form-section">
                                 <div className="section-header">
                                     <MapPin size={20} />
-                                    <h2>Portos e Cronograma</h2>
+                                    <h2>Rota e Cronograma</h2>
                                 </div>
 
                                 <div className="form-row">

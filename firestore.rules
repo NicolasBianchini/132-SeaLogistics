@@ -1,21 +1,63 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read and write access to all documents (no authentication required)
-    // WARNING: This is for development/demo purposes only. 
-    // For production, implement proper security rules.
-    match /{document=**} {
-      allow read, write: if true;
+    // Função para verificar se o usuário está autenticado
+    function isAuthenticated() {
+      return request.auth != null;
     }
     
-    // Specific rules for shipments collection
-    match /shipments/{shipmentId} {
-      allow read, write: if true;
+    // Função para verificar se o usuário é admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     
-    // Rules for users collection  
+    // Função para verificar se o usuário é da mesma empresa
+    function isSameCompany(companyId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId == companyId;
+    }
+    
+    // Regras para a coleção de usuários
     match /users/{userId} {
-      allow read, write: if true;
+      // Admins podem ler/escrever qualquer usuário
+      allow read, write: if isAdmin();
+      
+      // Usuários podem ler/escrever apenas seus próprios dados
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Regras para a coleção de empresas
+    match /companies/{companyId} {
+      // Admins podem ler/escrever qualquer empresa
+      allow read, write: if isAdmin();
+      
+      // Usuários de empresa podem ler apenas sua própria empresa
+      allow read: if isSameCompany(companyId);
+      
+      // Apenas admins podem criar novas empresas
+      allow create: if isAdmin();
+    }
+    
+    // Regras para a coleção de shipments
+    match /shipments/{shipmentId} {
+      // Admins podem ler/escrever qualquer shipment
+      allow read, write: if isAdmin();
+      
+      // Usuários de empresa podem apenas ler e atualizar shipments da sua empresa
+      allow read, update: if isAuthenticated() && 
+                           exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                           resource.data.companyId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+      
+      // Apenas admins podem criar novos shipments
+      allow create: if isAdmin();
+    }
+    
+    // Regras padrão (negação para outras coleções)
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 } 

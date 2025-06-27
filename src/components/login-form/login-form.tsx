@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { createLoginSchema } from "../../schemas/loginSchema";
 import { userForm } from "../../types/user";
 import { useLanguage } from "./../../context/language-context";
+import { useAuth } from "../../context/auth-context";
 import ShipIcon from "./../ship-icon/ship-icon";
 import "./login-form.css";
 
@@ -18,7 +19,9 @@ export default function LoginForm() {
     email?: string;
     password?: string;
   }>({});
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { translations } = useLanguage();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const loginSchema = useMemo(() => {
@@ -27,6 +30,9 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLoggingIn) return; // Previne duplo clique
+
     const result = loginSchema.safeParse(user);
 
     if (!result.success) {
@@ -39,28 +45,19 @@ export default function LoginForm() {
     }
 
     setFormErrors({});
+    setIsLoggingIn(true);
 
     try {
-      // Simulação de login simples (sem Firebase Auth)
-      console.log("Login attempt with:", result.data);
-
-      // Simular delay de autenticação
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Salvar dados do usuário logado no localStorage para demonstração
-      localStorage.setItem('currentUser', JSON.stringify({
-        email: user.email,
-        name: 'Usuário Demo',
-        id: 'demo-user-123'
-      }));
-
+      await login(user.email, user.password);
       console.log("Usuario logado com sucesso");
       navigate("/home");
-    } catch (err) {
-      console.log("Erro ao logar:", err);
+    } catch (err: unknown) {
+      console.error("Erro ao logar:", err);
+      const errorMessage = err instanceof Error ? err.message : "Erro ao fazer login. Verifique suas credenciais.";
+      alert(errorMessage);
+    } finally {
+      setIsLoggingIn(false);
     }
-
-    console.log("Login attempt with:", result.data);
   };
 
   return (
@@ -79,6 +76,7 @@ export default function LoginForm() {
             onChange={(e) => setUser({ ...user, email: e.target.value })}
             placeholder={translations.emailPlaceholder}
             required
+            disabled={isLoggingIn}
           />
           {formErrors.email && <p className="error-text">{formErrors.email}</p>}
         </div>
@@ -92,21 +90,22 @@ export default function LoginForm() {
             onChange={(e) => setUser({ ...user, password: e.target.value })}
             placeholder={translations.passwordPlaceholder}
             required
+            disabled={isLoggingIn}
           />
           {formErrors.password && (
             <p className="error-text">{formErrors.password}</p>
           )}
         </div>
 
-        <button type="submit" className="login-button">
-          {translations.loginButton}
+        <button type="submit" className="login-button" disabled={isLoggingIn}>
+          {isLoggingIn ? "Entrando..." : translations.loginButton}
         </button>
       </form>
       <div className="register-link">
         {translations.dontHaveAccount}
         <a
           className="register-link-button"
-          onClick={() => navigate("/register")}
+          onClick={() => !isLoggingIn && navigate("/register")}
         >
           {" "}
           {translations.registerLink}

@@ -1,4 +1,3 @@
-
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
 import Navbar from "../../components/navbar/navbar";
 import ShippingTable, { Shipment } from "../../components/shipping-table/shipping-table";
