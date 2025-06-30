@@ -17,6 +17,12 @@ interface Cliente {
     companyId?: string;
 }
 
+interface Operador {
+    id: string;
+    nome: string;
+    email: string;
+}
+
 interface NovoEnvio {
     clienteId: string;
     operador: string;
@@ -58,9 +64,11 @@ const NovoEnvioPage = () => {
         booking: ""
     });
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [clientes, setClientes] = useState<Cliente[]>([]);
-    const [loadingClientes, setLoadingClientes] = useState(true);
+    const [operadores, setOperadores] = useState<Operador[]>([]);
+    const [loadingClientes, setLoadingClientes] = useState(false);
+    const [loadingOperadores, setLoadingOperadores] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Buscar clientes reais do Firestore (apenas usuários não-admin)
     useEffect(() => {
@@ -93,14 +101,35 @@ const NovoEnvioPage = () => {
         fetchClientes();
     }, []);
 
-    const operadores = [
-        "João Silva",
-        "Maria Oliveira",
-        "Carlos Mendes",
-        "Ana Pereira",
-        "Roberto Santos",
-        "Fernanda Lima"
-    ];
+    // Buscar operadores admins do Firestore
+    useEffect(() => {
+        const fetchOperadores = async () => {
+            setLoadingOperadores(true);
+            try {
+                const adminsQuery = query(
+                    collection(db, "users"),
+                    where("role", "==", "admin"),
+                    where("isActive", "==", true)
+                );
+                const snapshot = await getDocs(adminsQuery);
+                const operadoresData: Operador[] = snapshot.docs.map(doc => {
+                    const data = doc.data();
+                    return {
+                        id: doc.id,
+                        nome: data.displayName || data.name || "Admin",
+                        email: data.email || ""
+                    };
+                });
+                setOperadores(operadoresData);
+            } catch (error) {
+                console.error("Erro ao buscar operadores:", error);
+                setOperadores([]);
+            } finally {
+                setLoadingOperadores(false);
+            }
+        };
+        fetchOperadores();
+    }, []);
 
     const armadores = [
         "MSC",
@@ -293,10 +322,11 @@ const NovoEnvioPage = () => {
                                             value={formData.operador}
                                             onChange={handleInputChange}
                                             required
+                                            disabled={loadingOperadores}
                                         >
-                                            <option value="">Selecione um operador</option>
+                                            <option value="">{loadingOperadores ? "Carregando operadores..." : "Selecione um operador"}</option>
                                             {operadores.map(op => (
-                                                <option key={op} value={op}>{op}</option>
+                                                <option key={op.id} value={op.nome}>{op.nome}</option>
                                             ))}
                                         </select>
                                     </div>

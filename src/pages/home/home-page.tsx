@@ -1,25 +1,13 @@
-import ChatAssistant from "../../components/chat-assistant/chat-assistant";
-import Navbar from "../../components/navbar/navbar";
-import ShippingTable, { Shipment } from "../../components/shipping-table/shipping-table";
-import { LanguageProvider } from "../../context/language-context";
-import "./home-page.css";
+import { useAuth } from '../../context/auth-context';
+import { Dashboard } from '../dashboard/dashboard';
+import { AdminDashboard } from '../dashboard/admin-dashboard';
 
 export const HomePage = () => {
-  const handleShipmentUpdate = (updatedShipment: Shipment) => {
-    console.log("Envio atualizado na home:", updatedShipment);
-  };
+    const { isAdmin, loading } = useAuth();
 
-  return (
-    <LanguageProvider>
-      <main className="home-container">
-        <Navbar />
-        <div className="home-content">
-          <ShippingTable
-            onShipmentUpdate={handleShipmentUpdate}
-          />
-        </div>
-        <ChatAssistant />
-      </main>
-    </LanguageProvider>
-  );
-};
+    if (loading) {
+        return <div>Carregando...</div>;
+    }
+
+    return isAdmin() ? <AdminDashboard /> : <Dashboard />;
+}; 

@@ -213,18 +213,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                                                 </span>
                                             </td>
                                             <td>
-                                                <button
-                                                    onClick={() => toggleUserStatus(user.uid, user.isActive)}
-                                                    className="action-button"
-                                                >
-                                                    {user.isActive ? 'Desativar' : 'Ativar'}
-                                                </button>
-                                                <button
-                                                    onClick={() => deleteUser(user.uid)}
-                                                    className="action-button delete"
-                                                >
-                                                    Excluir
-                                                </button>
+                                                <div className="action-buttons">
+                                                    <button
+                                                        onClick={() => toggleUserStatus(user.uid, user.isActive)}
+                                                        className="action-button"
+                                                    >
+                                                        {user.isActive ? 'Desativar' : 'Ativar'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteUser(user.uid)}
+                                                        className="action-button delete"
+                                                    >
+                                                        Excluir
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
