@@ -6,7 +6,7 @@ interface EmailOptions {
 }
 
 // URL do servidor de email - usa variável de ambiente ou fallback para localhost
-const API_URL = import.meta.env.VITE_EMAIL_SERVER_URL || 'http://localhost:3001';
+const API_URL = (import.meta.env.VITE_EMAIL_SERVER_URL || 'http://localhost:3001').replace(/\/+$/, '');
 
 // Função base para envio de emails
 export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
@@ -22,7 +22,9 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<bo
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Origin': 'https://132-sealogistics.netlify.app'
             },
+            credentials: 'include',
             body: JSON.stringify({
                 to,
                 subject,
