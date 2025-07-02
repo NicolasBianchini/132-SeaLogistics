@@ -22,15 +22,8 @@ app.use((req, res, next) => {
 const allowedOrigins = [
     'https://132-sealogistics.netlify.app',
     'http://localhost:5173',
-    'http://localhost:3000',
-    'http://localhost:3001'
+    'http://localhost:3000'
 ];
-
-// Adicionar domínio do Glitch dinamicamente
-const glitchDomain = process.env.PROJECT_DOMAIN;
-if (glitchDomain) {
-    allowedOrigins.push(`https://${glitchDomain}.glitch.me`);
-}
 
 // Configurar CORS
 app.use(cors({
@@ -151,15 +144,7 @@ const port = process.env.PORT || 3001;
 // Iniciar o servidor
 app.listen(port, '0.0.0.0', () => {
     console.log('==================================');
-    console.log(`Servidor rodando em: http://localhost:${port}`);
-    if (glitchDomain) {
-        console.log(`URL do Glitch: https://${glitchDomain}.glitch.me`);
-    }
+    console.log(`Servidor rodando na porta ${port}`);
     console.log('Origens permitidas:', allowedOrigins);
-    console.log('Variáveis de ambiente configuradas:', {
-        NODE_ENV: process.env.NODE_ENV,
-        hasEmailConfig: !!process.env.VITE_EMAIL_USER,
-        projectDomain: process.env.PROJECT_DOMAIN || 'não definido'
-    });
     console.log('==================================');
 }); 
