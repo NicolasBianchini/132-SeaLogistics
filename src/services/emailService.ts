@@ -21,10 +21,8 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<bo
         const response = await fetch(`${API_URL}/send-email`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Origin': 'https://132-sealogistics.netlify.app'
+                'Content-Type': 'application/json'
             },
-            credentials: 'include',
             body: JSON.stringify({
                 to,
                 subject,

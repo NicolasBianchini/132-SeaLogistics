@@ -18,9 +18,26 @@ app.use((req, res, next) => {
     next();
 });
 
+// Lista de origens permitidas
+const allowedOrigins = [
+    'https://132-sealogistics.netlify.app',
+    'http://localhost:5173',
+    'http://localhost:3000'
+];
+
 // Configurar CORS
 app.use(cors({
-    origin: 'https://132-sealogistics.netlify.app',
+    origin: function (origin, callback) {
+        // Permitir requisições sem origin (como Postman)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('Origem bloqueada:', origin);
+            callback(new Error('Origem não permitida pelo CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
@@ -28,7 +45,10 @@ app.use(cors({
 
 // Middleware para adicionar headers CORS em todas as respostas
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'https://132-sealogistics.netlify.app');
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+    }
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.header('Access-Control-Allow-Credentials', 'true');
@@ -119,9 +139,12 @@ app.get('/api/verify-email', async (req, res) => {
 });
 
 // Configuração da porta
-const port = process.env.PORT || 10000;
+const port = process.env.PORT || 3001;
 
 // Iniciar o servidor
 app.listen(port, '0.0.0.0', () => {
+    console.log('==================================');
     console.log(`Servidor rodando na porta ${port}`);
+    console.log('Origens permitidas:', allowedOrigins);
+    console.log('==================================');
 }); 
