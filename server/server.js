@@ -15,8 +15,9 @@ const app = express();
 // Configurar CORS para permitir apenas as origens necessárias
 const allowedOrigins = [
     'https://sealogistics-4f899.web.app',  // Seu domínio do Firebase
-    'http://localhost:5173',               // Desenvolvimento local
-    'http://localhost:3000'                // Desenvolvimento local alternativo
+    'http://localhost:5173',               // Desenvolvimento local Vite
+    'http://localhost:3000',               // Desenvolvimento local alternativo
+    'http://localhost:3001'                // Servidor de email local
 ];
 
 app.use(cors({

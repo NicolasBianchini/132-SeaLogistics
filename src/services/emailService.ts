@@ -5,9 +5,8 @@ interface EmailOptions {
     html?: string;
 }
 
-
-
-const API_URL = 'http://localhost:3001';
+// URL do servidor de email - usa variável de ambiente ou fallback para localhost
+const API_URL = import.meta.env.VITE_EMAIL_SERVER_URL || 'http://localhost:3001';
 
 // Função base para envio de emails
 export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
