@@ -14,10 +14,10 @@ const app = express();
 
 // Configurar CORS para permitir apenas as origens necessárias
 const allowedOrigins = [
-    'https://sealogistics-4f899.web.app',  // Seu domínio do Firebase
-    'http://localhost:5173',               // Desenvolvimento local Vite
-    'http://localhost:3000',               // Desenvolvimento local alternativo
-    'http://localhost:3001'                // Servidor de email local
+    'https://132-sealogistics.netlify.app',  // Seu domínio do Netlify
+    'http://localhost:5173',                 // Desenvolvimento local Vite
+    'http://localhost:3000',                 // Desenvolvimento local alternativo
+    'http://localhost:3001'                  // Servidor de email local
 ];
 
 app.use(cors({
@@ -26,8 +26,10 @@ app.use(cors({
         if (!origin) return callback(null, true);
 
         if (allowedOrigins.indexOf(origin) === -1) {
+            console.log('Origem bloqueada pelo CORS:', origin);
             return callback(new Error('CORS não permitido para esta origem'), false);
         }
+        console.log('Origem permitida pelo CORS:', origin);
         return callback(null, true);
     },
     credentials: true
@@ -53,6 +55,7 @@ const transporter = nodemailer.createTransport({
 app.post('/send-email', async (req, res) => {
     try {
         console.log('=== INICIANDO ENVIO DE EMAIL ===');
+        console.log('Corpo da requisição:', req.body);
         const { to, subject, html } = req.body;
 
         const mailOptions = {
@@ -104,7 +107,8 @@ app.get('/health', (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
-    console.log('Configurações de email carregadas:');
+    console.log('Configurações carregadas:');
+    console.log('- Origens permitidas:', allowedOrigins);
     console.log('- Pool de conexões ativo');
     console.log('- Máximo de 1 conexão');
     console.log('- Máximo de 3 mensagens por conexão');

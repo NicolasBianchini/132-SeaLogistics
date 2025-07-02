@@ -12,8 +12,11 @@ const API_URL = import.meta.env.VITE_EMAIL_SERVER_URL || 'http://localhost:3001'
 export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<boolean> => {
     try {
         console.log('=== INICIANDO ENVIO DE EMAIL ===');
-        console.log('Para:', to);
-        console.log('Assunto:', subject);
+        console.log('Configuração:', {
+            url: API_URL,
+            to,
+            subject
+        });
 
         const response = await fetch(`${API_URL}/send-email`, {
             method: 'POST',
@@ -26,6 +29,11 @@ export const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<bo
                 html
             })
         });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Erro ${response.status}: ${response.statusText}`);
+        }
 
         const data = await response.json();
 
