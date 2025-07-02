@@ -2,11 +2,6 @@ import express from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 dotenv.config();
 
@@ -49,6 +44,11 @@ const transporter = nodemailer.createTransport({
         user: process.env.VITE_EMAIL_USER,
         pass: process.env.VITE_EMAIL_APP_PASSWORD
     }
+});
+
+// Rota de healthcheck
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
 });
 
 // Rota para enviar email
@@ -99,22 +99,10 @@ app.get('/api/verify-email', async (req, res) => {
     }
 });
 
-// Rota de healthcheck
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
+// Configuração da porta
+const port = process.env.PORT || 3000;
 
-// Porta padrão para o Render é 10000
-const PORT = process.env.PORT || 10000;
-
-// Escutar em todas as interfaces
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor rodando em 0.0.0.0:${PORT}`);
-    console.log('Configurações carregadas:');
-    console.log('- Origens permitidas:', allowedOrigins);
-    console.log('- Pool de conexões ativo');
-    console.log('- Máximo de 1 conexão');
-    console.log('- Máximo de 3 mensagens por conexão');
-    console.log('- Taxa de envio: 3 mensagens/segundo');
-    console.log('- Intervalo entre mensagens: 1 segundo');
+// Iniciar o servidor
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor rodando na porta ${port}`);
 }); 
