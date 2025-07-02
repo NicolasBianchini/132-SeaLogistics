@@ -123,7 +123,7 @@ app.get('/api/verify-email', async (req, res) => {
 });
 
 // Configuração da porta
-const port = parseInt(process.env.PORT || '3000');
+const port = parseInt(process.env.PORT || '10000');
 const host = '0.0.0.0';
 
 // Verificar configuração
