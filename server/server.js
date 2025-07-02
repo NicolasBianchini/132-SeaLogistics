@@ -23,7 +23,8 @@ const allowedOrigins = [
     'https://132-sealogistics.netlify.app',  // Seu domínio do Netlify
     'http://localhost:5173',                 // Desenvolvimento local Vite
     'http://localhost:3000',                 // Desenvolvimento local alternativo
-    'http://localhost:3001'                  // Servidor de email local
+    'http://localhost:3001',                 // Servidor de email local
+    'http://0.0.0.0:10000'                  // Render worker
 ];
 
 app.use(cors({
@@ -57,7 +58,11 @@ const transporter = nodemailer.createTransport({
 
 // Rota raiz
 app.get('/', (req, res) => {
-    res.json({ message: 'Sea Logistics Email Server' });
+    res.json({
+        message: 'Sea Logistics Email Server',
+        status: 'running',
+        timestamp: new Date().toISOString()
+    });
 });
 
 // Rota de healthcheck
@@ -124,7 +129,7 @@ app.get('/api/verify-email', async (req, res) => {
 
 // Configuração da porta
 const port = parseInt(process.env.PORT || '10000');
-const host = '0.0.0.0';
+const host = process.env.HOST || '0.0.0.0';
 
 // Verificar configuração
 console.log('==================================');
@@ -135,42 +140,42 @@ console.log('- NODE_ENV:', process.env.NODE_ENV);
 console.log('- Process PID:', process.pid);
 console.log('==================================');
 
+// Iniciar o servidor como um worker
+const startServer = async () => {
+    try {
+        await new Promise((resolve, reject) => {
+            const server = app.listen(port, host, () => {
+                console.log(`Servidor worker rodando em ${host}:${port}`);
+                resolve(server);
+            }).on('error', reject);
+        });
+
+        console.log('==================================');
+        console.log('Worker iniciado com sucesso!');
+        console.log('Configurações ativas:');
+        console.log('- NODE_ENV:', process.env.NODE_ENV);
+        console.log('- Origens permitidas:', allowedOrigins);
+        console.log('- Email configurado:', process.env.VITE_EMAIL_USER ? 'Sim' : 'Não');
+        console.log('==================================');
+    } catch (error) {
+        console.error('Erro ao iniciar o servidor:', error);
+        process.exit(1);
+    }
+};
+
 // Iniciar o servidor
-const server = app.listen(port, host, () => {
-    console.log('==================================');
-    console.log(`Servidor RODANDO em ${host}:${port}`);
-    console.log('Configurações ativas:');
-    console.log('- NODE_ENV:', process.env.NODE_ENV);
-    console.log('- Origens permitidas:', allowedOrigins);
-    console.log('- Email configurado:', process.env.VITE_EMAIL_USER ? 'Sim' : 'Não');
-    console.log('- Process PID:', process.pid);
-    console.log('==================================');
-}).on('error', (err) => {
-    console.error('Erro ao iniciar servidor:', err);
+startServer().catch(error => {
+    console.error('Erro fatal ao iniciar o servidor:', error);
     process.exit(1);
 });
 
-// Verificar se o servidor está escutando
-if (server.listening) {
-    console.log(`Servidor confirmado escutando na porta ${port}`);
-} else {
-    console.error('Servidor não está escutando!');
-    process.exit(1);
-}
-
-// Tratamento de sinais de término
+// Tratamento de sinais
 process.on('SIGTERM', () => {
-    console.log('Recebido sinal SIGTERM, fechando servidor...');
-    server.close(() => {
-        console.log('Servidor fechado');
-        process.exit(0);
-    });
+    console.log('Recebido sinal SIGTERM, encerrando worker...');
+    process.exit(0);
 });
 
 process.on('SIGINT', () => {
-    console.log('Recebido sinal SIGINT, fechando servidor...');
-    server.close(() => {
-        console.log('Servidor fechado');
-        process.exit(0);
-    });
+    console.log('Recebido sinal SIGINT, encerrando worker...');
+    process.exit(0);
 }); 

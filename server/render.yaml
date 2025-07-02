@@ -1,11 +1,14 @@
 services:
-  - type: web
+  - type: worker
     name: sealogistics-email-server
     env: node
+    region: oregon
     buildCommand: npm install
     startCommand: node server.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
-        value: 10000 
+        value: 10000
+      - key: HOST
+        value: 0.0.0.0 
