@@ -3,9 +3,20 @@ import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+// Configurar dotenv
 dotenv.config();
 
+// Criar app Express
 const app = express();
+
+// Configuração básica
+app.use(express.json());
+
+// Log de todas as requisições
+app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+    next();
+});
 
 // Configurar CORS para permitir apenas as origens necessárias
 const allowedOrigins = [
@@ -30,8 +41,6 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.json());
-
 // Configuração otimizada do transporter do Nodemailer
 const transporter = nodemailer.createTransport({
     pool: true, // Usar pool de conexões
@@ -44,6 +53,11 @@ const transporter = nodemailer.createTransport({
         user: process.env.VITE_EMAIL_USER,
         pass: process.env.VITE_EMAIL_APP_PASSWORD
     }
+});
+
+// Rota raiz
+app.get('/', (req, res) => {
+    res.json({ message: 'Sea Logistics Email Server' });
 });
 
 // Rota de healthcheck
@@ -113,9 +127,35 @@ const port = process.env.PORT || 3000;
 const host = '0.0.0.0';
 
 // Iniciar o servidor
-app.listen(port, host, () => {
-    console.log(`Servidor rodando em ${host}:${port}`);
+const server = app.listen(port, host, () => {
+    console.log('==================================');
+    console.log(`Servidor iniciando em ${host}:${port}`);
     console.log('Configurações:');
+    console.log('- NODE_ENV:', process.env.NODE_ENV);
     console.log('- Origens permitidas:', allowedOrigins);
     console.log('- Email configurado:', process.env.VITE_EMAIL_USER ? 'Sim' : 'Não');
+    console.log('==================================');
+});
+
+// Tratamento de erros do servidor
+server.on('error', (error) => {
+    console.error('Erro no servidor:', error);
+    process.exit(1);
+});
+
+// Tratamento de sinais de término
+process.on('SIGTERM', () => {
+    console.log('Recebido sinal SIGTERM, fechando servidor...');
+    server.close(() => {
+        console.log('Servidor fechado');
+        process.exit(0);
+    });
+});
+
+process.on('SIGINT', () => {
+    console.log('Recebido sinal SIGINT, fechando servidor...');
+    server.close(() => {
+        console.log('Servidor fechado');
+        process.exit(0);
+    });
 }); 
