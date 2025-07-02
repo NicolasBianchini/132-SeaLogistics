@@ -48,7 +48,16 @@ const transporter = nodemailer.createTransport({
 
 // Rota de healthcheck
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        port: port,
+        host: host,
+        env: {
+            NODE_ENV: process.env.NODE_ENV,
+            hasEmailConfig: !!process.env.VITE_EMAIL_USER
+        }
+    });
 });
 
 // Rota para enviar email
@@ -101,8 +110,12 @@ app.get('/api/verify-email', async (req, res) => {
 
 // Configuração da porta
 const port = process.env.PORT || 3000;
+const host = '0.0.0.0';
 
 // Iniciar o servidor
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Servidor rodando na porta ${port}`);
+app.listen(port, host, () => {
+    console.log(`Servidor rodando em ${host}:${port}`);
+    console.log('Configurações:');
+    console.log('- Origens permitidas:', allowedOrigins);
+    console.log('- Email configurado:', process.env.VITE_EMAIL_USER ? 'Sim' : 'Não');
 }); 
