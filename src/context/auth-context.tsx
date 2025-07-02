@@ -172,10 +172,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('currentUser');
     };
 
-    const isAdmin = () => {
-        const result = currentUser?.role === UserRole.ADMIN;
-        console.log('isAdmin check:', result, 'currentUser:', currentUser);
-        return result;
+    const isAdmin = (): boolean => {
+        if (!currentUser) return false;
+        return currentUser.role === UserRole.ADMIN;
     };
 
     const isCompanyUser = () => {
