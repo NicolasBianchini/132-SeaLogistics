@@ -11,7 +11,27 @@ const __dirname = dirname(__filename);
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// Configurar CORS para permitir apenas as origens necessárias
+const allowedOrigins = [
+    'https://sealogistics-4f899.web.app',  // Seu domínio do Firebase
+    'http://localhost:5173',               // Desenvolvimento local
+    'http://localhost:3000'                // Desenvolvimento local alternativo
+];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        // Permitir requisições sem origin (como apps mobile)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(new Error('CORS não permitido para esta origem'), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true
+}));
+
 app.use(express.json());
 
 // Configuração otimizada do transporter do Nodemailer
@@ -73,6 +93,11 @@ app.get('/api/verify-email', async (req, res) => {
         console.error('Detalhes do erro:', error);
         res.status(500).json({ success: false, error: error.message });
     }
+});
+
+// Rota de healthcheck
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
 });
 
 const PORT = process.env.PORT || 3001;
