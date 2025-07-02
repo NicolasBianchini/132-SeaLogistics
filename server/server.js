@@ -123,25 +123,40 @@ app.get('/api/verify-email', async (req, res) => {
 });
 
 // Configuração da porta
-const port = process.env.PORT || 3000;
+const port = parseInt(process.env.PORT || '3000');
 const host = '0.0.0.0';
+
+// Verificar configuração
+console.log('==================================');
+console.log('Iniciando servidor com configurações:');
+console.log('- PORT:', port);
+console.log('- HOST:', host);
+console.log('- NODE_ENV:', process.env.NODE_ENV);
+console.log('- Process PID:', process.pid);
+console.log('==================================');
 
 // Iniciar o servidor
 const server = app.listen(port, host, () => {
     console.log('==================================');
-    console.log(`Servidor iniciando em ${host}:${port}`);
-    console.log('Configurações:');
+    console.log(`Servidor RODANDO em ${host}:${port}`);
+    console.log('Configurações ativas:');
     console.log('- NODE_ENV:', process.env.NODE_ENV);
     console.log('- Origens permitidas:', allowedOrigins);
     console.log('- Email configurado:', process.env.VITE_EMAIL_USER ? 'Sim' : 'Não');
+    console.log('- Process PID:', process.pid);
     console.log('==================================');
-});
-
-// Tratamento de erros do servidor
-server.on('error', (error) => {
-    console.error('Erro no servidor:', error);
+}).on('error', (err) => {
+    console.error('Erro ao iniciar servidor:', err);
     process.exit(1);
 });
+
+// Verificar se o servidor está escutando
+if (server.listening) {
+    console.log(`Servidor confirmado escutando na porta ${port}`);
+} else {
+    console.error('Servidor não está escutando!');
+    process.exit(1);
+}
 
 // Tratamento de sinais de término
 process.on('SIGTERM', () => {
