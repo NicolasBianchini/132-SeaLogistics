@@ -104,9 +104,12 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+// Porta padrão para o Render é 10000
+const PORT = process.env.PORT || 10000;
+
+// Escutar em todas as interfaces
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor rodando em 0.0.0.0:${PORT}`);
     console.log('Configurações carregadas:');
     console.log('- Origens permitidas:', allowedOrigins);
     console.log('- Pool de conexões ativo');
