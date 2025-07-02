@@ -1,5 +1,5 @@
 services:
-  - type: worker
+  - type: web
     name: sealogistics-email-server
     env: node
     region: oregon
