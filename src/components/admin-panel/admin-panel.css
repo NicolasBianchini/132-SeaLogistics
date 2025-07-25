@@ -236,15 +236,15 @@
     width: 99%;
     padding: 0.5rem;
   }
-  
+
   .admin-section {
     padding: 1.2rem 0.5rem 0 0.5rem;
   }
-  
+
   .admin-table table {
     min-width: 600px;
   }
-  
+
   .admin-table th,
   .admin-table td {
     padding: 0.7rem 0.5rem;
@@ -258,25 +258,180 @@
     margin: 0.5rem;
     padding: 0;
   }
-  
+
   .admin-section {
     padding: 0.7rem 0.2rem 0 0.2rem;
   }
-  
+
   .admin-table th,
   .admin-table td {
     padding: 0.4rem 0.2rem;
     font-size: 0.75rem;
   }
-  
+
   .company-selector {
     font-size: 0.75rem;
     padding: 0.3rem;
   }
-  
+
   .action-button {
     padding: 0.4rem 0.7rem;
     font-size: 0.75rem;
     margin-right: 0.3rem;
   }
-} 
+}
+
+/* Estilos para o modal de criação de usuário */
+.create-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: #305951;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #7d9274;
+}
+
+.form-group input.error {
+  border-color: #e74c3c;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.8rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.user-type-selector {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.radio-option:hover {
+  border-color: #7d9274;
+  background: #f8f9fa;
+}
+
+.radio-option.selected {
+  border-color: #7d9274;
+  background: #eaf3ea;
+  color: #305951;
+  font-weight: 500;
+}
+
+.radio-option input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-create-user {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-create-user:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.btn-create-user:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btn-cancel-create {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-cancel-create:hover {
+  background-color: #5a6268;
+}
+
+/* Responsividade para o modal de criação */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .user-type-selector {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-create-user,
+  .btn-cancel-create {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -31,7 +31,7 @@
     width: calc(100% - 68px);
     margin-left: 68px;
   }
-  
+
   .envios-content.navbar-expanded {
     width: calc(100% - 280px);
     margin-left: 280px;
@@ -43,7 +43,7 @@
     width: calc(100% - 68px);
     margin-left: 68px;
   }
-  
+
   .envios-content.navbar-expanded {
     width: calc(100% - 280px);
     margin-left: 280px;
@@ -55,9 +55,9 @@
     width: calc(100% - 68px);
     margin-left: 68px;
   }
-  
+
   .envios-content.navbar-expanded {
     width: calc(100% - 280px);
     margin-left: 280px;
   }
-} 
+}

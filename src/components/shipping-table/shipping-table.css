@@ -173,3 +173,72 @@
   border-radius: 0 0 8px 8px;
   margin-top: 1rem;
 }
+
+/* Estilos para os ícones de ação */
+.action-icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.action-icon:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.check-icon {
+  color: #28a745;
+  background: rgba(40, 167, 69, 0.1);
+}
+
+.check-icon:hover:not(:disabled) {
+  background: rgba(40, 167, 69, 0.2);
+  color: #1e7e34;
+}
+
+.edit-icon {
+  color: #007bff;
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.edit-icon:hover:not(:disabled) {
+  background: rgba(0, 123, 255, 0.2);
+  color: #0056b3;
+}
+
+/* Responsividade para os ícones */
+@media (max-width: 768px) {
+  .action-icons {
+    gap: 4px;
+  }
+
+  .action-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .action-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+}
