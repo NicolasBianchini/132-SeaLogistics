@@ -6,6 +6,7 @@ import { Check, Edit } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useAuth } from "../../context/auth-context";
 import { useShipments, type Shipment } from "../../context/shipments-context";
+import EditShipmentModal from "../edit-shipment-modal/edit-shipment-modal";
 import { DropdownProvider } from "./dropdown-context";
 import ShippingFilters, { type FilterOptions } from "./shipping-filters";
 import "./shipping-table.css";
@@ -29,6 +30,10 @@ const ShippingTable = ({
 
   // Use shipments from props if provided, otherwise use context
   const shipments = propShipments || contextShipments;
+
+  // Estado para o modal de edição
+  const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Função para formatar data no padrão brasileiro
   const formatDate = (dateString: string) => {
@@ -199,11 +204,28 @@ const ShippingTable = ({
       return;
     }
 
-    // TODO: Implementar edição de envio
-    console.log("Editando envio:", shipment);
-    alert(
-      `Funcionalidade em desenvolvimento. Editar envio: ${shipment.numeroBl}`
-    );
+    setEditingShipment(shipment);
+    setShowEditModal(true);
+  };
+
+  const handleSaveShipment = async (updatedShipment: Shipment) => {
+    try {
+      await updateShipment(updatedShipment);
+
+      if (onShipmentUpdate) {
+        onShipmentUpdate(updatedShipment);
+      }
+
+      console.log("Envio atualizado com sucesso:", updatedShipment);
+    } catch (error) {
+      console.error("Erro ao salvar envio:", error);
+      throw error; // Re-throw para que o modal possa tratar o erro
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingShipment(null);
   };
 
   const canEditShipment = (shipment: Shipment): boolean => {
@@ -421,6 +443,16 @@ const ShippingTable = ({
             Mostrando {filteredAndSortedShipments.length} de {shipments.length}{" "}
             envios
           </div>
+        )}
+
+        {/* Modal de Edição */}
+        {showEditModal && editingShipment && (
+          <EditShipmentModal
+            shipment={editingShipment}
+            onClose={handleCloseEditModal}
+            onSave={handleSaveShipment}
+            canEdit={canEditShipment(editingShipment)}
+          />
         )}
       </div>
     </DropdownProvider>

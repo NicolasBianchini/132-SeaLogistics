@@ -36,6 +36,7 @@ interface NovoEnvio {
   armador: string;
   booking: string;
   invoice: string;
+  tipo: "Aéreo" | "Marítimo" | "Rodoviário" | "";
 }
 
 const NovoEnvioPage = () => {
@@ -66,6 +67,7 @@ const NovoEnvioPage = () => {
     armador: "",
     booking: "",
     invoice: "",
+    tipo: "",
   });
 
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -225,6 +227,7 @@ const NovoEnvioPage = () => {
         armador: "",
         booking: "",
         invoice: "",
+        tipo: "",
       });
 
       navigate("/home");
@@ -369,6 +372,22 @@ const NovoEnvioPage = () => {
                 </div>
 
                 <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="tipo">Tipo de Transporte *</label>
+                    <select
+                      id="tipo"
+                      name="tipo"
+                      value={formData.tipo}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">Selecione o tipo de transporte</option>
+                      <option value="Aéreo">Aéreo</option>
+                      <option value="Marítimo">Marítimo</option>
+                      <option value="Rodoviário">Rodoviário</option>
+                    </select>
+                  </div>
+
                   <div className="form-group">
                     <label htmlFor="armador">Armador *</label>
                     <select
