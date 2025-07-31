@@ -3,11 +3,11 @@ import type React from "react";
 import { useMemo, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
-import { createLoginSchema } from "../../schemas/loginSchema";
-import { userForm } from "../../types/user";
-import { useLanguage } from "./../../context/language-context";
 import { useAuth } from "../../context/auth-context";
-import ShipIcon from "./../ship-icon/ship-icon";
+import { createLoginSchema } from "../../schemas/loginSchema";
+import type { userForm } from "../../types/user";
+import logo from "./../../assets/logo.png";
+import { useLanguage } from "./../../context/language-context";
 import "./login-form.css";
 
 export default function LoginForm() {
@@ -53,7 +53,10 @@ export default function LoginForm() {
       navigate("/home");
     } catch (err: unknown) {
       console.error("Erro ao logar:", err);
-      const errorMessage = err instanceof Error ? err.message : "Erro ao fazer login. Verifique suas credenciais.";
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Erro ao fazer login. Verifique suas credenciais.";
       alert(errorMessage);
     } finally {
       setIsLoggingIn(false);
@@ -62,11 +65,11 @@ export default function LoginForm() {
 
   return (
     <div className="login-form-container">
+      <h1 className="welcome-title">{translations.welcomeTo}</h1>
       <div className="logo-container">
-        <ShipIcon />
-        <h1>Sea Logistics</h1>
+        <img src={logo} alt="Sea Logistics Logo" className="logo-image" />
       </div>
-      <h2>{translations.welcomeMessage}</h2>
+
       <form onSubmit={handleSubmit} className="login-form" noValidate>
         <div className="form-group">
           <label htmlFor="email">{translations.email}</label>

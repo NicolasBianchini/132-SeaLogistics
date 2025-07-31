@@ -2,15 +2,22 @@
 
 import type React from "react";
 
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/language-context";
-import { createRegisterSchema } from "../../schemas/registerSchema";
-import { userCredentials, UserRole } from "../../types/user";
 import { db } from "../../lib/firebaseConfig";
-import { doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { createRegisterSchema } from "../../schemas/registerSchema";
+import { type userCredentials, UserRole } from "../../types/user";
 import LanguageSwitcher from "../language-switcher/language-switcher";
-import ShipIcon from "./../ship-icon/ship-icon";
+import logo2 from "./../../assets/logo2.png";
 import "./register-split.css";
 
 export default function RegisterSplit() {
@@ -40,12 +47,15 @@ export default function RegisterSplit() {
     [translations]
   );
 
-  const findOrCreateCompany = async (companyName: string, companyCode: string) => {
+  const findOrCreateCompany = async (
+    companyName: string,
+    companyCode: string
+  ) => {
     try {
       // Verificar se a empresa já existe pelo código
       const companiesQuery = query(
-        collection(db, 'companies'),
-        where('code', '==', companyCode)
+        collection(db, "companies"),
+        where("code", "==", companyCode)
       );
 
       const querySnapshot = await getDocs(companiesQuery);
@@ -57,7 +67,7 @@ export default function RegisterSplit() {
       } else {
         // Criar nova empresa
         const companyId = `company_${Date.now()}`;
-        await setDoc(doc(db, 'companies', companyId), {
+        await setDoc(doc(db, "companies", companyId), {
           id: companyId,
           name: companyName,
           code: companyCode,
@@ -68,7 +78,7 @@ export default function RegisterSplit() {
         return companyId;
       }
     } catch (error) {
-      console.error('Error finding/creating company:', error);
+      console.error("Error finding/creating company:", error);
       throw error;
     }
   };
@@ -76,7 +86,15 @@ export default function RegisterSplit() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const { name, email, password, confirmPassword, companyName, companyCode, role } = userCredentials;
+    const {
+      name,
+      email,
+      password,
+      confirmPassword,
+      companyName,
+      companyCode,
+      role,
+    } = userCredentials;
 
     console.log(userCredentials);
 
@@ -88,7 +106,9 @@ export default function RegisterSplit() {
     // Validação específica para usuários de empresa
     if (role === UserRole.COMPANY_USER) {
       if (!companyName || !companyCode) {
-        alert("Nome da empresa e código são obrigatórios para usuários de empresa.");
+        alert(
+          "Nome da empresa e código são obrigatórios para usuários de empresa."
+        );
         return;
       }
     }
@@ -128,24 +148,28 @@ export default function RegisterSplit() {
       };
 
       // Adicionar campos específicos para usuários de empresa
-      const userData = role === UserRole.COMPANY_USER
-        ? {
-          ...baseUserData,
-          companyId,
-          companyName,
-        }
-        : baseUserData;
+      const userData =
+        role === UserRole.COMPANY_USER
+          ? {
+              ...baseUserData,
+              companyId,
+              companyName,
+            }
+          : baseUserData;
 
       // Salvar dados do usuário no Firestore
       await setDoc(doc(db, "users", userId), userData);
 
       // Salvar dados do usuário logado no localStorage
-      localStorage.setItem('currentUser', JSON.stringify({
-        email,
-        name: name ?? "Usuário",
-        id: userId,
-        role
-      }));
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify({
+          email,
+          name: name ?? "Usuário",
+          id: userId,
+          role,
+        })
+      );
 
       console.log("Usuário cadastrado com sucesso");
       navigate("/home");
@@ -159,10 +183,14 @@ export default function RegisterSplit() {
     <div className="split-card">
       <div className="split-branding">
         <div className="split-branding-content">
+          <h1 className="split-welcome-title">{translations.welcomeTo}</h1>
           <div className="split-logo">
-            <ShipIcon />
+            <img
+              src={logo2 || "/placeholder.svg"}
+              alt="Sea Logistics Logo"
+              className="split-logo-image"
+            />
           </div>
-          <h1 className="split-logo-text">Sea Logistics</h1>
           <p className="split-description">{translations.registerText}</p>
         </div>
       </div>
@@ -181,7 +209,10 @@ export default function RegisterSplit() {
                 checked={!isCreatingAdmin}
                 onChange={() => {
                   setIsCreatingAdmin(false);
-                  setUserCredentials({ ...userCredentials, role: UserRole.COMPANY_USER });
+                  setUserCredentials({
+                    ...userCredentials,
+                    role: UserRole.COMPANY_USER,
+                  });
                 }}
               />
               Usuário de Empresa
@@ -193,7 +224,10 @@ export default function RegisterSplit() {
                 checked={isCreatingAdmin}
                 onChange={() => {
                   setIsCreatingAdmin(true);
-                  setUserCredentials({ ...userCredentials, role: UserRole.ADMIN });
+                  setUserCredentials({
+                    ...userCredentials,
+                    role: UserRole.ADMIN,
+                  });
                 }}
               />
               Administrador

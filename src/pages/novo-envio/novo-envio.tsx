@@ -41,6 +41,7 @@ interface NovoEnvio {
   armador: string;
   booking: string;
   invoice: string;
+  shipper: string;
   tipo: "Aéreo" | "Marítimo" | "Rodoviário" | "";
 }
 
@@ -74,6 +75,7 @@ const NovoEnvioPage = () => {
     booking: "",
     invoice: "",
     tipo: "",
+    shipper: "",
   });
 
   const [clientes, setClientes] = useState<Cliente[]>([]);
@@ -234,6 +236,7 @@ const NovoEnvioPage = () => {
         booking: "",
         invoice: "",
         tipo: "",
+        shipper: "",
       });
 
       navigate("/home");
@@ -319,6 +322,18 @@ const NovoEnvioPage = () => {
                         </option>
                       ))}
                     </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="shipper">Shipper</label>
+                    <input
+                      type="text"
+                      id="shipper"
+                      name="shipper"
+                      value={formData.shipper}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Nome do shipper"
+                    />
                   </div>
                 </div>
 
@@ -552,7 +567,7 @@ const NovoEnvioPage = () => {
                       name="invoice"
                       value={formData.invoice}
                       onChange={handleInputChange}
-                      placeholder="Ex: BK987654321"
+                      placeholder="Ex: INV123456789"
                       required
                     />
                   </div>

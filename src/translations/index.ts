@@ -1,5 +1,7 @@
 export const translations = {
   en: {
+    welcomeTo: "Welcome to",
+    loginTitle: "Sign in to your account",
     welcomeMessage: "Welcome to Sea Logistics",
     email: "Email",
     emailPlaceholder: "Enter your email",
@@ -28,6 +30,8 @@ export const translations = {
       "Connecting the world through the oceans. Register to access our platform.",
   },
   pt: {
+    welcomeTo: "Bem-vindo ao",
+    loginTitle: "Entre na sua conta",
     welcomeMessage: "Bem-vindo à Sea Logistics",
     email: "Email",
     emailPlaceholder: "Digite seu email",
@@ -56,6 +60,8 @@ export const translations = {
       "Conectando o mundo através dos oceanos. Registre-se para acessar nossa plataforma.",
   },
   es: {
+    welcomeTo: "Bienvenido a",
+    loginTitle: "Inicia sesión en tu cuenta",
     welcomeMessage: "Bienvenido a Sea Logistics",
     email: "Correo electrónico",
     emailPlaceholder: "Ingrese su correo electrónico",

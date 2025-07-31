@@ -91,27 +91,39 @@
   transform: translateX(4px);
 }
 
-.company-name {
-  margin-left: 12px;
+.company-logo-img {
+  height: 32px;
+  width: auto;
   transition: opacity var(--transition-speed) ease,
     transform var(--transition-speed) ease;
   transform: translateX(0);
   opacity: 1;
-  white-space: nowrap;
-  overflow: hidden;
+  object-fit: contain;
 }
 
-.company-name.hidden {
+.company-logo-img.hidden {
   opacity: 0;
   transform: translateX(-20px);
   pointer-events: none;
 }
 
-.company-name-text {
-  font-weight: 700;
-  font-size: 20px;
-  letter-spacing: 0.5px;
-  line-height: 1.2;
+.company-logo-img.visible {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.1s;
+}
+
+/* Responsive adjustments for logo */
+@media (max-width: 768px) {
+  .company-logo-img {
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .company-logo-img {
+    height: 24px;
+  }
 }
 
 .nav-items {
