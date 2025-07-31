@@ -1,3 +1,5 @@
+"use client";
+
 import {
   addDoc,
   collection,
@@ -6,13 +8,14 @@ import {
   onSnapshot,
   orderBy,
   query,
-  Timestamp,
+  type Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
-import React, {
+import type React from "react";
+import {
   createContext,
-  ReactNode,
+  type ReactNode,
   useContext,
   useEffect,
   useState,
@@ -241,9 +244,11 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
       console.log("Status atual:", oldStatus);
       console.log("Novo status:", updatedShipment.status);
 
+      // Atualizar todos os campos do shipment
       await updateDoc(shipmentRef, {
         cliente: updatedShipment.cliente,
         operador: updatedShipment.operador,
+        shipper: updatedShipment.shipper,
         pol: updatedShipment.pol,
         pod: updatedShipment.pod,
         etdOrigem: updatedShipment.etdOrigem,
@@ -253,6 +258,8 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
         numeroBl: updatedShipment.numeroBl,
         armador: updatedShipment.armador,
         booking: updatedShipment.booking,
+        invoice: updatedShipment.invoice,
+        observacoes: updatedShipment.observacoes || "", // Incluir observações
         updatedAt: new Date(),
       });
 

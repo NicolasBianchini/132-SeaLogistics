@@ -38,6 +38,10 @@ const ShippingTable = ({
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  // Estado para o modal de edição
+  const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   // Função para formatar data no padrão brasileiro
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -207,6 +211,28 @@ const ShippingTable = ({
       return;
     }
 
+    setEditingShipment(shipment);
+    setShowEditModal(true);
+  };
+
+  const handleSaveShipment = async (updatedShipment: Shipment) => {
+    try {
+      await updateShipment(updatedShipment);
+
+      if (onShipmentUpdate) {
+        onShipmentUpdate(updatedShipment);
+      }
+
+      console.log("Envio atualizado com sucesso:", updatedShipment);
+    } catch (error) {
+      console.error("Erro ao salvar envio:", error);
+      throw error; // Re-throw para que o modal possa tratar o erro
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingShipment(null);
     setEditingShipment(shipment);
     setShowEditModal(true);
   };
