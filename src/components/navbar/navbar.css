@@ -1,7 +1,8 @@
 :root {
-  --primary-color: #789170;
-  --primary-dark: #5a6e55;
-  --secondary-color: #305951;
+  --primary-color: #315851;
+  --primary-dark: #00574f;
+  --secondary-color: #00574f;
+  --accent-color: #6fb965;
   --text-color: #ffffff;
   --text-muted: rgba(255, 255, 255, 0.7);
   --background-color: #f5f5f5;
@@ -19,7 +20,11 @@
   top: 20px;
   bottom: 20px;
   width: 280px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--secondary-color) 100%
+  );
   box-shadow: var(--box-shadow);
   border-radius: 20px;
   padding: 24px 20px;
@@ -165,7 +170,11 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
   border-radius: inherit;
   pointer-events: none;
 }
@@ -340,13 +349,22 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
   animation: shimmer 2s infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Collapsed state optimizations */
@@ -385,15 +403,21 @@
 @supports (backdrop-filter: blur(10px)) {
   .navbar {
     backdrop-filter: blur(10px);
-    background: linear-gradient(135deg, 
-      rgba(120, 145, 112, 0.95) 0%, 
-      rgba(48, 89, 81, 0.95) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(120, 145, 112, 0.95) 0%,
+      rgba(48, 89, 81, 0.95) 100%
+    );
   }
 }
 
 /* Fallback for browsers without backdrop-filter */
 @supports not (backdrop-filter: blur(10px)) {
   .navbar {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      var(--secondary-color) 100%
+    );
   }
 }

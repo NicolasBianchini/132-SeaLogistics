@@ -1,63 +1,126 @@
 .envios-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #e9e9e9;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   position: relative;
   overflow: hidden;
 }
 
 .envios-content {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 600px;
-  width: calc(100% - 68px); /* Largura da tela menos a sidebar collapsed */
-  margin-left: 100px; /* Alinha com a sidebar collapsed */
-  padding: 20px; /* Espaçamento interno para o conteúdo */
+  flex: 1;
+  margin-left: 320px; /* Espaço para sidebar + margem */
+  margin-right: 20px; /* Margem direita */
+  margin-top: 20px; /* Margem superior */
+  margin-bottom: 20px; /* Margem inferior */
+  padding: 2rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  max-height: calc(100vh - 40px);
 }
 
-/* Ajuste para quando a navbar está expanded */
-.envios-content.navbar-expanded {
-  width: calc(100% - 280px); /* Largura da tela menos a sidebar expanded */
-  margin-left: 280px; /* Alinha com a sidebar expanded */
+/* Ajuste para quando a navbar está collapsed */
+.envios-content.navbar-collapsed {
+  margin-left: 128px; /* Espaço para sidebar collapsed + margem */
 }
 
+/* Responsividade */
 @media (max-width: 1024px) {
   .envios-content {
-    width: calc(100% - 68px);
-    margin-left: 68px;
+    margin-left: 300px;
   }
 
-  .envios-content.navbar-expanded {
-    width: calc(100% - 280px);
-    margin-left: 280px;
+  .envios-content.navbar-collapsed {
+    margin-left: 108px;
   }
 }
 
 @media (max-width: 768px) {
   .envios-content {
-    width: calc(100% - 68px);
-    margin-left: 68px;
+    margin-left: 280px;
+    margin-right: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 1.5rem;
   }
 
-  .envios-content.navbar-expanded {
-    width: calc(100% - 280px);
-    margin-left: 280px;
+  .envios-content.navbar-collapsed {
+    margin-left: 88px;
   }
 }
 
 @media (max-width: 480px) {
   .envios-content {
-    width: calc(100% - 68px);
-    margin-left: 68px;
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding: 1rem;
   }
 
-  .envios-content.navbar-expanded {
-    width: calc(100% - 280px);
-    margin-left: 280px;
+  .envios-content.navbar-collapsed {
+    margin-left: 15px;
   }
+}
+
+/* Melhorar o espaçamento interno da tabela */
+.envios-content .shipping-table-container {
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.envios-content .shipping-table-title {
+  color: var(--primary-color);
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+/* Estilizar os filtros */
+.envios-content .shipping-filters {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  margin-bottom: 2rem;
+}
+
+/* Melhorar a tabela */
+.envios-content .shipping-table th {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.envios-content .shipping-table tr:nth-child(even) {
+  background-color: rgba(49, 88, 81, 0.05);
+}
+
+.envios-content .shipping-table tr:hover {
+  background-color: rgba(49, 88, 81, 0.1);
+}
+
+/* Botões de ação com nova cor de destaque */
+.envios-content .action-icon.check-icon {
+  color: var(--accent-color);
+  background: rgba(111, 185, 101, 0.1);
+}
+
+.envios-content .action-icon.check-icon:hover:not(:disabled) {
+  background: rgba(111, 185, 101, 0.2);
+  color: #5a9c55;
+}
+
+.envios-content .action-icon.edit-icon {
+  color: var(--primary-color);
+  background: rgba(49, 88, 81, 0.1);
+}
+
+.envios-content .action-icon.edit-icon:hover:not(:disabled) {
+  background: rgba(49, 88, 81, 0.2);
+  color: var(--primary-dark);
 }

@@ -4,22 +4,25 @@
   margin: 0;
   padding: 0;
   background-color: var(--white);
-  border-radius: 8px;
-  box-shadow: var(--box-shadow);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   overflow: visible;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .shipping-table-title {
-  color: var(--secondary-color);
+  color: var(--primary-color);
   margin-bottom: 20px;
   text-align: center;
   font-size: 24px;
+  font-weight: 700;
 }
 
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
   overflow-y: visible;
+  border-radius: 12px;
 }
 
 .shipping-table {
@@ -31,9 +34,9 @@
 
 .shipping-table th,
 .shipping-table td {
-  padding: 12px 15px;
+  padding: 16px 20px;
   text-align: left;
-  border-bottom: 1px solid var(--light-gray);
+  border-bottom: 1px solid #e9ecef;
 }
 
 .shipping-table td {
@@ -42,19 +45,26 @@
 }
 
 .shipping-table th {
-  background-color: var(--primary-color);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--secondary-color) 100%
+  );
   color: var(--white);
-  font-weight: bold;
+  font-weight: 600;
   position: sticky;
   top: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .shipping-table tr:nth-child(even) {
-  background-color: rgba(120, 145, 112, 0.1);
+  background-color: rgba(49, 88, 81, 0.03);
 }
 
 .shipping-table tr:hover {
-  background-color: rgba(120, 145, 112, 0.2);
+  background-color: rgba(49, 88, 81, 0.08);
   transition: background-color var(--transition-speed);
 }
 

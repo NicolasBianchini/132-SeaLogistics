@@ -2,7 +2,7 @@
   display: flex;
   min-height: 100vh;
   background: #f8f9fa;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .novo-envio-content {
@@ -348,12 +348,12 @@
     margin: 1rem;
     padding: 2rem 1rem;
   }
-  
+
   .access-denied h2 {
     font-size: 1.3rem;
   }
-  
+
   .access-denied p {
     font-size: 0.9rem;
   }
-} 
+}

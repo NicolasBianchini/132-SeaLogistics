@@ -38,6 +38,7 @@ export interface Shipment {
   armador: string;
   booking: string;
   companyId?: string;
+  observacoes?: string;
   createdAt?: Timestamp | Date;
   updatedAt?: Timestamp | Date;
 }

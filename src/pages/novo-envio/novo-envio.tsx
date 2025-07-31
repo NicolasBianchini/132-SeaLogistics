@@ -1,8 +1,13 @@
+"use client";
+
+import type React from "react";
+
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { FileText, MapPin, Package, Ship, User } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar/navbar";
+import { NavbarContext } from "../../components/navbar/navbar-context";
 import { useAuth } from "../../context/auth-context";
 import { LanguageProvider } from "../../context/language-context";
 import { useShipments } from "../../context/shipments-context";
@@ -42,6 +47,7 @@ const NovoEnvioPage = () => {
   const navigate = useNavigate();
   const { addShipment } = useShipments();
   const { isAdmin } = useAuth();
+  const { isCollapsed } = useContext(NavbarContext);
 
   // Verificar permissões ao carregar a página
   useEffect(() => {
@@ -167,7 +173,7 @@ const NovoEnvioPage = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "quantBox" ? parseInt(value) : value,
+      [name]: name === "quantBox" ? Number.parseInt(value) : value,
     }));
   };
 
@@ -243,7 +249,11 @@ const NovoEnvioPage = () => {
       <LanguageProvider>
         <main className="novo-envio-main">
           <Navbar />
-          <div className="novo-envio-content">
+          <div
+            className={`novo-envio-content ${
+              isCollapsed ? "navbar-collapsed" : ""
+            }`}
+          >
             <div className="novo-envio-container">
               <div className="access-denied">
                 <h2>Acesso Negado</h2>
@@ -260,7 +270,11 @@ const NovoEnvioPage = () => {
     <LanguageProvider>
       <main className="novo-envio-main">
         <Navbar />
-        <div className="novo-envio-content">
+        <div
+          className={`novo-envio-content ${
+            isCollapsed ? "navbar-collapsed" : ""
+          }`}
+        >
           <div className="novo-envio-container">
             <div className="novo-envio-header">
               <div className="header-icon">

@@ -1,11 +1,15 @@
 "use client";
 
+import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import { Check, Edit } from "lucide-react";
+import autoTable from "jspdf-autotable";
+import { Check, Edit, FileText } from "lucide-react";
 import { useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 import { useAuth } from "../../context/auth-context";
 import { useShipments, type Shipment } from "../../context/shipments-context";
+import EditShipmentModal from "../edit-shipment-modal/edit-shipment-modal";
 import { DropdownProvider } from "./dropdown-context";
 import ShippingFilters, { type FilterOptions } from "./shipping-filters";
 import "./shipping-table.css";
@@ -29,6 +33,10 @@ const ShippingTable = ({
 
   // Use shipments from props if provided, otherwise use context
   const shipments = propShipments || contextShipments;
+
+  // Estado para o modal de edição
+  const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Função para formatar data no padrão brasileiro
   const formatDate = (dateString: string) => {
@@ -199,11 +207,28 @@ const ShippingTable = ({
       return;
     }
 
-    // TODO: Implementar edição de envio
-    console.log("Editando envio:", shipment);
-    alert(
-      `Funcionalidade em desenvolvimento. Editar envio: ${shipment.numeroBl}`
-    );
+    setEditingShipment(shipment);
+    setShowEditModal(true);
+  };
+
+  const handleSaveShipment = async (updatedShipment: Shipment) => {
+    try {
+      await updateShipment(updatedShipment);
+
+      if (onShipmentUpdate) {
+        onShipmentUpdate(updatedShipment);
+      }
+
+      console.log("Envio atualizado com sucesso:", updatedShipment);
+    } catch (error) {
+      console.error("Erro ao salvar envio:", error);
+      throw error; // Re-throw para que o modal possa tratar o erro
+    }
+  };
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false);
+    setEditingShipment(null);
   };
 
   const canEditShipment = (shipment: Shipment): boolean => {
@@ -273,8 +298,8 @@ const ShippingTable = ({
     );
   }
 
-  const exportToPDF = () => {
-    const doc = new (jsPDF as any)();
+  const exportToPDF = (shipment: Shipment) => {
+    const doc = new jsPDF();
 
     const tableColumn = [
       "Cliente",
@@ -291,31 +316,67 @@ const ShippingTable = ({
       "Invoice",
     ];
 
-    const tableRows = filteredAndSortedShipments.map((shipment) => [
-      shipment.cliente,
-      shipment.shipper,
-      shipment.pol,
-      shipment.pod,
-      formatDate(shipment.etdOrigem),
-      formatDate(shipment.etaDestino),
-      shipment.quantBox,
-      shipment.status,
-      shipment.numeroBl,
-      shipment.armador,
-      shipment.booking,
-      shipment.invoice,
-    ]);
+    const tableRow = [
+      [
+        shipment.cliente,
+        shipment.shipper,
+        shipment.pol,
+        shipment.pod,
+        formatDate(shipment.etdOrigem),
+        formatDate(shipment.etaDestino),
+        shipment.quantBox,
+        shipment.status,
+        shipment.numeroBl,
+        shipment.armador,
+        shipment.booking,
+        shipment.invoice,
+      ],
+    ];
 
-    doc.autoTable({
+    autoTable(doc, {
       head: [tableColumn],
-      body: tableRows,
+      body: tableRow,
       startY: 20,
       styles: { fontSize: 8 },
       headStyles: { fillColor: [22, 160, 133] },
     });
 
-    doc.text("Relatório de Envios", 14, 15);
-    doc.save("relatorio-envios.pdf");
+    doc.text("Informações do Envio", 14, 15);
+    doc.save(`envio-${shipment.numeroBl || "sem-bl"}.pdf`);
+  };
+
+  const exportToExcel = (shipment: Shipment) => {
+    const worksheetData = [
+      {
+        Cliente: shipment.cliente,
+        Shipper: shipment.shipper,
+        POL: shipment.pol,
+        POD: shipment.pod,
+        "ETD Origem": formatDate(shipment.etdOrigem),
+        "ETA Destino": formatDate(shipment.etaDestino),
+        "Quant Box": shipment.quantBox,
+        Status: shipment.status,
+        "N° BL": shipment.numeroBl,
+        Armador: shipment.armador,
+        Booking: shipment.booking,
+        Invoice: shipment.invoice,
+      },
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Envio");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const fileData = new Blob([excelBuffer], {
+      type: "application/octet-stream",
+    });
+
+    saveAs(fileData, `envio-${shipment.numeroBl || "sem-bl"}.xlsx`);
   };
 
   return (
@@ -393,7 +454,7 @@ const ShippingTable = ({
                       <div className="action-icons">
                         <button
                           className="action-icon check-icon"
-                          onClick={exportToPDF}
+                          onClick={() => exportToPDF(shipment)}
                           title="Enviar informações para o cliente"
                           disabled={!isAdmin()}
                         >
@@ -406,6 +467,13 @@ const ShippingTable = ({
                           disabled={!canEditShipment(shipment)}
                         >
                           <Edit size={16} />
+                        </button>
+                        <button
+                          className="action-icon"
+                          onClick={() => exportToExcel(shipment)}
+                          title="Exportar para Excel"
+                        >
+                          <FileText size={16} />
                         </button>
                       </div>
                     </td>
@@ -421,6 +489,15 @@ const ShippingTable = ({
             Mostrando {filteredAndSortedShipments.length} de {shipments.length}{" "}
             envios
           </div>
+        )}
+
+        {showEditModal && editingShipment && (
+          <EditShipmentModal
+            shipment={editingShipment}
+            onClose={handleCloseEditModal}
+            onSave={handleSaveShipment}
+            canEdit={canEditShipment(editingShipment)}
+          />
         )}
       </div>
     </DropdownProvider>

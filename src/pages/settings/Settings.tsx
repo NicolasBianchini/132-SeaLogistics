@@ -1,18 +1,29 @@
-import { useState, useEffect } from "react";
-import { User, Bell, Globe, Save } from "lucide-react";
+"use client";
+
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { Bell, Globe, Save, User } from "lucide-react";
+import { useContext, useEffect, useState } from "react";
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
 import Navbar from "../../components/navbar/navbar";
+import { NavbarContext } from "../../components/navbar/navbar-context";
 import { LanguageProvider } from "../../context/language-context";
 import { db } from "../../lib/firebaseConfig";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { UserSettings } from "../../types/user";
+import type { UserSettings } from "../../types/user";
 import "./Settings.css";
 
 export const Settings = () => {
+  const { isCollapsed } = useContext(NavbarContext);
+
   // Obter dados do usuário logado do localStorage
   const getCurrentUser = () => {
-    const userData = localStorage.getItem('currentUser');
-    return userData ? JSON.parse(userData) : { id: 'demo-user-123', email: 'demo@sealogistics.com', name: 'Usuário Demo' };
+    const userData = localStorage.getItem("currentUser");
+    return userData
+      ? JSON.parse(userData)
+      : {
+          id: "demo-user-123",
+          email: "demo@sealogistics.com",
+          name: "Usuário Demo",
+        };
   };
 
   const currentUser = getCurrentUser();
@@ -74,7 +85,7 @@ export const Settings = () => {
         };
 
         await updateDoc(doc(db, "users", currentUserId), initialUserData);
-        setUserSettings(prev => ({
+        setUserSettings((prev) => ({
           ...prev,
           ...initialUserData,
         }));
@@ -95,7 +106,7 @@ export const Settings = () => {
         };
 
         await updateDoc(doc(db, "users", currentUserId), initialUserData);
-        setUserSettings(prev => ({
+        setUserSettings((prev) => ({
           ...prev,
           ...initialUserData,
         }));
@@ -108,14 +119,18 @@ export const Settings = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setUserSettings(prev => ({
+    setUserSettings((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
 
-  const handleNestedChange = (section: keyof UserSettings, field: string, value: boolean | string) => {
-    setUserSettings(prev => ({
+  const handleNestedChange = (
+    section: keyof UserSettings,
+    field: string,
+    value: boolean | string
+  ) => {
+    setUserSettings((prev) => ({
       ...prev,
       [section]: {
         ...(prev[section] as object),
@@ -153,7 +168,11 @@ export const Settings = () => {
       <LanguageProvider>
         <main className="settings-container">
           <Navbar />
-          <div className="settings-content">
+          <div
+            className={`settings-content ${
+              isCollapsed ? "navbar-collapsed" : ""
+            }`}
+          >
             <div className="loading-message">Carregando configurações...</div>
           </div>
           <ChatAssistant />
@@ -166,7 +185,11 @@ export const Settings = () => {
     <LanguageProvider>
       <main className="settings-container">
         <Navbar />
-        <div className="settings-content">
+        <div
+          className={`settings-content ${
+            isCollapsed ? "navbar-collapsed" : ""
+          }`}
+        >
           <div className="settings-wrapper">
             <div className="settings-header">
               <h1>Configurações da conta</h1>
@@ -188,7 +211,9 @@ export const Settings = () => {
                       type="text"
                       id="name"
                       value={userSettings.name}
-                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       placeholder="Digite seu nome completo"
                     />
                   </div>
@@ -199,7 +224,9 @@ export const Settings = () => {
                       type="email"
                       id="email"
                       value={userSettings.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
                       placeholder="seu@email.com"
                     />
                   </div>
@@ -210,7 +237,9 @@ export const Settings = () => {
                       type="tel"
                       id="phone"
                       value={userSettings.phone}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
                       placeholder="(11) 99999-9999"
                     />
                   </div>
@@ -221,7 +250,9 @@ export const Settings = () => {
                       type="text"
                       id="company"
                       value={userSettings.company}
-                      onChange={(e) => handleInputChange('company', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("company", e.target.value)
+                      }
                       placeholder="Nome da empresa"
                     />
                   </div>
@@ -232,14 +263,14 @@ export const Settings = () => {
                       type="text"
                       id="position"
                       value={userSettings.position}
-                      onChange={(e) => handleInputChange('position', e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("position", e.target.value)
+                      }
                       placeholder="Seu cargo na empresa"
                     />
                   </div>
                 </div>
               </div>
-
-
 
               {/* Notificações */}
               <div className="settings-section">
@@ -258,7 +289,13 @@ export const Settings = () => {
                       <input
                         type="checkbox"
                         checked={userSettings.notifications.email}
-                        onChange={(e) => handleNestedChange('notifications', 'email', e.target.checked)}
+                        onChange={(e) =>
+                          handleNestedChange(
+                            "notifications",
+                            "email",
+                            e.target.checked
+                          )
+                        }
                       />
                       <span className="slider"></span>
                     </label>
@@ -273,7 +310,13 @@ export const Settings = () => {
                       <input
                         type="checkbox"
                         checked={userSettings.notifications.push}
-                        onChange={(e) => handleNestedChange('notifications', 'push', e.target.checked)}
+                        onChange={(e) =>
+                          handleNestedChange(
+                            "notifications",
+                            "push",
+                            e.target.checked
+                          )
+                        }
                       />
                       <span className="slider"></span>
                     </label>
@@ -288,7 +331,13 @@ export const Settings = () => {
                       <input
                         type="checkbox"
                         checked={userSettings.notifications.statusUpdates}
-                        onChange={(e) => handleNestedChange('notifications', 'statusUpdates', e.target.checked)}
+                        onChange={(e) =>
+                          handleNestedChange(
+                            "notifications",
+                            "statusUpdates",
+                            e.target.checked
+                          )
+                        }
                       />
                       <span className="slider"></span>
                     </label>
@@ -303,7 +352,13 @@ export const Settings = () => {
                       <input
                         type="checkbox"
                         checked={userSettings.notifications.newShipments}
-                        onChange={(e) => handleNestedChange('notifications', 'newShipments', e.target.checked)}
+                        onChange={(e) =>
+                          handleNestedChange(
+                            "notifications",
+                            "newShipments",
+                            e.target.checked
+                          )
+                        }
                       />
                       <span className="slider"></span>
                     </label>
@@ -324,7 +379,13 @@ export const Settings = () => {
                     <select
                       id="language"
                       value={userSettings.preferences.language}
-                      onChange={(e) => handleNestedChange('preferences', 'language', e.target.value)}
+                      onChange={(e) =>
+                        handleNestedChange(
+                          "preferences",
+                          "language",
+                          e.target.value
+                        )
+                      }
                     >
                       <option value="pt">Português</option>
                       <option value="en">English</option>
@@ -337,10 +398,20 @@ export const Settings = () => {
                     <select
                       id="timezone"
                       value={userSettings.preferences.timezone}
-                      onChange={(e) => handleNestedChange('preferences', 'timezone', e.target.value)}
+                      onChange={(e) =>
+                        handleNestedChange(
+                          "preferences",
+                          "timezone",
+                          e.target.value
+                        )
+                      }
                     >
-                      <option value="America/Sao_Paulo">São Paulo (UTC-3)</option>
-                      <option value="America/New_York">Nova York (UTC-5)</option>
+                      <option value="America/Sao_Paulo">
+                        São Paulo (UTC-3)
+                      </option>
+                      <option value="America/New_York">
+                        Nova York (UTC-5)
+                      </option>
                       <option value="Europe/London">Londres (UTC+0)</option>
                       <option value="Asia/Shanghai">Xangai (UTC+8)</option>
                     </select>
@@ -351,7 +422,13 @@ export const Settings = () => {
                     <select
                       id="dateFormat"
                       value={userSettings.preferences.dateFormat}
-                      onChange={(e) => handleNestedChange('preferences', 'dateFormat', e.target.value)}
+                      onChange={(e) =>
+                        handleNestedChange(
+                          "preferences",
+                          "dateFormat",
+                          e.target.value
+                        )
+                      }
                     >
                       <option value="DD/MM/YYYY">DD/MM/AAAA</option>
                       <option value="MM/DD/YYYY">MM/DD/AAAA</option>
@@ -364,7 +441,13 @@ export const Settings = () => {
                     <select
                       id="theme"
                       value={userSettings.preferences.theme}
-                      onChange={(e) => handleNestedChange('preferences', 'theme', e.target.value)}
+                      onChange={(e) =>
+                        handleNestedChange(
+                          "preferences",
+                          "theme",
+                          e.target.value
+                        )
+                      }
                     >
                       <option value="light">Claro</option>
                       <option value="dark">Escuro</option>
@@ -383,7 +466,7 @@ export const Settings = () => {
                 disabled={isSaving}
               >
                 <Save size={16} />
-                {isSaving ? 'Salvando...' : 'Salvar Configurações'}
+                {isSaving ? "Salvando..." : "Salvar Configurações"}
               </button>
             </div>
           </div>
