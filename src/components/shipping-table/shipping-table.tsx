@@ -31,18 +31,11 @@ const ShippingTable = ({
   } = useShipments();
   const { isAdmin, currentUser } = useAuth();
 
-  // Use shipments from props if provided, otherwise use context
   const shipments = propShipments || contextShipments;
 
-  // Estado para o modal de edição
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // Estado para o modal de edição
-  const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-
-  // Função para formatar data no padrão brasileiro
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -55,7 +48,6 @@ const ShippingTable = ({
     return `${day}/${month}/${year}`;
   };
 
-  // Estado dos filtros
   const [filters, setFilters] = useState<FilterOptions>({
     dateFrom: "",
     dateTo: "",
@@ -65,22 +57,18 @@ const ShippingTable = ({
     searchTerm: "",
   });
 
-  // Função para filtrar e ordenar os shipments
   const filteredAndSortedShipments = useMemo(() => {
     let filtered = [...shipments];
 
-    // Filtro por termo de busca
     if (filters.searchTerm) {
       const searchTerm = filters.searchTerm.toLowerCase();
       filtered = filtered.filter((shipment) => {
-        // Campos que todos podem buscar
         const commonFields = [
           shipment.numeroBl?.toLowerCase().includes(searchTerm),
           shipment.booking?.toLowerCase().includes(searchTerm),
           shipment.armador?.toLowerCase().includes(searchTerm),
         ];
 
-        // Campos adicionais apenas para admins
         const adminFields = isAdmin()
           ? [
               shipment.cliente?.toLowerCase().includes(searchTerm),
@@ -92,7 +80,6 @@ const ShippingTable = ({
       });
     }
 
-    // Filtro por mês (baseado na data de origem - ETD)
     if (filters.month) {
       filtered = filtered.filter((shipment) => {
         const etdDate = shipment.etdOrigem
@@ -105,11 +92,10 @@ const ShippingTable = ({
           return etdMonth === targetMonth;
         }
 
-        return false; // Se não tem ETD, não inclui no filtro
+        return false;
       });
     }
 
-    // Filtro por intervalo de datas
     if (filters.dateFrom || filters.dateTo) {
       filtered = filtered.filter((shipment) => {
         const etdDate = shipment.etdOrigem
@@ -147,7 +133,6 @@ const ShippingTable = ({
       });
     }
 
-    // Ordenação
     filtered.sort((a, b) => {
       let comparison = 0;
 
@@ -200,7 +185,6 @@ const ShippingTable = ({
       return;
     }
 
-    // TODO: Implementar envio de informações para o cliente
     console.log("Enviando informações para o cliente:", shipment);
     alert(`Funcionalidade em desenvolvimento. Envio: ${shipment.numeroBl}`);
   };
@@ -226,29 +210,7 @@ const ShippingTable = ({
       console.log("Envio atualizado com sucesso:", updatedShipment);
     } catch (error) {
       console.error("Erro ao salvar envio:", error);
-      throw error; // Re-throw para que o modal possa tratar o erro
-    }
-  };
-
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setEditingShipment(null);
-    setEditingShipment(shipment);
-    setShowEditModal(true);
-  };
-
-  const handleSaveShipment = async (updatedShipment: Shipment) => {
-    try {
-      await updateShipment(updatedShipment);
-
-      if (onShipmentUpdate) {
-        onShipmentUpdate(updatedShipment);
-      }
-
-      console.log("Envio atualizado com sucesso:", updatedShipment);
-    } catch (error) {
-      console.error("Erro ao salvar envio:", error);
-      throw error; // Re-throw para que o modal possa tratar o erro
+      throw error;
     }
   };
 
@@ -260,10 +222,8 @@ const ShippingTable = ({
   const canEditShipment = (shipment: Shipment): boolean => {
     if (!currentUser) return false;
 
-    // Admin pode editar qualquer shipment
     if (isAdmin()) return true;
 
-    // Usuário de empresa só pode editar shipments da própria empresa
     if (currentUser.role === "company_user") {
       return shipment.companyId === currentUser.companyId;
     }
@@ -272,7 +232,6 @@ const ShippingTable = ({
   };
 
   const handleStatusChange = async (shipmentId: string, newStatus: string) => {
-    // Verificar permissões antes de atualizar
     if (!isAdmin()) {
       alert(
         "Acesso negado. Apenas administradores podem alterar o status dos envios."
