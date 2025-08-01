@@ -35,6 +35,7 @@ export interface Shipment {
   pod: string;
   etdOrigem: string;
   etaDestino: string;
+  currentLocation: string;
   quantBox: number;
   status: string;
   numeroBl: string;
@@ -193,10 +194,12 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                                         <li><strong>Porto de Destino:</strong> ${shipmentData.pod}</li>
                                         <li><strong>ETD Origem:</strong> ${shipmentData.etdOrigem}</li>
                                         <li><strong>ETA Destino:</strong> ${shipmentData.etaDestino}</li>
+                                        <li><strong>ETA Destino:</strong> ${shipmentData.currentLocation}</li>
                                         <li><strong>Quantidade de Containers:</strong> ${shipmentData.quantBox}</li>
                                         <li><strong>Status:</strong> ${shipmentData.status}</li>
                                         <li><strong>Armador:</strong> ${shipmentData.armador}</li>
                                         <li><strong>Booking:</strong> ${shipmentData.booking}</li>
+                                        <li><strong>Booking:</strong> ${shipmentData.observacoes}</li>
                                     </ul>
                                 `,
               });
@@ -253,6 +256,7 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
         pod: updatedShipment.pod,
         etdOrigem: updatedShipment.etdOrigem,
         etaDestino: updatedShipment.etaDestino,
+        currentLocation: updatedShipment.currentLocation,
         quantBox: updatedShipment.quantBox,
         status: updatedShipment.status,
         numeroBl: updatedShipment.numeroBl,
@@ -296,6 +300,9 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                                         <li><strong>Cliente:</strong> ${updatedShipment.cliente}</li>
                                         <li><strong>Porto de Origem:</strong> ${updatedShipment.pol}</li>
                                         <li><strong>Porto de Destino:</strong> ${updatedShipment.pod}</li>
+                                        <li><strong>Localização Atual:</strong> ${updatedShipment.currentLocation}</li>
+                                        <li><strong>Observações:</strong> ${updatedShipment.observacoes}</li>
+
                                     </ul>
                                 `,
               });

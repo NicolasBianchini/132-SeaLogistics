@@ -1,6 +1,7 @@
 "use client";
 
 import { saveAs } from "file-saver";
+import { doc, getDoc } from "firebase/firestore";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
@@ -9,6 +10,8 @@ import { useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { useAuth } from "../../context/auth-context";
 import { useShipments, type Shipment } from "../../context/shipments-context";
+import { db } from "../../lib/firebaseConfig";
+import { sendEmail } from "../../services/emailService";
 import EditShipmentModal from "../edit-shipment-modal/edit-shipment-modal";
 import { DropdownProvider } from "./dropdown-context";
 import ShippingFilters, { type FilterOptions } from "./shipping-filters";
@@ -330,6 +333,61 @@ const ShippingTable = ({
     doc.save(`envio-${shipment.numeroBl || "sem-bl"}.pdf`);
   };
 
+  const sendShipmentEmail = async (shipment: Shipment) => {
+    if (!shipment.companyId) {
+      console.warn("Shipment sem companyId, não é possível enviar email.");
+      return;
+    }
+
+    try {
+      const companyDoc = await getDoc(doc(db, "companies", shipment.companyId));
+      if (!companyDoc.exists()) {
+        console.warn("Empresa não encontrada no Firestore");
+        return;
+      }
+
+      const companyData = companyDoc.data();
+      if (!companyData.contactEmail) {
+        console.warn("Empresa não tem email de contato cadastrado");
+        return;
+      }
+
+      await sendEmail({
+        to: companyData.contactEmail,
+        subject: `Informações do envio - ${shipment.numeroBl}`,
+        html: `
+        <h2>Informações do envio</h2>
+        <ul>
+          <li><strong>Número BL:</strong> ${shipment.numeroBl}</li>
+          <li><strong>Cliente:</strong> ${shipment.cliente}</li>
+          <li><strong>Operador:</strong> ${shipment.operador}</li>
+          <li><strong>Porto de Origem:</strong> ${shipment.pol}</li>
+          <li><strong>Porto de Destino:</strong> ${shipment.pod}</li>
+          <li><strong>ETD Origem:</strong> ${shipment.etdOrigem}</li>
+          <li><strong>ETA Destino:</strong> ${shipment.etaDestino}</li>
+          <li><strong>Localização Atual:</strong> ${
+            shipment.currentLocation
+          }</li>
+          <li><strong>Quantidade de Containers:</strong> ${
+            shipment.quantBox
+          }</li>
+          <li><strong>Status:</strong> ${shipment.status}</li>
+          <li><strong>Armador:</strong> ${shipment.armador}</li>
+          <li><strong>Booking:</strong> ${shipment.booking}</li>
+          <li><strong>Observações:</strong> ${shipment.observacoes || "-"}</li>
+        </ul>
+      `,
+      });
+
+      console.log(
+        "✅ Email enviado com sucesso para:",
+        companyData.contactEmail
+      );
+    } catch (error) {
+      console.error("Erro ao enviar email manual:", error);
+    }
+  };
+
   const exportToExcel = (shipment: Shipment) => {
     const worksheetData = [
       {
@@ -438,14 +496,6 @@ const ShippingTable = ({
                     <td>
                       <div className="action-icons">
                         <button
-                          className="action-icon check-icon"
-                          onClick={() => exportToPDF(shipment)}
-                          title="Enviar informações para o cliente"
-                          disabled={!isAdmin()}
-                        >
-                          <Check size={16} />
-                        </button>
-                        <button
                           className="action-icon edit-icon"
                           onClick={() => handleEditShipment(shipment)}
                           title="Editar envio"
@@ -459,6 +509,24 @@ const ShippingTable = ({
                           title="Exportar para Excel"
                         >
                           <FileText size={16} />
+                        </button>
+                        <button
+                          className="action-icon check-icon"
+                          onClick={async () => {
+                            try {
+                              //    await exportToPDF(shipment);
+                              await sendShipmentEmail(shipment);
+                            } catch (err) {
+                              console.error(
+                                "Erro ao exportar ou enviar email:",
+                                err
+                              );
+                            }
+                          }}
+                          title="Enviar informações para o cliente"
+                          disabled={!isAdmin()}
+                        >
+                          <Check size={16} />
                         </button>
                       </div>
                     </td>

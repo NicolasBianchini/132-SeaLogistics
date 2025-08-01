@@ -22,6 +22,7 @@ interface FormData {
   pod: string;
   etdOrigem: string;
   etaDestino: string;
+  currentLocation: string;
   quantBox: number;
   status: string;
   numeroBl: string;
@@ -45,6 +46,7 @@ const EditShipmentModal = ({
     pod: "",
     etdOrigem: "",
     etaDestino: "",
+    currentLocation: "",
     quantBox: 1,
     status: "",
     numeroBl: "",
@@ -95,6 +97,7 @@ const EditShipmentModal = ({
         pod: shipment.pod || "",
         etdOrigem: shipment.etdOrigem || "",
         etaDestino: shipment.etaDestino || "",
+        currentLocation: shipment.currentLocation || "",
         quantBox: shipment.quantBox || 1,
         status: shipment.status || "",
         numeroBl: shipment.numeroBl || "",
@@ -112,6 +115,7 @@ const EditShipmentModal = ({
     >
   ) => {
     const { name, value } = e.target;
+    console.log("Campo:", e.target.name, "Valor:", e.target.value);
     setFormData((prev) => ({
       ...prev,
       [name]: name === "quantBox" ? Number.parseInt(value) || 1 : value,
@@ -191,6 +195,7 @@ const EditShipmentModal = ({
         pod: formData.pod,
         etdOrigem: formData.etdOrigem,
         etaDestino: formData.etaDestino,
+        currentLocation: formData.currentLocation,
         quantBox: formData.quantBox,
         status: formData.status,
         numeroBl: formData.numeroBl,
@@ -368,6 +373,26 @@ const EditShipmentModal = ({
                   />
                   {errors.etaDestino && (
                     <span className="error-message">{errors.etaDestino}</span>
+                  )}
+                </div>
+                <div className="form-group">
+                  <label htmlFor="currentLocation">Local Atual</label>
+                  <select
+                    id="currentLocation"
+                    name="currentLocation"
+                    value={formData.currentLocation}
+                    onChange={handleInputChange}
+                    disabled={!canEdit}
+                  >
+                    <option value="">Selecione o porto de destino</option>
+                    {portos.map((porto) => (
+                      <option key={porto} value={porto}>
+                        {porto}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.pod && (
+                    <span className="error-message">{errors.pod}</span>
                   )}
                 </div>
               </div>
