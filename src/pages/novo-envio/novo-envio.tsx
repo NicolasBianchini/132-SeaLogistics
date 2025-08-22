@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar/navbar";
 import { NavbarContext } from "../../components/navbar/navbar-context";
 import { useAuth } from "../../context/auth-context";
-import { LanguageProvider } from "../../context/language-context";
+import { useLanguage } from "../../context/language-context";
 import { useShipments } from "../../context/shipments-context";
 import { db } from "../../lib/firebaseConfig";
 import "./novo-envio.css";
@@ -50,6 +50,7 @@ const NovoEnvioPage = () => {
   const { addShipment } = useShipments();
   const { isAdmin } = useAuth();
   const { isCollapsed } = useContext(NavbarContext);
+  const { translations } = useLanguage();
 
   // Verificar permissões ao carregar a página
   useEffect(() => {
@@ -198,6 +199,7 @@ const NovoEnvioPage = () => {
 
       if (!clienteSelecionado) {
         alert("Por favor, selecione um cliente válido.");
+        setIsSubmitting(false);
         return;
       }
 
@@ -208,6 +210,7 @@ const NovoEnvioPage = () => {
         pod: formData.pod,
         etdOrigem: formData.etdOrigem,
         etaDestino: formData.etaDestino,
+        currentLocation: formData.pol,
         quantBox: formData.quantBox,
         status: formData.status,
         numeroBl: formData.numeroBl,
@@ -241,8 +244,8 @@ const NovoEnvioPage = () => {
 
       navigate("/home");
     } catch (error) {
-      console.error("Erro ao criar envio:", error);
-      alert("Erro ao registrar envio. Tente novamente.");
+      console.error("Erro ao criar shipment:", error);
+      alert("Erro ao criar shipment. Tente novamente.");
     } finally {
       setIsSubmitting(false);
     }
@@ -252,28 +255,6 @@ const NovoEnvioPage = () => {
 
   if (!isAdmin()) {
     return (
-      <LanguageProvider>
-        <main className="novo-envio-main">
-          <Navbar />
-          <div
-            className={`novo-envio-content ${
-              isCollapsed ? "navbar-collapsed" : ""
-            }`}
-          >
-            <div className="novo-envio-container">
-              <div className="access-denied">
-                <h2>Acesso Negado</h2>
-                <p>Apenas administradores podem criar novos shipments.</p>
-              </div>
-            </div>
-          </div>
-        </main>
-      </LanguageProvider>
-    );
-  }
-
-  return (
-    <LanguageProvider>
       <main className="novo-envio-main">
         <Navbar />
         <div
@@ -282,320 +263,225 @@ const NovoEnvioPage = () => {
           }`}
         >
           <div className="novo-envio-container">
-            <div className="novo-envio-header">
-              <div className="header-icon">
-                <Ship size={32} />
-              </div>
-              <div className="header-content">
-                <h1>Novo Envio</h1>
-                <p>Registre um novo envio marítimo no sistema</p>
-              </div>
+            <div className="access-denied">
+              <h2>Acesso Negado</h2>
+              <p>Apenas administradores podem criar novos shipments.</p>
             </div>
-
-            <form onSubmit={handleSubmit} className="novo-envio-form">
-              {/* Seção Cliente */}
-              <div className="form-section">
-                <div className="section-header">
-                  <User size={20} />
-                  <h2>Informações do Cliente</h2>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="clienteId">Cliente *</label>
-                    <select
-                      id="clienteId"
-                      name="clienteId"
-                      value={formData.clienteId}
-                      onChange={handleInputChange}
-                      required
-                      disabled={loadingClientes}
-                    >
-                      <option value="">
-                        {loadingClientes
-                          ? "Carregando clientes..."
-                          : "Selecione um cliente"}
-                      </option>
-                      {clientes.map((cliente) => (
-                        <option key={cliente.id} value={cliente.id}>
-                          {cliente.nome} - {cliente.empresa}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="shipper">Shipper</label>
-                    <input
-                      type="text"
-                      id="shipper"
-                      name="shipper"
-                      value={formData.shipper}
-                      onChange={handleInputChange}
-                      required
-                      placeholder="Nome do shipper"
-                    />
-                  </div>
-                </div>
-
-                {clienteSelecionado && (
-                  <div className="cliente-info">
-                    <div className="cliente-card">
-                      <h3>{clienteSelecionado.nome}</h3>
-                      <p>
-                        <strong>Empresa:</strong> {clienteSelecionado.empresa}
-                      </p>
-                      <p>
-                        <strong>Email:</strong> {clienteSelecionado.email}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Seção Operacional */}
-              <div className="form-section">
-                <div className="section-header">
-                  <Package size={20} />
-                  <h2>Informações Operacionais</h2>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="operador">Operador Responsável *</label>
-                    <select
-                      id="operador"
-                      name="operador"
-                      value={formData.operador}
-                      onChange={handleInputChange}
-                      required
-                      disabled={loadingOperadores}
-                    >
-                      <option value="">
-                        {loadingOperadores
-                          ? "Carregando operadores..."
-                          : "Selecione um operador"}
-                      </option>
-                      {operadores.map((op) => (
-                        <option key={op.id} value={op.nome}>
-                          {op.nome}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="status">Status Inicial</label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                    >
-                      {statusOptions.map((status) => (
-                        <option key={status} value={status}>
-                          {status}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="tipo">Tipo de Transporte *</label>
-                    <select
-                      id="tipo"
-                      name="tipo"
-                      value={formData.tipo}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Selecione o tipo de transporte</option>
-                      <option value="Aéreo">Aéreo</option>
-                      <option value="Marítimo">Marítimo</option>
-                      <option value="Rodoviário">Rodoviário</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="armador">Armador *</label>
-                    <select
-                      id="armador"
-                      name="armador"
-                      value={formData.armador}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Selecione um armador</option>
-                      {armadores.map((arm) => (
-                        <option key={arm} value={arm}>
-                          {arm}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="quantBox">Quantidade de Containers *</label>
-                    <input
-                      type="number"
-                      id="quantBox"
-                      name="quantBox"
-                      value={formData.quantBox}
-                      onChange={handleInputChange}
-                      min="1"
-                      max="100"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Seção Portos e Datas */}
-              <div className="form-section">
-                <div className="section-header">
-                  <MapPin size={20} />
-                  <h2>Rota e Cronograma</h2>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="pol">Porto de Origem (POL) *</label>
-                    <select
-                      id="pol"
-                      name="pol"
-                      value={formData.pol}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Selecione o porto de origem</option>
-                      {portos.map((porto) => (
-                        <option key={porto} value={porto}>
-                          {porto}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="pod">Porto de Destino (POD) *</label>
-                    <select
-                      id="pod"
-                      name="pod"
-                      value={formData.pod}
-                      onChange={handleInputChange}
-                      required
-                    >
-                      <option value="">Selecione o porto de destino</option>
-                      {portos.map((porto) => (
-                        <option key={porto} value={porto}>
-                          {porto}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="etdOrigem">Data de Partida (ETD) *</label>
-                    <input
-                      type="date"
-                      id="etdOrigem"
-                      name="etdOrigem"
-                      value={formData.etdOrigem}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="etaDestino">
-                      Data Prevista Chegada (ETA) *
-                    </label>
-                    <input
-                      type="date"
-                      id="etaDestino"
-                      name="etaDestino"
-                      value={formData.etaDestino}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Seção Documentação */}
-              <div className="form-section">
-                <div className="section-header">
-                  <FileText size={20} />
-                  <h2>Documentação</h2>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="numeroBl">Número do BL *</label>
-                    <input
-                      type="text"
-                      id="numeroBl"
-                      name="numeroBl"
-                      value={formData.numeroBl}
-                      onChange={handleInputChange}
-                      placeholder="Ex: BL123456789"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="booking">Número do Booking *</label>
-                    <input
-                      type="text"
-                      id="booking"
-                      name="booking"
-                      value={formData.booking}
-                      onChange={handleInputChange}
-                      placeholder="Ex: BK987654321"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="invoice">Número do Invoice *</label>
-                    <input
-                      type="text"
-                      id="invoice"
-                      name="invoice"
-                      value={formData.invoice}
-                      onChange={handleInputChange}
-                      placeholder="Ex: INV123456789"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Botões */}
-              <div className="form-actions">
-                <button
-                  type="button"
-                  className="btn-cancel"
-                  onClick={() => window.history.back()}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-submit"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Registrando..." : "Registrar Envio"}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       </main>
-    </LanguageProvider>
+    );
+  }
+
+  return (
+    <main className="novo-envio-container">
+      <Navbar />
+      <div
+        className={`novo-envio-content ${isCollapsed ? "navbar-collapsed" : ""}`}
+      >
+        <div className="page-header">
+          <h1>{translations.newShipmentTitle}</h1>
+          <p>Preencha as informações para criar um novo envio</p>
+        </div>
+
+        <div className="form-container">
+          <form onSubmit={handleSubmit} className="novo-envio-form">
+            {/* Seção Cliente e Operador */}
+            <div className="form-section">
+              <div className="section-header">
+                <User size={20} />
+                <h2>Cliente e Operador</h2>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="clienteId">Cliente *</label>
+                  <select
+                    id="clienteId"
+                    name="clienteId"
+                    value={formData.clienteId}
+                    onChange={handleInputChange}
+                    required
+                    disabled={loadingClientes}
+                  >
+                    <option value="">
+                      {loadingClientes ? "Carregando..." : "Selecione um cliente"}
+                    </option>
+                    {clientes.map((cliente) => (
+                      <option key={cliente.id} value={cliente.id}>
+                        {cliente.nome} - {cliente.empresa}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="operador">Operador *</label>
+                  <select
+                    id="operador"
+                    name="operador"
+                    value={formData.operador}
+                    onChange={handleInputChange}
+                    required
+                    disabled={loadingOperadores}
+                  >
+                    <option value="">
+                      {loadingOperadores ? "Carregando..." : "Selecione um operador"}
+                    </option>
+                    {operadores.map((operador) => (
+                      <option key={operador.id} value={operador.id}>
+                        {operador.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Seção Rota */}
+            <div className="form-section">
+              <div className="section-header">
+                <MapPin size={20} />
+                <h2>Rota</h2>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="pol">Porto de Origem (POL) *</label>
+                  <select
+                    id="pol"
+                    name="pol"
+                    value={formData.pol}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Selecione o porto de origem</option>
+                    {portos.map((porto) => (
+                      <option key={porto} value={porto}>
+                        {porto}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="pod">Porto de Destino (POD) *</label>
+                  <select
+                    id="pod"
+                    name="pod"
+                    value={formData.pod}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Selecione o porto de destino</option>
+                    {portos.map((porto) => (
+                      <option key={porto} value={porto}>
+                        {porto}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="etdOrigem">Data de Partida (ETD) *</label>
+                  <input
+                    type="date"
+                    id="etdOrigem"
+                    name="etdOrigem"
+                    value={formData.etdOrigem}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="etaDestino">
+                    Data Prevista Chegada (ETA) *
+                  </label>
+                  <input
+                    type="date"
+                    id="etaDestino"
+                    name="etaDestino"
+                    value={formData.etaDestino}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Seção Documentação */}
+            <div className="form-section">
+              <div className="section-header">
+                <FileText size={20} />
+                <h2>Documentação</h2>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="numeroBl">Número do BL *</label>
+                  <input
+                    type="text"
+                    id="numeroBl"
+                    name="numeroBl"
+                    value={formData.numeroBl}
+                    onChange={handleInputChange}
+                    placeholder="Ex: BL123456789"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="booking">Número do Booking *</label>
+                  <input
+                    type="text"
+                    id="booking"
+                    name="booking"
+                    value={formData.booking}
+                    onChange={handleInputChange}
+                    placeholder="Ex: BK987654321"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="invoice">Número do Invoice *</label>
+                  <input
+                    type="text"
+                    id="invoice"
+                    name="invoice"
+                    value={formData.invoice}
+                    onChange={handleInputChange}
+                    placeholder="Ex: INV123456789"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Botões */}
+            <div className="form-actions">
+              <button
+                type="button"
+                className="btn-cancel"
+                onClick={() => window.history.back()}
+              >
+                {translations.cancel}
+              </button>
+              <button
+                type="submit"
+                className="btn-submit"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Registrando..." : translations.newShipmentTitle}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
   );
 };
 

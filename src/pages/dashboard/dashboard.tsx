@@ -14,7 +14,7 @@ import { useNavigate } from "react-router-dom";
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
 import Navbar from "../../components/navbar/navbar";
 import { useAuth } from "../../context/auth-context";
-import { LanguageProvider } from "../../context/language-context";
+import { useLanguage } from "../../context/language-context";
 import { Shipment, useShipments } from "../../context/shipments-context";
 import "./user-dashboard.css";
 
@@ -37,6 +37,7 @@ interface RecentActivity {
 export const Dashboard = () => {
   const { currentUser, isAdmin } = useAuth();
   const { shipments, loading } = useShipments();
+  const { translations } = useLanguage();
   const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     totalShipments: 0,
@@ -114,13 +115,13 @@ export const Dashboard = () => {
   const getActionText = (status: string) => {
     switch (status) {
       case "documentação":
-        return "Documentação em andamento";
+        return translations.statusPending;
       case "agendado":
-        return "Embarque agendado";
+        return translations.statusInTransit;
       case "em-trânsito":
-        return "Em trânsito";
+        return translations.statusInTransit;
       case "concluído":
-        return "Entregue no destino";
+        return translations.statusDelivered;
       default:
         return "Status atualizado";
     }
@@ -150,135 +151,131 @@ export const Dashboard = () => {
   // Se for admin ou ainda carregando, não mostrar o dashboard
   if (loading || isAdmin()) {
     return (
-      <LanguageProvider>
-        <main className="dashboard-container">
-          <Navbar />
-          <div className="dashboard-content">
-            <div className="loading-message">
-              {loading ? "Carregando..." : "Redirecionando..."}
-            </div>
-          </div>
-          <ChatAssistant />
-        </main>
-      </LanguageProvider>
-    );
-  }
-
-  return (
-    <LanguageProvider>
       <main className="dashboard-container">
         <Navbar />
         <div className="dashboard-content">
-          <div className="dashboard-header">
-            <h1>Dashboard</h1>
-            <p>Bem-vindo, {currentUser?.displayName}!</p>
-          </div>
-
-          {/* Cards de Estatísticas */}
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon">
-                <Ship size={24} />
-              </div>
-              <div className="stat-info">
-                <h3>Meus Envios</h3>
-                <p className="stat-number">{stats.totalShipments}</p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon in-transit">
-                <Package size={24} />
-              </div>
-              <div className="stat-info">
-                <h3>Em Trânsito</h3>
-                <p className="stat-number">{stats.inTransit}</p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon delivered">
-                <CheckCircle size={24} />
-              </div>
-              <div className="stat-info">
-                <h3>Entregues</h3>
-                <p className="stat-number">{stats.delivered}</p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon pending">
-                <Clock size={24} />
-              </div>
-              <div className="stat-info">
-                <h3>Pendentes</h3>
-                <p className="stat-number">{stats.pending}</p>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon this-month">
-                <TrendingUp size={24} />
-              </div>
-              <div className="stat-info">
-                <h3>Este Mês</h3>
-                <p className="stat-number">{stats.thisMonth}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Seção de Atividades Recentes */}
-          <div className="recent-activity">
-            <h2>Meus Envios Recentes</h2>
-            {recentActivity.length > 0 ? (
-              <div className="activity-list">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="activity-item">
-                    <div
-                      className="activity-status-dot"
-                      style={{
-                        backgroundColor: getStatusColor(activity.status),
-                      }}
-                    ></div>
-                    <div className="activity-details">
-                      <p className="activity-action">{activity.action}</p>
-                      <p className="activity-shipment">
-                        <MapPin size={14} />
-                        {activity.shipment}
-                      </p>
-                    </div>
-                    <div className="activity-date">
-                      <Calendar size={14} />
-                      {formatDate(activity.date)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-activity">
-                <AlertCircle size={48} />
-                <p>Você ainda não possui envios registrados</p>
-              </div>
-            )}
-          </div>
-
-          {/* Links Rápidos */}
-          <div className="quick-links">
-            <h2>Acesso Rápido</h2>
-            <div className="links-grid">
-              <a href="/envios" className="quick-link-card">
-                <Ship size={24} />
-                <span>Ver Meus Envios</span>
-              </a>
-              <a href="/settings" className="quick-link-card">
-                <Settings size={24} />
-                <span>Configurações</span>
-              </a>
-            </div>
+          <div className="loading-message">
+            {loading ? translations.loading : "Redirecionando..."}
           </div>
         </div>
         <ChatAssistant />
       </main>
-    </LanguageProvider>
+    );
+  }
+
+  return (
+    <main className="dashboard-container">
+      <Navbar />
+      <div className="dashboard-content">
+        <div className="dashboard-header">
+          <h1>{translations.dashboard}</h1>
+          <p>Bem-vindo, {currentUser?.displayName}!</p>
+        </div>
+
+        {/* Cards de Estatísticas */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon">
+              <Ship size={24} />
+            </div>
+            <div className="stat-info">
+              <h3>{translations.totalShipments}</h3>
+              <p className="stat-number">{stats.totalShipments}</p>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon in-transit">
+              <Package size={24} />
+            </div>
+            <div className="stat-info">
+              <h3>{translations.inTransit}</h3>
+              <p className="stat-number">{stats.inTransit}</p>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon delivered">
+              <CheckCircle size={24} />
+            </div>
+            <div className="stat-info">
+              <h3>{translations.delivered}</h3>
+              <p className="stat-number">{stats.delivered}</p>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon pending">
+              <Clock size={24} />
+            </div>
+            <div className="stat-info">
+              <h3>{translations.pending}</h3>
+              <p className="stat-number">{stats.pending}</p>
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-icon this-month">
+              <TrendingUp size={24} />
+            </div>
+            <div className="stat-info">
+              <h3>{translations.thisMonth}</h3>
+              <p className="stat-number">{stats.thisMonth}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Seção de Atividades Recentes */}
+        <div className="recent-activity">
+          <h2>{translations.shipmentsTitle}</h2>
+          {recentActivity.length > 0 ? (
+            <div className="activity-list">
+              {recentActivity.map((activity) => (
+                <div key={activity.id} className="activity-item">
+                  <div
+                    className="activity-status-dot"
+                    style={{
+                      backgroundColor: getStatusColor(activity.status),
+                    }}
+                  ></div>
+                  <div className="activity-details">
+                    <p className="activity-action">{activity.action}</p>
+                    <p className="activity-shipment">
+                      <MapPin size={14} />
+                      {activity.shipment}
+                    </p>
+                  </div>
+                  <div className="activity-date">
+                    <Calendar size={14} />
+                    {formatDate(activity.date)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-activity">
+              <AlertCircle size={48} />
+              <p>{translations.noShipments}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Links Rápidos */}
+        <div className="quick-links">
+          <h2>{translations.quickActions}</h2>
+          <div className="links-grid">
+            <a href="/envios" className="quick-link-card">
+              <Ship size={24} />
+              <span>{translations.shipmentsTitle}</span>
+            </a>
+            <a href="/settings" className="quick-link-card">
+              <Settings size={24} />
+              <span>{translations.settings}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <ChatAssistant />
+    </main>
   );
 };

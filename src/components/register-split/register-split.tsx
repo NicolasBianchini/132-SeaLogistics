@@ -151,10 +151,10 @@ export default function RegisterSplit() {
       const userData =
         role === UserRole.COMPANY_USER
           ? {
-              ...baseUserData,
-              companyId,
-              companyName,
-            }
+            ...baseUserData,
+            companyId,
+            companyName,
+          }
           : baseUserData;
 
       // Salvar dados do usuário no Firestore

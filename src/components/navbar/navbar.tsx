@@ -1,7 +1,7 @@
 "use client";
 
 import { Home, Menu, Plus, Settings, Ship, X } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo2 from "../../assets/logo2.png";
 import { useAuth } from "../../context/auth-context";
@@ -15,11 +15,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin, logout } = useAuth();
-
-  // Fecha o menu sempre que a rota muda
-  useEffect(() => {
-    setIsCollapsed(true);
-  }, [location.pathname, setIsCollapsed]);
 
   const getActiveItem = () => {
     if (location.pathname.includes("settings")) return "settings";

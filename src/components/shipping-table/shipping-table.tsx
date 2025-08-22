@@ -6,7 +6,7 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
 import { Check, Edit, FileText } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { useAuth } from "../../context/auth-context";
 import { useShipments, type Shipment } from "../../context/shipments-context";
@@ -21,11 +21,16 @@ import StatusSelector from "./status-selector";
 interface ShippingTableProps {
   shipments?: Shipment[];
   onShipmentUpdate?: (shipment: Shipment) => void;
+  initialFilters?: {
+    status?: string;
+    filter?: string;
+  };
 }
 
 const ShippingTable = ({
   shipments: propShipments,
   onShipmentUpdate,
+  initialFilters,
 }: ShippingTableProps) => {
   const {
     shipments: contextShipments,
@@ -60,8 +65,35 @@ const ShippingTable = ({
     searchTerm: "",
   });
 
+  // Aplicar filtros iniciais quando o componente carregar
+  useEffect(() => {
+    if (initialFilters) {
+      let newFilters = { ...filters };
+
+      // Aplicar filtro de status
+      if (initialFilters.status) {
+        // O filtro de status será aplicado na lógica de filtragem
+      }
+
+      // Aplicar filtro especial
+      if (initialFilters.filter === 'this-month') {
+        const currentMonth = new Date().getMonth() + 1;
+        newFilters.month = currentMonth.toString();
+      }
+
+      setFilters(newFilters);
+    }
+  }, [initialFilters]);
+
   const filteredAndSortedShipments = useMemo(() => {
     let filtered = [...shipments];
+
+    // Aplicar filtro de status inicial
+    if (initialFilters?.status) {
+      filtered = filtered.filter((shipment) => {
+        return shipment.status === initialFilters.status;
+      });
+    }
 
     if (filters.searchTerm) {
       const searchTerm = filters.searchTerm.toLowerCase();
@@ -74,9 +106,9 @@ const ShippingTable = ({
 
         const adminFields = isAdmin()
           ? [
-              shipment.cliente?.toLowerCase().includes(searchTerm),
-              shipment.operador?.toLowerCase().includes(searchTerm),
-            ]
+            shipment.cliente?.toLowerCase().includes(searchTerm),
+            shipment.operador?.toLowerCase().includes(searchTerm),
+          ]
           : [];
 
         return [...commonFields, ...adminFields].some((match) => match);
@@ -365,11 +397,9 @@ const ShippingTable = ({
           <li><strong>Porto de Destino:</strong> ${shipment.pod}</li>
           <li><strong>ETD Origem:</strong> ${shipment.etdOrigem}</li>
           <li><strong>ETA Destino:</strong> ${shipment.etaDestino}</li>
-          <li><strong>Localização Atual:</strong> ${
-            shipment.currentLocation
+          <li><strong>Localização Atual:</strong> ${shipment.currentLocation
           }</li>
-          <li><strong>Quantidade de Containers:</strong> ${
-            shipment.quantBox
+          <li><strong>Quantidade de Containers:</strong> ${shipment.quantBox
           }</li>
           <li><strong>Status:</strong> ${shipment.status}</li>
           <li><strong>Armador:</strong> ${shipment.armador}</li>

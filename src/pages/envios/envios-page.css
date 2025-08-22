@@ -1,69 +1,90 @@
 .envios-container {
   display: flex;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  height: 100vh;
+  background-color: #f5f7fa;
   position: relative;
   overflow: hidden;
 }
 
 .envios-content {
   flex: 1;
-  margin-left: 320px; /* Espaço para sidebar + margem */
-  margin-right: 20px; /* Margem direita */
-  margin-top: 20px; /* Margem superior */
-  margin-bottom: 20px; /* Margem inferior */
-  padding: 2rem;
+  margin-left: 100px;
+  padding: 20px;
+  overflow-y: auto;
   transition: all 0.3s ease;
   box-sizing: border-box;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  overflow-y: auto;
-  max-height: calc(100vh - 40px);
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
-/* Ajuste para quando a navbar está collapsed */
-.envios-content.navbar-collapsed {
-  margin-left: 128px; /* Espaço para sidebar collapsed + margem */
+/* Filtros Ativos */
+.active-filters {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 2;
+}
+
+.active-filters h3 {
+  color: var(--secondary-color, #305951);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 16px 0;
+}
+
+.filter-tags {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filter-tag {
+  background: var(--primary-color, #789170);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-tag::before {
+  content: "✓";
+  font-weight: bold;
 }
 
 /* Responsividade */
-@media (max-width: 1024px) {
-  .envios-content {
-    margin-left: 300px;
-  }
-
-  .envios-content.navbar-collapsed {
-    margin-left: 108px;
-  }
-}
-
 @media (max-width: 768px) {
   .envios-content {
-    margin-left: 280px;
-    margin-right: 15px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    padding: 1.5rem;
+    padding: 16px;
+    margin-left: 68px;
   }
-
-  .envios-content.navbar-collapsed {
-    margin-left: 88px;
+  
+  .active-filters {
+    padding: 16px;
+  }
+  
+  .filter-tags {
+    gap: 8px;
+  }
+  
+  .filter-tag {
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }
 
 @media (max-width: 480px) {
   .envios-content {
-    margin-left: 15px;
-    margin-right: 15px;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    padding: 1rem;
-  }
-
-  .envios-content.navbar-collapsed {
-    margin-left: 15px;
+    margin-left: 0;
+    padding: 12px;
   }
 }
 
