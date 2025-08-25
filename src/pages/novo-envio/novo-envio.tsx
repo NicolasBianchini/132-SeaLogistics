@@ -3,7 +3,7 @@
 import type React from "react";
 
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { FileText, MapPin, Package, Ship, User } from "lucide-react";
+import { FileText, MapPin, Package, Ship, User, Plane, Truck } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/navbar/navbar";
@@ -42,7 +42,7 @@ interface NovoEnvio {
   booking: string;
   invoice: string;
   shipper: string;
-  tipo: "Aéreo" | "Marítimo" | "Rodoviário" | "";
+  tipo: "Aéreo" | "Marítimo" | "Terrestre" | "";
 }
 
 const NovoEnvioPage = () => {
@@ -70,7 +70,7 @@ const NovoEnvioPage = () => {
     etdOrigem: "",
     etaDestino: "",
     quantBox: 1,
-    status: "Agendado",
+    status: "agendado",
     numeroBl: "",
     armador: "",
     booking: "",
@@ -84,6 +84,17 @@ const NovoEnvioPage = () => {
   const [loadingClientes, setLoadingClientes] = useState(false);
   const [loadingOperadores, setLoadingOperadores] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Limpar campos de origem e destino quando o tipo de transporte for alterado
+  useEffect(() => {
+    if (formData.tipo) {
+      setFormData(prev => ({
+        ...prev,
+        pol: "",
+        pod: ""
+      }));
+    }
+  }, [formData.tipo]);
 
   // Buscar clientes reais do Firestore (apenas usuários não-admin)
   useEffect(() => {
@@ -156,6 +167,7 @@ const NovoEnvioPage = () => {
   ];
 
   const portos = [
+    // Portos Marítimos
     "Santos, Brasil",
     "Itajaí, Brasil",
     "Paranaguá, Brasil",
@@ -168,6 +180,45 @@ const NovoEnvioPage = () => {
     "Singapura",
     "Los Angeles, EUA",
     "Nova York, EUA",
+  ];
+
+  const aeroportos = [
+    // Aeroportos Internacionais
+    "Guarulhos (GRU), São Paulo, Brasil",
+    "Galeão (GIG), Rio de Janeiro, Brasil",
+    "Brasília (BSB), Brasil",
+    "Miami (MIA), EUA",
+    "JFK (JFK), Nova York, EUA",
+    "Heathrow (LHR), Londres, Reino Unido",
+    "Charles de Gaulle (CDG), Paris, França",
+    "Frankfurt (FRA), Alemanha",
+    "Dubai (DXB), Emirados Árabes",
+    "Hong Kong (HKG), China",
+    "Narita (NRT), Tóquio, Japão",
+  ];
+
+  const locaisTerrestres = [
+    // Locais Terrestres
+    "São Paulo, Brasil",
+    "Rio de Janeiro, Brasil",
+    "Brasília, Brasil",
+    "Curitiba, Brasil",
+    "Porto Alegre, Brasil",
+    "Belo Horizonte, Brasil",
+    "Salvador, Brasil",
+    "Recife, Brasil",
+    "Fortaleza, Brasil",
+    "Manaus, Brasil",
+    "Miami, EUA",
+    "Nova York, EUA",
+    "Los Angeles, EUA",
+    "Londres, Reino Unido",
+    "Paris, França",
+    "Berlim, Alemanha",
+    "Madri, Espanha",
+    "Roma, Itália",
+    "Amsterdã, Holanda",
+    "Bruxelas, Bélgica",
   ];
 
   const statusOptions = ["A Embarcar", "Embarcado", "Concluído"];
@@ -219,6 +270,7 @@ const NovoEnvioPage = () => {
         companyId: clienteSelecionado.companyId,
         invoice: formData.invoice,
         shipper: "",
+        tipo: formData.tipo,
       };
 
       await addShipment(shipmentData);
@@ -233,7 +285,7 @@ const NovoEnvioPage = () => {
         etdOrigem: "",
         etaDestino: "",
         quantBox: 1,
-        status: "Agendado",
+        status: "agendado",
         numeroBl: "",
         armador: "",
         booking: "",
@@ -258,9 +310,8 @@ const NovoEnvioPage = () => {
       <main className="novo-envio-main">
         <Navbar />
         <div
-          className={`novo-envio-content ${
-            isCollapsed ? "navbar-collapsed" : ""
-          }`}
+          className={`novo-envio-content ${isCollapsed ? "navbar-collapsed" : ""
+            }`}
         >
           <div className="novo-envio-container">
             <div className="access-denied">
@@ -282,6 +333,35 @@ const NovoEnvioPage = () => {
         <div className="page-header">
           <h1>{translations.newShipmentTitle}</h1>
           <p>Preencha as informações para criar um novo envio</p>
+        </div>
+
+        {/* Seção Tipo de Envio */}
+        <div className="form-section">
+          <div className="section-header">
+            <Package size={20} />
+            <h2>Tipo de Envio</h2>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="tipo">
+                <Package size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                Tipo de Transporte *
+              </label>
+              <select
+                id="tipo"
+                name="tipo"
+                value={formData.tipo}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Selecione o tipo de transporte</option>
+                <option value="Marítimo">Marítimo</option>
+                <option value="Aéreo">Aéreo</option>
+                <option value="Terrestre">Terrestre</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div className="form-container">
@@ -347,7 +427,11 @@ const NovoEnvioPage = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="pol">Porto de Origem (POL) *</label>
+                  <label htmlFor="pol">
+                    {formData.tipo === "Aéreo" ? "Aeroporto de Origem" :
+                      formData.tipo === "Terrestre" ? "Local de Origem" :
+                        "Porto de Origem"} (POL) *
+                  </label>
                   <select
                     id="pol"
                     name="pol"
@@ -355,17 +439,38 @@ const NovoEnvioPage = () => {
                     onChange={handleInputChange}
                     required
                   >
-                    <option value="">Selecione o porto de origem</option>
-                    {portos.map((porto) => (
-                      <option key={porto} value={porto}>
-                        {porto}
-                      </option>
-                    ))}
+                    <option value="">
+                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto de origem" :
+                        formData.tipo === "Terrestre" ? "Selecione o local de origem" :
+                          "Selecione o porto de origem"}
+                    </option>
+                    {formData.tipo === "Aéreo" ?
+                      aeroportos.map((aeroporto) => (
+                        <option key={aeroporto} value={aeroporto}>
+                          {aeroporto}
+                        </option>
+                      )) :
+                      formData.tipo === "Terrestre" ?
+                        locaisTerrestres.map((local) => (
+                          <option key={local} value={local}>
+                            {local}
+                          </option>
+                        )) :
+                        portos.map((porto) => (
+                          <option key={porto} value={porto}>
+                            {porto}
+                          </option>
+                        ))
+                    }
                   </select>
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="pod">Porto de Destino (POD) *</label>
+                  <label htmlFor="pod">
+                    {formData.tipo === "Aéreo" ? "Aeroporto de Destino" :
+                      formData.tipo === "Terrestre" ? "Local de Destino" :
+                        "Porto de Destino"} (POD) *
+                  </label>
                   <select
                     id="pod"
                     name="pod"
@@ -373,12 +478,29 @@ const NovoEnvioPage = () => {
                     onChange={handleInputChange}
                     required
                   >
-                    <option value="">Selecione o porto de destino</option>
-                    {portos.map((porto) => (
-                      <option key={porto} value={porto}>
-                        {porto}
-                      </option>
-                    ))}
+                    <option value="">
+                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto de destino" :
+                        formData.tipo === "Terrestre" ? "Selecione o local de destino" :
+                          "Selecione o porto de destino"}
+                    </option>
+                    {formData.tipo === "Aéreo" ?
+                      aeroportos.map((aeroporto) => (
+                        <option key={aeroporto} value={aeroporto}>
+                          {aeroporto}
+                        </option>
+                      )) :
+                      formData.tipo === "Terrestre" ?
+                        locaisTerrestres.map((local) => (
+                          <option key={local} value={local}>
+                            {local}
+                          </option>
+                        )) :
+                        portos.map((porto) => (
+                          <option key={porto} value={porto}>
+                            {porto}
+                          </option>
+                        ))
+                    }
                   </select>
                 </div>
               </div>

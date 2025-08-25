@@ -85,6 +85,14 @@ export const translations = {
     statusDelivered: "Delivered",
     statusCancelled: "Cancelled",
     statusDelayed: "Delayed",
+    statusDocumentation: "Documentation",
+    statusScheduled: "Scheduled",
+    statusToShip: "To Ship",
+    statusShipping: "Shipping",
+    statusUnloading: "Unloading",
+    statusInDelivery: "In Delivery",
+    statusCompleted: "Completed",
+    statusSuspended: "Suspended",
 
     // Forms
     required: "Required",
@@ -202,6 +210,14 @@ export const translations = {
     statusDelivered: "Entregue",
     statusCancelled: "Cancelado",
     statusDelayed: "Atrasado",
+    statusDocumentation: "Documentação",
+    statusScheduled: "Agendado",
+    statusToShip: "Para Envio",
+    statusShipping: "Em Transporte",
+    statusUnloading: "Descarregamento",
+    statusInDelivery: "Em Entrega",
+    statusCompleted: "Concluído",
+    statusSuspended: "Suspenso",
 
     // Forms
     required: "Obrigatório",
@@ -319,6 +335,14 @@ export const translations = {
     statusDelivered: "Entregado",
     statusCancelled: "Cancelado",
     statusDelayed: "Retrasado",
+    statusDocumentation: "Documentación",
+    statusScheduled: "Programado",
+    statusToShip: "Para Envío",
+    statusShipping: "En Transporte",
+    statusUnloading: "Descargando",
+    statusInDelivery: "En Entrega",
+    statusCompleted: "Completado",
+    statusSuspended: "Suspendido",
 
     // Forms
     required: "Requerido",

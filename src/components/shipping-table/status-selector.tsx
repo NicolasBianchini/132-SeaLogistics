@@ -18,24 +18,90 @@ interface StatusSelectorProps {
 }
 
 const statusOptions: StatusOption[] = [
+  // Status Inicial - Documentação
+  {
+    value: "documentacao",
+    label: "Documentação",
+    color: "#ffffff",
+    bgColor: "#6c757d",
+  },
+  
+  // Status de Planejamento
+  {
+    value: "agendado",
+    label: "Agendado",
+    color: "#ffffff",
+    bgColor: "#17a2b8",
+  },
+  
+  // Status de Preparação
   {
     value: "a-embarcar",
     label: "A Embarcar",
     color: "#8b5a00",
     bgColor: "#ffd166",
   },
+  
+  // Status de Embarque
   {
-    value: "embarcado",
-    label: "Embarcar",
-    color: "white",
+    value: "embarcando",
+    label: "Embarcando",
+    color: "#ffffff",
+    bgColor: "#fd7e14",
+  },
+  
+  // Status de Trânsito
+  {
+    value: "em-transito",
+    label: "Em Trânsito",
+    color: "#ffffff",
     bgColor: "#118ab2",
   },
-
+  
+  // Status de Desembarque
   {
-    value: "Concluído",
+    value: "desembarcando",
+    label: "Desembarcando",
+    color: "#ffffff",
+    bgColor: "#6f42c1",
+  },
+  
+  // Status de Entrega
+  {
+    value: "em-entrega",
+    label: "Em Entrega",
+    color: "#ffffff",
+    bgColor: "#20c997",
+  },
+  
+  // Status Final
+  {
+    value: "concluido",
     label: "Concluído",
-    color: "#0d5d3e",
+    color: "#ffffff",
     bgColor: "#073b4c",
+  },
+  
+  // Status de Problemas
+  {
+    value: "atrasado",
+    label: "Atrasado",
+    color: "#ffffff",
+    bgColor: "#dc3545",
+  },
+  
+  {
+    value: "cancelado",
+    label: "Cancelado",
+    color: "#ffffff",
+    bgColor: "#6c757d",
+  },
+  
+  {
+    value: "suspenso",
+    label: "Suspenso",
+    color: "#ffffff",
+    bgColor: "#ffc107",
   },
 ];
 

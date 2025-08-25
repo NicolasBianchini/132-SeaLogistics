@@ -5,7 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
-import { Check, Edit, FileText } from "lucide-react";
+import { Check, Edit, FileText, FolderOpen, Truck } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { useAuth } from "../../context/auth-context";
@@ -43,6 +43,8 @@ const ShippingTable = ({
 
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
+  const [selectedShipmentForDocs, setSelectedShipmentForDocs] = useState<Shipment | null>(null);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -452,6 +454,11 @@ const ShippingTable = ({
     saveAs(fileData, `envio-${shipment.numeroBl || "sem-bl"}.xlsx`);
   };
 
+  const handleManageDocuments = (shipment: Shipment) => {
+    setSelectedShipmentForDocs(shipment);
+    setShowDocumentsModal(true);
+  };
+
   return (
     <DropdownProvider>
       <div className="shipping-table-container">
@@ -475,6 +482,7 @@ const ShippingTable = ({
               <thead>
                 <tr>
                   <th>Cliente</th>
+                  <th>Tipo</th>
                   <th>Shipper</th>
                   <th>POL</th>
                   <th>POD</th>
@@ -493,6 +501,11 @@ const ShippingTable = ({
                 {filteredAndSortedShipments.map((shipment) => (
                   <tr key={shipment.id}>
                     <td>{shipment.cliente}</td>
+                    <td>
+                      <span className={`tipo-badge tipo-${shipment.tipo?.toLowerCase() || 'nao-especificado'}`}>
+                        {shipment.tipo || 'N/A'}
+                      </span>
+                    </td>
                     <td>{shipment.shipper}</td>
                     <td>{shipment.pol}</td>
                     <td>{shipment.pod}</td>
@@ -531,14 +544,21 @@ const ShippingTable = ({
                           title="Editar envio"
                           disabled={!canEditShipment(shipment)}
                         >
-                          <Edit size={16} />
+                          <Edit size={20} />
                         </button>
                         <button
-                          className="action-icon"
+                          className="action-icon documents-icon"
+                          onClick={() => handleManageDocuments(shipment)}
+                          title="Gerenciar documentos"
+                        >
+                          <FolderOpen size={20} />
+                        </button>
+                        <button
+                          className="action-icon file-icon"
                           onClick={() => exportToExcel(shipment)}
                           title="Exportar para Excel"
                         >
-                          <FileText size={16} />
+                          <FileText size={20} />
                         </button>
                         <button
                           className="action-icon check-icon"
@@ -556,7 +576,7 @@ const ShippingTable = ({
                           title="Enviar informações para o cliente"
                           disabled={!isAdmin()}
                         >
-                          <Check size={16} />
+                          <Check size={20} />
                         </button>
                       </div>
                     </td>
@@ -581,6 +601,91 @@ const ShippingTable = ({
             onSave={handleSaveShipment}
             canEdit={canEditShipment(editingShipment)}
           />
+        )}
+
+        {/* Modal de Gerenciamento de Documentos */}
+        {showDocumentsModal && selectedShipmentForDocs && (
+          <div className="documents-modal-overlay">
+            <div className="documents-modal">
+              <div className="documents-modal-header">
+                <h3>Gerenciar Documentos</h3>
+                <button
+                  className="close-button"
+                  onClick={() => setShowDocumentsModal(false)}
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="documents-modal-content">
+                <div className="shipment-info">
+                  <h4>Envio: {selectedShipmentForDocs.numeroBl}</h4>
+                  <p>Cliente: {selectedShipmentForDocs.cliente}</p>
+                  <p>Status: {selectedShipmentForDocs.status}</p>
+                </div>
+
+                <div className="documents-section">
+                  <h5>
+                    <FileText size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                    Documentos do Cliente
+                  </h5>
+                  <div className="document-upload-area">
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onChange={(e) => console.log('Upload de documentos do cliente:', e.target.files)}
+                    />
+                    <p className="upload-hint">Arraste arquivos ou clique para selecionar</p>
+                  </div>
+                </div>
+
+                <div className="documents-section">
+                  <h5>
+                    <Truck size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                    Documentos de Transporte
+                  </h5>
+                  <div className="document-upload-area">
+                    <input
+                      type="file"
+                      multiple
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                      onChange={(e) => console.log('Upload de documentos de transporte:', e.target.files)}
+                    />
+                    <p className="upload-hint">Arraste arquivos ou clique para selecionar</p>
+                  </div>
+                </div>
+
+                <div className="documents-section">
+                  <h5>
+                    <FolderOpen size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                    Documentos Existentes
+                  </h5>
+                  <div className="existing-documents">
+                    <p className="no-documents">Nenhum documento carregado ainda.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="documents-modal-actions">
+                <button
+                  className="btn-cancel"
+                  onClick={() => setShowDocumentsModal(false)}
+                >
+                  Fechar
+                </button>
+                <button
+                  className="btn-save"
+                  onClick={() => {
+                    // Implementar lógica de salvamento
+                    alert('Funcionalidade de salvamento em desenvolvimento');
+                  }}
+                >
+                  Salvar Documentos
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </DropdownProvider>

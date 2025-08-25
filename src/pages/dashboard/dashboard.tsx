@@ -69,13 +69,13 @@ export const Dashboard = () => {
 
     const totalShipments = shipmentsToStat.length;
     const inTransit = shipmentsToStat.filter(
-      (s) => s.status === "em-trânsito" || s.status === "agendado"
+      (s) => s.status === "em-transito" || s.status === "agendado"
     ).length;
     const delivered = shipmentsToStat.filter(
-      (s) => s.status === "concluído"
+      (s) => s.status === "concluido"
     ).length;
     const pending = shipmentsToStat.filter(
-      (s) => s.status === "documentação"
+      (s) => s.status === "documentacao"
     ).length;
 
     const thisMonth = shipmentsToStat.filter((s) => {

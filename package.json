@@ -18,6 +18,7 @@
     "@types/gapi.auth2": "^0.0.61",
     "@types/gapi.client.gmail": "^1.0.5",
     "@types/nodemailer": "^6.4.17",
+    "borderless": "^1.0.1",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",

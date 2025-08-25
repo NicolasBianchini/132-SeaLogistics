@@ -30,6 +30,7 @@ interface FormData {
   booking: string;
   invoice: string;
   observacoes: string;
+  tipo: string;
 }
 
 const EditShipmentModal = ({
@@ -54,6 +55,7 @@ const EditShipmentModal = ({
     booking: "",
     invoice: "",
     observacoes: "",
+    tipo: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -86,6 +88,45 @@ const EditShipmentModal = ({
     "Nova York, EUA",
   ];
 
+  const aeroportos = [
+    // Aeroportos Internacionais
+    "Guarulhos (GRU), São Paulo, Brasil",
+    "Galeão (GIG), Rio de Janeiro, Brasil",
+    "Brasília (BSB), Brasil",
+    "Miami (MIA), EUA",
+    "JFK (JFK), Nova York, EUA",
+    "Heathrow (LHR), Londres, Reino Unido",
+    "Charles de Gaulle (CDG), Paris, França",
+    "Frankfurt (FRA), Alemanha",
+    "Dubai (DXB), Emirados Árabes",
+    "Hong Kong (HKG), China",
+    "Narita (NRT), Tóquio, Japão",
+  ];
+
+  const locaisTerrestres = [
+    // Locais Terrestres
+    "São Paulo, Brasil",
+    "Rio de Janeiro, Brasil",
+    "Brasília, Brasil",
+    "Curitiba, Brasil",
+    "Porto Alegre, Brasil",
+    "Belo Horizonte, Brasil",
+    "Salvador, Brasil",
+    "Recife, Brasil",
+    "Fortaleza, Brasil",
+    "Manaus, Brasil",
+    "Miami, EUA",
+    "Nova York, EUA",
+    "Los Angeles, EUA",
+    "Londres, Reino Unido",
+    "Paris, França",
+    "Berlim, Alemanha",
+    "Madri, Espanha",
+    "Roma, Itália",
+    "Amsterdã, Holanda",
+    "Bruxelas, Bélgica",
+  ];
+
   // Carregar dados do shipment no formulário
   useEffect(() => {
     if (shipment) {
@@ -105,9 +146,22 @@ const EditShipmentModal = ({
         booking: shipment.booking || "",
         invoice: shipment.invoice || "",
         observacoes: (shipment as any).observacoes || "",
+        tipo: (shipment as any).tipo || "",
       });
     }
   }, [shipment]);
+
+  // Limpar campos de origem e destino quando o tipo de transporte for alterado
+  useEffect(() => {
+    if (formData.tipo) {
+      setFormData(prev => ({
+        ...prev,
+        pol: "",
+        pod: "",
+        currentLocation: ""
+      }));
+    }
+  }, [formData.tipo]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -138,6 +192,9 @@ const EditShipmentModal = ({
     }
     if (!formData.operador.trim()) {
       newErrors.operador = "Operador é obrigatório";
+    }
+    if (!formData.tipo.trim()) {
+      newErrors.tipo = "Tipo de transporte é obrigatório";
     }
     if (!formData.pol.trim()) {
       newErrors.pol = "Porto de origem é obrigatório";
@@ -203,6 +260,7 @@ const EditShipmentModal = ({
         booking: formData.booking,
         invoice: formData.invoice,
         observacoes: formData.observacoes,
+        tipo: formData.tipo,
         updatedAt: new Date(),
       };
 
@@ -242,6 +300,31 @@ const EditShipmentModal = ({
               <div className="section-title">
                 <User size={18} />
                 <span>Informações do Cliente</span>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="tipo">
+                    <Package size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                    Tipo de Transporte *
+                  </label>
+                  <select
+                    id="tipo"
+                    name="tipo"
+                    value={formData.tipo}
+                    onChange={handleInputChange}
+                    disabled={!canEdit}
+                    required
+                  >
+                    <option value="">Selecione o tipo de transporte</option>
+                    <option value="Marítimo">Marítimo</option>
+                    <option value="Aéreo">Aéreo</option>
+                    <option value="Terrestre">Terrestre</option>
+                  </select>
+                  {errors.tipo && (
+                    <span className="error-message">{errors.tipo}</span>
+                  )}
+                </div>
               </div>
 
               <div className="form-row">
@@ -303,7 +386,11 @@ const EditShipmentModal = ({
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="pol">Porto de Origem (POL) *</label>
+                  <label htmlFor="pol">
+                    {formData.tipo === "Aéreo" ? "Aeroporto de Origem" :
+                      formData.tipo === "Terrestre" ? "Local de Origem" :
+                        "Porto de Origem"} (POL) *
+                  </label>
                   <select
                     id="pol"
                     name="pol"
@@ -311,12 +398,29 @@ const EditShipmentModal = ({
                     onChange={handleInputChange}
                     disabled={!canEdit}
                   >
-                    <option value="">Selecione o porto de origem</option>
-                    {portos.map((porto) => (
-                      <option key={porto} value={porto}>
-                        {porto}
-                      </option>
-                    ))}
+                    <option value="">
+                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto de origem" :
+                        formData.tipo === "Terrestre" ? "Selecione o local de origem" :
+                          "Selecione o porto de origem"}
+                    </option>
+                    {formData.tipo === "Aéreo" ?
+                      aeroportos.map((aeroporto) => (
+                        <option key={aeroporto} value={aeroporto}>
+                          {aeroporto}
+                        </option>
+                      )) :
+                      formData.tipo === "Terrestre" ?
+                        locaisTerrestres.map((local) => (
+                          <option key={local} value={local}>
+                            {local}
+                          </option>
+                        )) :
+                        portos.map((porto) => (
+                          <option key={porto} value={porto}>
+                            {porto}
+                          </option>
+                        ))
+                    }
                   </select>
                   {errors.pol && (
                     <span className="error-message">{errors.pol}</span>
@@ -324,7 +428,11 @@ const EditShipmentModal = ({
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="pod">Porto de Destino (POD) *</label>
+                  <label htmlFor="pod">
+                    {formData.tipo === "Aéreo" ? "Aeroporto de Destino" :
+                      formData.tipo === "Terrestre" ? "Local de Destino" :
+                        "Porto de Destino"} (POD) *
+                  </label>
                   <select
                     id="pod"
                     name="pod"
@@ -332,12 +440,29 @@ const EditShipmentModal = ({
                     onChange={handleInputChange}
                     disabled={!canEdit}
                   >
-                    <option value="">Selecione o porto de destino</option>
-                    {portos.map((porto) => (
-                      <option key={porto} value={porto}>
-                        {porto}
-                      </option>
-                    ))}
+                    <option value="">
+                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto de destino" :
+                        formData.tipo === "Terrestre" ? "Selecione o local de destino" :
+                          "Selecione o porto de destino"}
+                    </option>
+                    {formData.tipo === "Aéreo" ?
+                      aeroportos.map((aeroporto) => (
+                        <option key={aeroporto} value={aeroporto}>
+                          {aeroporto}
+                        </option>
+                      )) :
+                      formData.tipo === "Terrestre" ?
+                        locaisTerrestres.map((local) => (
+                          <option key={local} value={local}>
+                            {local}
+                          </option>
+                        )) :
+                        portos.map((porto) => (
+                          <option key={porto} value={porto}>
+                            {porto}
+                          </option>
+                        ))
+                    }
                   </select>
                   {errors.pod && (
                     <span className="error-message">{errors.pod}</span>
@@ -376,7 +501,11 @@ const EditShipmentModal = ({
                   )}
                 </div>
                 <div className="form-group">
-                  <label htmlFor="currentLocation">Local Atual</label>
+                  <label htmlFor="currentLocation">
+                    {formData.tipo === "Aéreo" ? "Aeroporto Atual" :
+                      formData.tipo === "Terrestre" ? "Local Atual" :
+                        "Porto Atual"}
+                  </label>
                   <select
                     id="currentLocation"
                     name="currentLocation"
@@ -384,15 +513,32 @@ const EditShipmentModal = ({
                     onChange={handleInputChange}
                     disabled={!canEdit}
                   >
-                    <option value="">Selecione o porto de destino</option>
-                    {portos.map((porto) => (
-                      <option key={porto} value={porto}>
-                        {porto}
-                      </option>
-                    ))}
+                    <option value="">
+                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto atual" :
+                        formData.tipo === "Terrestre" ? "Selecione o local atual" :
+                          "Selecione o porto atual"}
+                    </option>
+                    {formData.tipo === "Aéreo" ?
+                      aeroportos.map((aeroporto) => (
+                        <option key={aeroporto} value={aeroporto}>
+                          {aeroporto}
+                        </option>
+                      )) :
+                      formData.tipo === "Terrestre" ?
+                        locaisTerrestres.map((local) => (
+                          <option key={local} value={local}>
+                            {local}
+                          </option>
+                        )) :
+                        portos.map((porto) => (
+                          <option key={porto} value={porto}>
+                            {porto}
+                          </option>
+                        ))
+                    }
                   </select>
-                  {errors.pod && (
-                    <span className="error-message">{errors.pod}</span>
+                  {errors.currentLocation && (
+                    <span className="error-message">{errors.currentLocation}</span>
                   )}
                 </div>
               </div>

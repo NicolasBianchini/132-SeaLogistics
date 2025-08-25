@@ -19,9 +19,10 @@ import "./admin-panel.css";
 
 interface AdminPanelProps {
   onClose: () => void;
+  initialTab?: "users" | "companies" | "shipments";
 }
 
-export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
+export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, initialTab }) => {
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -29,7 +30,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
     "users" | "companies" | "shipments"
-  >("users");
+  >(initialTab || "users");
+
+
 
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [newUserData, setNewUserData] = useState({
@@ -53,8 +56,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
 
   useEffect(() => {
     if (!isAdmin()) return;
+
+    // Definir aba inicial se fornecida
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+
     loadData();
-  }, [isAdmin]);
+  }, [isAdmin, initialTab]);
+
+
 
   const loadData = async () => {
     try {
@@ -64,10 +75,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
       const usersSnapshot = await getDocs(collection(db, "users"));
       const usersData = usersSnapshot.docs.map(
         (doc) =>
-          ({
-            ...doc.data(),
-            uid: doc.id,
-          } as User)
+        ({
+          ...doc.data(),
+          uid: doc.id,
+        } as User)
       );
       setUsers(usersData);
 
@@ -75,10 +86,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
       const companiesSnapshot = await getDocs(collection(db, "companies"));
       const companiesData = companiesSnapshot.docs.map(
         (doc) =>
-          ({
-            ...doc.data(),
-            id: doc.id,
-          } as Company)
+        ({
+          ...doc.data(),
+          id: doc.id,
+        } as Company)
       );
       setCompanies(companiesData);
 
@@ -86,10 +97,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
       const shipmentsSnapshot = await getDocs(collection(db, "shipments"));
       const shipmentsData = shipmentsSnapshot.docs.map(
         (doc) =>
-          ({
-            ...doc.data(),
-            id: doc.id,
-          } as Shipment)
+        ({
+          ...doc.data(),
+          id: doc.id,
+        } as Shipment)
       );
       setShipments(shipmentsData);
     } catch (error) {
@@ -154,9 +165,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
         shipments.map((shipment) =>
           shipment.id === shipmentId
             ? {
-                ...shipment,
-                companyId: companyId === "unassigned" ? undefined : companyId,
-              }
+              ...shipment,
+              companyId: companyId === "unassigned" ? undefined : companyId,
+            }
             : shipment
         )
       );
@@ -290,10 +301,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
       const userData =
         newUserData.role === UserRole.COMPANY_USER
           ? {
-              ...baseUserData,
-              companyId,
-              companyName: newUserData.companyName,
-            }
+            ...baseUserData,
+            companyId,
+            companyName: newUserData.companyName,
+          }
           : baseUserData;
 
       // Salvar usuário no Firestore
@@ -374,22 +385,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
           <button
             className={`tab-button ${activeTab === "users" ? "active" : ""}`}
             onClick={() => setActiveTab("users")}
+            data-tab="users"
           >
             Usuários ({users.length})
           </button>
           <button
-            className={`tab-button ${
-              activeTab === "companies" ? "active" : ""
-            }`}
+            className={`tab-button ${activeTab === "companies" ? "active" : ""
+              }`}
             onClick={() => setActiveTab("companies")}
+            data-tab="companies"
           >
             Empresas ({companies.length})
           </button>
           <button
-            className={`tab-button ${
-              activeTab === "shipments" ? "active" : ""
-            }`}
+            className={`tab-button ${activeTab === "shipments" ? "active" : ""
+              }`}
             onClick={() => setActiveTab("shipments")}
+            data-tab="shipments"
           >
             Shipments ({shipments.length})
           </button>
@@ -448,9 +460,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       <td>{user.companyName || "-"}</td>
                       <td>
                         <span
-                          className={`status-badge ${
-                            user.isActive ? "active" : "inactive"
-                          }`}
+                          className={`status-badge ${user.isActive ? "active" : "inactive"
+                            }`}
                         >
                           {user.isActive ? "Ativo" : "Inativo"}
                         </span>
@@ -503,9 +514,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       <td>{company.contactEmail}</td>
                       <td>
                         <span
-                          className={`status-badge ${
-                            company.isActive ? "active" : "inactive"
-                          }`}
+                          className={`status-badge ${company.isActive ? "active" : "inactive"
+                            }`}
                         >
                           {company.isActive ? "Ativa" : "Inativa"}
                         </span>
@@ -712,9 +722,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       style={{
                         width: "100%",
                         padding: "0.75rem",
-                        border: `1px solid ${
-                          createUserErrors.name ? "#e74c3c" : "#e5e7eb"
-                        }`,
+                        border: `1px solid ${createUserErrors.name ? "#e74c3c" : "#e5e7eb"
+                          }`,
                         borderRadius: "6px",
                         fontSize: "0.95rem",
                       }}
@@ -755,9 +764,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       style={{
                         width: "100%",
                         padding: "0.75rem",
-                        border: `1px solid ${
-                          createUserErrors.email ? "#e74c3c" : "#e5e7eb"
-                        }`,
+                        border: `1px solid ${createUserErrors.email ? "#e74c3c" : "#e5e7eb"
+                          }`,
                         borderRadius: "6px",
                         fontSize: "0.95rem",
                       }}
@@ -809,9 +817,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                         style={{
                           width: "100%",
                           padding: "0.75rem",
-                          border: `1px solid ${
-                            createUserErrors.companyName ? "#e74c3c" : "#e5e7eb"
-                          }`,
+                          border: `1px solid ${createUserErrors.companyName ? "#e74c3c" : "#e5e7eb"
+                            }`,
                           borderRadius: "6px",
                           fontSize: "0.95rem",
                         }}
@@ -852,9 +859,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                         style={{
                           width: "100%",
                           padding: "0.75rem",
-                          border: `1px solid ${
-                            createUserErrors.companyCode ? "#e74c3c" : "#e5e7eb"
-                          }`,
+                          border: `1px solid ${createUserErrors.companyCode ? "#e74c3c" : "#e5e7eb"
+                            }`,
                           borderRadius: "6px",
                           fontSize: "0.95rem",
                         }}
@@ -909,9 +915,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       style={{
                         width: "100%",
                         padding: "0.75rem",
-                        border: `1px solid ${
-                          createUserErrors.password ? "#e74c3c" : "#e5e7eb"
-                        }`,
+                        border: `1px solid ${createUserErrors.password ? "#e74c3c" : "#e5e7eb"
+                          }`,
                         borderRadius: "6px",
                         fontSize: "0.95rem",
                       }}
@@ -952,11 +957,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose }) => {
                       style={{
                         width: "100%",
                         padding: "0.75rem",
-                        border: `1px solid ${
-                          createUserErrors.confirmPassword
+                        border: `1px solid ${createUserErrors.confirmPassword
                             ? "#e74c3c"
                             : "#e5e7eb"
-                        }`,
+                          }`,
                         borderRadius: "6px",
                         fontSize: "0.95rem",
                       }}

@@ -43,9 +43,9 @@ export const EnviosPage = () => {
             <div className="filter-tags">
               {activeFilters.status && (
                 <span className="filter-tag">
-                  Status: {activeFilters.status === 'em-trânsito' ? 'Em Trânsito' :
-                    activeFilters.status === 'concluído' ? 'Entregue' :
-                      activeFilters.status === 'documentação' ? 'Pendente' : activeFilters.status}
+                  Status: {activeFilters.status === 'em-transito' ? 'Em Trânsito' :
+                    activeFilters.status === 'concluido' ? 'Entregue' :
+                      activeFilters.status === 'documentacao' ? 'Pendente' : activeFilters.status}
                 </span>
               )}
               {activeFilters.filter === 'this-month' && (

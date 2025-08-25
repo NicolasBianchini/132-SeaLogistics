@@ -1,24 +1,49 @@
 @import "./utils/colors.css";
 
+/* Reset e estilos base */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
+html, body {
+  height: 100%;
 }
 
 body {
-  font-family: "Inter", sans-serif;
-  background-color: var(--background-color);
-  color: var(--color-text);
-  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f7fa;
+}
+
+#root {
+  height: 100%;
+}
+
+/* Container principal da aplicação */
+.app-container {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Estilos para o conteúdo principal */
+.app-container > *:not(:last-child) {
+  flex: 1;
+}
+
+/* Estilos para o footer */
+.app-container > :last-child {
+  margin-top: auto;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
 a {
@@ -38,10 +63,11 @@ button {
   font-family: inherit;
 }
 
-img {
+/* Removido o reset global para imagens que estava causando problemas no footer */
+/* img {
   max-width: 100%;
   display: block;
-}
+} */
 
 input,
 textarea,

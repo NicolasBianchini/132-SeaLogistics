@@ -60,6 +60,13 @@ export const AdminDashboard = () => {
     });
     const [loading, setLoading] = useState(true);
     const [showAdminPanel, setShowAdminPanel] = useState(false);
+    const [adminPanelTab, setAdminPanelTab] = useState<"users" | "companies" | "shipments">("users");
+    
+    // Função para abrir o painel admin com uma aba específica
+    const openAdminPanel = (tab: "users" | "companies" | "shipments") => {
+        setAdminPanelTab(tab);
+        setShowAdminPanel(true);
+    };
 
     useEffect(() => {
         const loadStats = async () => {
@@ -82,9 +89,9 @@ export const AdminDashboard = () => {
                 const currentYear = now.getFullYear();
 
                 const totalShipments = shipments.length;
-                const inTransit = shipments.filter(s => s.status === 'em-trânsito' || s.status === 'agendado').length;
-                const delivered = shipments.filter(s => s.status === 'concluído').length;
-                const pending = shipments.filter(s => s.status === 'documentação').length;
+                const inTransit = shipments.filter(s => s.status === 'em-transito' || s.status === 'agendado').length;
+                const delivered = shipments.filter(s => s.status === 'concluido').length;
+                const pending = shipments.filter(s => s.status === 'documentacao').length;
 
                 const thisMonth = shipments.filter(s => {
                     if (s.etdOrigem) {
@@ -111,9 +118,7 @@ export const AdminDashboard = () => {
             }
         };
 
-        if (shipments.length > 0) {
-            loadStats();
-        }
+        loadStats();
     }, [shipments]);
 
     if (loading || shipmentsLoading) {
@@ -151,7 +156,7 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="stat-card clickable" onClick={() => navigate('/envios?status=em-trânsito')}>
+                    <div className="stat-card clickable" onClick={() => navigate('/envios?status=em-transito')}>
                         <div className="stat-icon in-transit">
                             <Package size={24} />
                         </div>
@@ -161,7 +166,7 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="stat-card clickable" onClick={() => navigate('/envios?status=concluído')}>
+                    <div className="stat-card clickable" onClick={() => navigate('/envios?status=concluido')}>
                         <div className="stat-icon delivered">
                             <CheckCircle size={24} />
                         </div>
@@ -171,7 +176,7 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="stat-card clickable" onClick={() => navigate('/envios?status=documentação')}>
+                    <div className="stat-card clickable" onClick={() => navigate('/envios?status=documentacao')}>
                         <div className="stat-icon pending">
                             <Clock size={24} />
                         </div>
@@ -191,7 +196,9 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="stat-card clickable" onClick={() => navigate('/admin-dashboard')}>
+                    <div className="stat-card clickable" onClick={() => {
+                        openAdminPanel("users");
+                    }}>
                         <div className="stat-icon users">
                             <Users size={24} />
                         </div>
@@ -201,7 +208,9 @@ export const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="stat-card clickable" onClick={() => navigate('/admin-dashboard')}>
+                    <div className="stat-card clickable" onClick={() => {
+                        openAdminPanel("companies");
+                    }}>
                         <div className="stat-icon companies">
                             <Building2 size={24} />
                         </div>
@@ -236,7 +245,9 @@ export const AdminDashboard = () => {
 
                         <button
                             className="action-button"
-                            onClick={() => setShowAdminPanel(true)}
+                            onClick={() => {
+                                openAdminPanel("users");
+                            }}
                         >
                             <Shield size={20} />
                             <span>{translations.adminPanel}</span>
@@ -254,7 +265,7 @@ export const AdminDashboard = () => {
             </div>
 
             {showAdminPanel && (
-                <AdminPanel onClose={() => setShowAdminPanel(false)} />
+                <AdminPanel onClose={() => setShowAdminPanel(false)} initialTab={adminPanelTab} />
             )}
 
             <ChatAssistant />

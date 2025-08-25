@@ -20,11 +20,7 @@
   top: 20px;
   bottom: 20px;
   width: 280px;
-  background: linear-gradient(
-    135deg,
-    var(--primary-color) 0%,
-    var(--secondary-color) 100%
-  );
+  background: #315851;
   box-shadow: var(--box-shadow);
   border-radius: 20px;
   padding: 24px 20px;
@@ -409,27 +405,4 @@
 
 .nav-item.active .icon-container {
   color: var(--white);
-}
-
-/* Improved backdrop blur support */
-@supports (backdrop-filter: blur(10px)) {
-  .navbar {
-    backdrop-filter: blur(10px);
-    background: linear-gradient(
-      135deg,
-      rgba(120, 145, 112, 0.95) 0%,
-      rgba(48, 89, 81, 0.95) 100%
-    );
-  }
-}
-
-/* Fallback for browsers without backdrop-filter */
-@supports not (backdrop-filter: blur(10px)) {
-  .navbar {
-    background: linear-gradient(
-      135deg,
-      var(--primary-color) 0%,
-      var(--secondary-color) 100%
-    );
-  }
 }

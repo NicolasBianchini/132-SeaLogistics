@@ -3,7 +3,6 @@
   max-width: 2000px;
   margin: 0;
   padding: 0;
-  background-color: var(--white);
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   overflow: visible;
@@ -187,7 +186,7 @@
 /* Estilos para os ícones de ação */
 .action-icons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   justify-content: center;
 }
@@ -196,8 +195,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -217,38 +216,286 @@
 }
 
 .check-icon {
-  color: #28a745;
-  background: rgba(40, 167, 69, 0.1);
+  color: #ffffff;
+  background: #28a745;
+  border: 1px solid #28a745;
 }
 
 .check-icon:hover:not(:disabled) {
-  background: rgba(40, 167, 69, 0.2);
-  color: #1e7e34;
+  background: #218838;
+  border-color: #1e7e34;
+  color: #ffffff;
 }
 
 .edit-icon {
-  color: #007bff;
-  background: rgba(0, 123, 255, 0.1);
+  color: #ffffff;
+  background: #007bff;
+  border: 1px solid #007bff;
 }
 
 .edit-icon:hover:not(:disabled) {
-  background: rgba(0, 123, 255, 0.2);
-  color: #0056b3;
+  background: #0056b3;
+  border-color: #004085;
+  color: #ffffff;
+}
+
+/* Estilo para o botão de documentos */
+.documents-icon {
+  color: #ffffff;
+  background: #fd7e14;
+  border: 1px solid #fd7e14;
+}
+
+.documents-icon:hover:not(:disabled) {
+  background: #e55a00;
+  border-color: #cc4c00;
+  color: #ffffff;
+}
+
+/* Estilo para o ícone de documento/arquivo (exportar Excel) */
+.action-icon:has(svg[data-lucide="file-text"]),
+.action-icon:has(svg[data-lucide="FileText"]) {
+  color: #ffffff;
+  background: #6f42c1;
+  border: 1px solid #6f42c1;
+}
+
+.action-icon:has(svg[data-lucide="file-text"]):hover:not(:disabled),
+.action-icon:has(svg[data-lucide="FileText"]):hover:not(:disabled) {
+  background: #5a32a3;
+  border-color: #4c2d8a;
+  color: #ffffff;
+}
+
+/* Fallback para navegadores que não suportam :has() */
+.file-icon {
+  color: #ffffff;
+  background: #6f42c1;
+  border: 1px solid #6f42c1;
+}
+
+.file-icon:hover:not(:disabled) {
+  background: #5a32a3;
+  border-color: #4c2d8a;
+  color: #ffffff;
 }
 
 /* Responsividade para os ícones */
 @media (max-width: 768px) {
   .action-icons {
-    gap: 4px;
+    gap: 6px;
   }
 
   .action-icon {
-    width: 28px;
-    height: 28px;
+    width: 32px;
+    height: 32px;
   }
 
   .action-icon svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
   }
+}
+
+/* Estilos para os badges de tipo de transporte */
+.tipo-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  min-width: 60px;
+}
+
+.tipo-marítimo {
+  background-color: #007bff;
+  color: white;
+}
+
+.tipo-aéreo {
+  background-color: #28a745;
+  color: white;
+}
+
+.tipo-terrestre {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.tipo-nao-especificado {
+  background-color: #6c757d;
+  color: white;
+}
+
+/* Modal de Gerenciamento de Documentos */
+.documents-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.documents-modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.documents-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #e9ecef;
+  background: #f8f9fa;
+  border-radius: 16px 16px 0 0;
+}
+
+.documents-modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #6c757d;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.documents-modal-content {
+  padding: 2rem;
+}
+
+.shipment-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #118ab2;
+}
+
+.shipment-info h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.shipment-info p {
+  margin: 0.25rem 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.documents-section {
+  margin-bottom: 2rem;
+}
+
+.documents-section h5 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.document-upload-area {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  background: #f8f9fa;
+  transition: all 0.2s ease;
+}
+
+.document-upload-area:hover {
+  border-color: #118ab2;
+  background: #e3f2fd;
+}
+
+.document-upload-area input[type="file"] {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.upload-hint {
+  margin: 0;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.existing-documents {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.no-documents {
+  margin: 0;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.documents-modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e9ecef;
+  background: #f8f9fa;
+  border-radius: 0 0 16px 16px;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-cancel {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #5a6268;
+}
+
+.btn-save {
+  background: #28a745;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #218838;
 }

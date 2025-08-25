@@ -1,6 +1,6 @@
 .envios-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f5f7fa;
   position: relative;
   overflow: hidden;
@@ -16,8 +16,8 @@
   min-height: 100vh;
   position: relative;
   z-index: 1;
+  padding-bottom: 100px; /* Espaço para o footer */
 }
-
 /* Filtros Ativos */
 .active-filters {
   background: white;
@@ -127,21 +127,51 @@
 
 /* Botões de ação com nova cor de destaque */
 .envios-content .action-icon.check-icon {
-  color: var(--accent-color);
-  background: rgba(111, 185, 101, 0.1);
+  color: #ffffff;
+  background: #28a745;
+  border: 1px solid #28a745;
 }
 
 .envios-content .action-icon.check-icon:hover:not(:disabled) {
-  background: rgba(111, 185, 101, 0.2);
-  color: #5a9c55;
+  background: #218838;
+  border-color: #1e7e34;
+  color: #ffffff;
 }
 
 .envios-content .action-icon.edit-icon {
-  color: var(--primary-color);
-  background: rgba(49, 88, 81, 0.1);
+  color: #ffffff;
+  background: #007bff;
+  border: 1px solid #007bff;
 }
 
 .envios-content .action-icon.edit-icon:hover:not(:disabled) {
-  background: rgba(49, 88, 81, 0.2);
-  color: var(--primary-dark);
+  background: #0056b3;
+  border-color: #004085;
+  color: #ffffff;
+}
+
+/* Estilo para o botão de documentos */
+.envios-content .action-icon.documents-icon {
+  color: #ffffff;
+  background: #fd7e14;
+  border: 1px solid #fd7e14;
+}
+
+.envios-content .action-icon.documents-icon:hover:not(:disabled) {
+  background: #e55a00;
+  border-color: #cc4c00;
+  color: #ffffff;
+}
+
+/* Estilo para o ícone de documento/arquivo (exportar Excel) */
+.envios-content .action-icon.file-icon {
+  color: #ffffff;
+  background: #6f42c1;
+  border: 1px solid #6f42c1;
+}
+
+.envios-content .action-icon.file-icon:hover:not(:disabled) {
+  background: #5a32a3;
+  border-color: #4c2d8a;
+  color: #ffffff;
 }
