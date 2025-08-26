@@ -9,9 +9,11 @@ import {
   Ship,
   TrendingUp,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
+import { DashboardCharts } from "../../components/dashboard-charts";
+import { AdvancedFilters, type FilterOptions } from "../../components/advanced-filters";
 import Navbar from "../../components/navbar/navbar";
 import { useAuth } from "../../context/auth-context";
 import { useLanguage } from "../../context/language-context";
@@ -47,6 +49,7 @@ export const Dashboard = () => {
     thisMonth: 0,
   });
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
+  const [filteredShipments, setFilteredShipments] = useState<Shipment[]>([]);
 
   // Redirecionar admins para a página de envios
   useEffect(() => {
@@ -57,12 +60,115 @@ export const Dashboard = () => {
 
   useEffect(() => {
     if (shipments.length > 0) {
+      setFilteredShipments(shipments); // Inicialmente, todos os envios
       calculateStats(shipments);
       generateRecentActivity(shipments);
     }
   }, [shipments]);
 
-  const calculateStats = (shipmentsToStat: Shipment[]) => {
+  const handleFiltersChange = useCallback((filters: FilterOptions) => {
+    // Aplicar filtros aos envios
+    let filtered = [...shipments];
+
+    // Filtro por período
+    if (filters.period) {
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      switch (filters.period) {
+        case 'this-month':
+          filtered = filtered.filter(s => {
+            if (s.etdOrigem) {
+              const date = new Date(s.etdOrigem);
+              return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+            }
+            return false;
+          });
+          break;
+        case 'last-month':
+          const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+          const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+          filtered = filtered.filter(s => {
+            if (s.etdOrigem) {
+              const date = new Date(s.etdOrigem);
+              return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
+            }
+            return false;
+          });
+          break;
+        case 'this-quarter':
+          const currentQuarter = Math.floor(currentMonth / 3);
+          filtered = filtered.filter(s => {
+            if (s.etdOrigem) {
+              const date = new Date(s.etdOrigem);
+              const shipmentQuarter = Math.floor(date.getMonth() / 3);
+              return shipmentQuarter === currentQuarter && date.getFullYear() === currentYear;
+            }
+            return false;
+          });
+          break;
+        case 'this-year':
+          filtered = filtered.filter(s => {
+            if (s.etdOrigem) {
+              const date = new Date(s.etdOrigem);
+              return date.getFullYear() === currentYear;
+            }
+            return false;
+          });
+          break;
+      }
+    }
+
+    // Filtro por status
+    if (filters.status) {
+      filtered = filtered.filter(s => s.status === filters.status);
+    }
+
+    // Filtro por cliente
+    if (filters.client) {
+      filtered = filtered.filter(s => s.cliente === filters.client);
+    }
+
+    // Filtros de data
+    if (filters.dateFrom) {
+      filtered = filtered.filter(s => {
+        if (s.etdOrigem) {
+          return new Date(s.etdOrigem) >= new Date(filters.dateFrom);
+        }
+        return false;
+      });
+    }
+
+    if (filters.dateTo) {
+      filtered = filtered.filter(s => {
+        if (s.etdOrigem) {
+          return new Date(s.etdOrigem) <= new Date(filters.dateTo);
+        }
+        return false;
+      });
+    }
+
+    setFilteredShipments(filtered);
+
+    // Atualizar estatísticas com os dados filtrados
+    if (filtered.length > 0) {
+      calculateStats(filtered);
+      generateRecentActivity(filtered);
+    } else {
+      // Se não há dados filtrados, mostrar estatísticas vazias
+      setStats({
+        totalShipments: 0,
+        inTransit: 0,
+        delivered: 0,
+        pending: 0,
+        thisMonth: 0,
+      });
+      setRecentActivity([]);
+    }
+  }, [shipments, calculateStats, generateRecentActivity]);
+
+  const calculateStats = useCallback((shipmentsToStat: Shipment[]) => {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -96,9 +202,9 @@ export const Dashboard = () => {
       pending,
       thisMonth,
     });
-  };
+  }, []);
 
-  const generateRecentActivity = (shipmentsToProcess: Shipment[]) => {
+  const generateRecentActivity = useCallback((shipmentsToProcess: Shipment[]) => {
     const activities: RecentActivity[] = shipmentsToProcess
       .slice(0, 5)
       .map((shipment) => ({
@@ -110,7 +216,7 @@ export const Dashboard = () => {
       }));
 
     setRecentActivity(activities);
-  };
+  }, []);
 
   const getActionText = (status: string) => {
     switch (status) {
@@ -123,7 +229,7 @@ export const Dashboard = () => {
       case "concluído":
         return translations.statusDelivered;
       default:
-        return "Status atualizado";
+        return translations.statusUpdated;
     }
   };
 
@@ -155,7 +261,7 @@ export const Dashboard = () => {
         <Navbar />
         <div className="dashboard-content">
           <div className="loading-message">
-            {loading ? translations.loading : "Redirecionando..."}
+            {loading ? translations.loading : translations.redirecting}
           </div>
         </div>
         <ChatAssistant />
@@ -169,7 +275,7 @@ export const Dashboard = () => {
       <div className="dashboard-content">
         <div className="dashboard-header">
           <h1>{translations.dashboard}</h1>
-          <p>Bem-vindo, {currentUser?.displayName}!</p>
+          <p>{translations.welcomeUser} {currentUser?.displayName}!</p>
         </div>
 
         {/* Cards de Estatísticas */}
@@ -260,20 +366,31 @@ export const Dashboard = () => {
           )}
         </div>
 
-        {/* Links Rápidos */}
-        <div className="quick-links">
-          <h2>{translations.quickActions}</h2>
-          <div className="links-grid">
-            <a href="/envios" className="quick-link-card">
-              <Ship size={24} />
-              <span>{translations.shipmentsTitle}</span>
-            </a>
-            <a href="/settings" className="quick-link-card">
-              <Settings size={24} />
-              <span>{translations.settings}</span>
-            </a>
+        {/* Filtros Avançados e Links Rápidos */}
+        <div className="filters-and-actions-container">
+          <AdvancedFilters
+            shipments={shipments}
+            onFiltersChange={handleFiltersChange}
+            isAdmin={false}
+          />
+
+          <div className="quick-links">
+            <h2>{translations.quickActions}</h2>
+            <div className="links-grid">
+              <a href="/envios" className="quick-link-card">
+                <Ship size={24} />
+                <span>{translations.shipmentsTitle}</span>
+              </a>
+              <a href="/settings" className="quick-link-card">
+                <Settings size={24} />
+                <span>{translations.settings}</span>
+              </a>
+            </div>
           </div>
         </div>
+
+        {/* Gráficos e Estatísticas */}
+        <DashboardCharts shipments={filteredShipments} isAdmin={false} />
       </div>
       <ChatAssistant />
     </main>

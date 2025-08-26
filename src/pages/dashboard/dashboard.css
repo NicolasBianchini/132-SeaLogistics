@@ -226,6 +226,24 @@
   text-decoration: underline;
 }
 
+/* Container para Filtros e Ações */
+.filters-and-actions-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 40px;
+  align-items: flex-start;
+}
+
+.filters-and-actions-container .advanced-filters-container {
+  flex: 2;
+}
+
+.filters-and-actions-container .quick-links,
+.filters-and-actions-container .quick-actions {
+  flex: 1;
+  margin-bottom: 0;
+}
+
 /* Ações Rápidas */
 .quick-actions {
   background: white;
@@ -309,6 +327,18 @@
 
   .actions-grid {
     grid-template-columns: 1fr;
+  }
+
+  .filters-and-actions-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .filters-and-actions-container .advanced-filters-container,
+  .filters-and-actions-container .quick-links,
+  .filters-and-actions-container .quick-actions {
+    flex: none;
+    width: 100%;
   }
 }
 

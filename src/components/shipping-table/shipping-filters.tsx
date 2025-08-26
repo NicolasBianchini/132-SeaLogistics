@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, Filter, X, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../context/auth-context';
+import { useLanguage } from '../../context/language-context';
 import './shipping-filters.css';
 
 export interface FilterOptions {
@@ -26,6 +27,7 @@ const ShippingFilters: React.FC<ShippingFiltersProps> = ({
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const { isAdmin } = useAuth();
+    const { translations } = useLanguage();
 
     // Fechar dropdown ao clicar fora
     useEffect(() => {
@@ -97,35 +99,35 @@ const ShippingFilters: React.FC<ShippingFiltersProps> = ({
 
     const getSortLabel = () => {
         const sortLabels = {
-            recent: 'Mais recentes',
-            old: 'Mais antigos',
-            etd: 'Data partida (ETD)',
-            eta: 'Data chegada (ETA)',
-            client: 'Cliente A-Z'
+            recent: translations.mostRecent,
+            old: translations.oldest,
+            etd: translations.etdDate,
+            eta: translations.etaDate,
+            client: translations.clientAZ
         };
         return sortLabels[filters.sortBy];
     };
 
     const getSortOptions = () => {
         const baseOptions = [
-            { value: 'recent', label: 'Mais recentes' },
-            { value: 'old', label: 'Mais antigos' },
-            { value: 'etd', label: 'Data partida (ETD)' },
-            { value: 'eta', label: 'Data chegada (ETA)' },
+            { value: 'recent', label: translations.mostRecent },
+            { value: 'old', label: translations.oldest },
+            { value: 'etd', label: translations.etdDate },
+            { value: 'eta', label: translations.etaDate },
         ];
 
         // Adicionar opção "Cliente A-Z" apenas para admins
         if (isAdmin()) {
-            baseOptions.push({ value: 'client', label: 'Cliente A-Z' });
+            baseOptions.push({ value: 'client', label: translations.clientAZ });
         }
 
         return baseOptions;
     };
 
     const getMonthLabel = () => {
-        if (!filters.month) return 'Todos os meses';
+        if (!filters.month) return translations.allMonths;
         const month = getMonthOptions().find(m => m.value === filters.month);
-        return month ? month.label : 'Todos os meses';
+        return month ? month.label : translations.allMonths;
     };
 
     return (
@@ -133,7 +135,7 @@ const ShippingFilters: React.FC<ShippingFiltersProps> = ({
             <div className="filters-header">
                 <div className="filters-title">
                     <Filter size={18} />
-                    <span>Filtros de Busca</span>
+                    <span>{translations.searchFilters}</span>
                     {hasActiveFilters() && (
                         <span className="active-filters-badge">
                             {getActiveFiltersCount()}
@@ -156,7 +158,7 @@ const ShippingFilters: React.FC<ShippingFiltersProps> = ({
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
                         <ChevronDown size={16} />
-                        {isDropdownOpen ? 'Menos' : 'Mais'}
+                        {isDropdownOpen ? translations.less : translations.more}
                     </button>
                 </div>
             </div>
@@ -169,18 +171,18 @@ const ShippingFilters: React.FC<ShippingFiltersProps> = ({
                         type="text"
                         value={filters.searchTerm}
                         onChange={(e) => handleInputChange('searchTerm', e.target.value)}
-                        placeholder={isAdmin() ? "Cliente, BL, Booking..." : "BL, Booking..."}
+                        placeholder={isAdmin() ? translations.searchPlaceholderAdmin : translations.searchPlaceholderClient}
                         className="search-input"
                     />
                 </div>
 
                 <div className="filter-summary">
                     <span className="filter-summary-item">
-                        <strong>Ordenar:</strong> {getSortLabel()}
+                        <strong>{translations.sortBy}</strong> {getSortLabel()}
                     </span>
                     <span className="filter-summary-separator">•</span>
                     <span className="filter-summary-item">
-                        <strong>Mês:</strong> {getMonthLabel()}
+                        <strong>{translations.month}</strong> {getMonthLabel()}
                     </span>
                 </div>
             </div>

@@ -5,6 +5,7 @@ import { useContext, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo2 from "../../assets/logo2.png";
 import { useAuth } from "../../context/auth-context";
+import { useLanguage } from "../../context/language-context";
 import { AdminPanel } from "../admin-panel/admin-panel";
 import { NavbarContext } from "./navbar-context";
 import "./navbar.css";
@@ -15,6 +16,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAdmin, logout } = useAuth();
+  const { translations } = useLanguage();
 
   const getActiveItem = () => {
     if (location.pathname.includes("settings")) return "settings";
@@ -37,7 +39,7 @@ const Navbar = () => {
           <button
             className="toggle-btn"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            aria-label={!isCollapsed ? "Collapse menu" : "Expand menu"}
+            aria-label={!isCollapsed ? translations.collapseMenu : translations.expandMenu}
           >
             {!isCollapsed ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -46,9 +48,8 @@ const Navbar = () => {
             <img
               src={logo2 || "/placeholder.svg"}
               alt="SeaLogistics Logo"
-              className={`company-logo-img ${
-                !isCollapsed ? "visible" : "hidden"
-              }`}
+              className={`company-logo-img ${!isCollapsed ? "visible" : "hidden"
+                }`}
             />
           </div>
         </div>
@@ -65,7 +66,7 @@ const Navbar = () => {
               <Home size={20} />
             </div>
             <span className={`nav-text ${!isCollapsed ? "visible" : "hidden"}`}>
-              {isAdmin() ? "Dashboard" : "Início"}
+              {isAdmin() ? translations.dashboard : translations.inicio}
             </span>
           </div>
 
@@ -80,16 +81,15 @@ const Navbar = () => {
               <Ship size={20} />
             </div>
             <span className={`nav-text ${!isCollapsed ? "visible" : "hidden"}`}>
-              Envios
+              {translations.envios}
             </span>
           </div>
 
           {/* Botão Novo Envio - apenas para admins */}
           {isAdmin() && (
             <div
-              className={`nav-item ${
-                activeItem === "novo-envio" ? "active" : ""
-              }`}
+              className={`nav-item ${activeItem === "novo-envio" ? "active" : ""
+                }`}
               onClick={() => navigate("/novo-envio")}
               role="button"
               tabIndex={0}
@@ -101,7 +101,7 @@ const Navbar = () => {
               <span
                 className={`nav-text ${!isCollapsed ? "visible" : "hidden"}`}
               >
-                Novo Envio
+                {translations.novoEnvio}
               </span>
             </div>
           )}
@@ -117,7 +117,7 @@ const Navbar = () => {
               <Settings size={20} />
             </div>
             <span className={`nav-text ${!isCollapsed ? "visible" : "hidden"}`}>
-              Configurações
+              {translations.configuracoes}
             </span>
           </div>
 
@@ -133,7 +133,7 @@ const Navbar = () => {
               <X size={20} />
             </div>
             <span className={`nav-text ${!isCollapsed ? "visible" : "hidden"}`}>
-              Sair
+              {translations.sair}
             </span>
           </div>
         </nav>

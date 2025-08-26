@@ -38,6 +38,17 @@ export const translations = {
     logout: "Logout",
     profile: "Profile",
 
+    // Sidebar
+    inicio: "Home",
+    envios: "Shipments",
+    novoEnvio: "New Shipment",
+    configuracoes: "Settings",
+    sair: "Logout",
+
+    // Accessibility
+    collapseMenu: "Collapse menu",
+    expandMenu: "Expand menu",
+
     // Dashboard
     administrativeDashboard: "Administrative Dashboard",
     welcomeAdmin: "Welcome, Admin User!",
@@ -53,6 +64,20 @@ export const translations = {
     quickActions: "Quick Actions",
     adminPanel: "Admin Panel",
     configurations: "Configurations",
+
+    // Chart Titles
+    distributionByStatus: "Distribution by Status",
+    top10Clients: "Top 10 Clients",
+
+    // Loading Messages
+    loadingCharts: "Loading charts...",
+    stabilizingData: "Stabilizing data for display.",
+
+    // Welcome Messages
+    welcomeUser: "Welcome,",
+
+    // Status Labels
+    statusUpdated: "Status updated",
 
     // Shipments
     shipmentsTitle: "Shipments",
@@ -79,6 +104,56 @@ export const translations = {
     loading: "Loading...",
     error: "Error",
 
+    // Shipping Table
+    shippingTable: "Shipping Table",
+    exportAll: "Export All",
+    searchFilters: "Search Filters",
+    more: "More",
+    less: "Less",
+    sortBy: "Sort by:",
+    month: "Month:",
+    allMonths: "All months",
+
+    // Search Placeholders
+    searchPlaceholderAdmin: "Client, BL, Booking...",
+    searchPlaceholderClient: "BL, Booking...",
+
+    // Sort Options
+    mostRecent: "Most recent",
+    oldest: "Oldest",
+    etdDate: "Departure date (ETD)",
+    etaDate: "Arrival date (ETA)",
+    clientAZ: "Client A-Z",
+
+    // Table Headers
+    client: "Client",
+    type: "Type",
+    shipper: "Shipper",
+    pol: "POL",
+    pod: "POD",
+    etdOrigin: "ETD Origin",
+    etaDestination: "ETA Destination",
+    quantBox: "Quant Box",
+    blNumber: "BL Number",
+    carrier: "Carrier",
+    booking: "Booking",
+    invoice: "Invoice",
+
+    // Form Labels
+    transportType: "Transport Type",
+    selectTransportType: "Select transport type",
+    portOfOrigin: "Port of Origin (POL)",
+    selectPortOfOrigin: "Select port of origin",
+    portOfDestination: "Port of Destination (POD)",
+    selectPortOfDestination: "Select port of destination",
+    departureDate: "Departure Date (ETD)",
+    arrivalDate: "Estimated Arrival (ETA)",
+    dateFormat: "dd/mm/yyyy",
+
+    // Messages
+    accessDenied: "Access denied. Only administrators can create new shipments.",
+    fillInfoNewShipment: "Fill in the information to create a new shipment",
+
     // Shipment Status
     statusPending: "Pending",
     statusInTransit: "In Transit",
@@ -103,6 +178,9 @@ export const translations = {
     next: "Next",
     previous: "Previous",
     finish: "Finish",
+    selectClient: "Select a client",
+    selectOperator: "Select an operator",
+    pleaseSelectValidClient: "Please select a valid client.",
 
     // Messages
     success: "Success",
@@ -112,6 +190,31 @@ export const translations = {
     deleteSuccess: "Item deleted successfully",
     saveSuccess: "Item saved successfully",
     updateSuccess: "Item updated successfully",
+    redirecting: "Redirecting...",
+
+    // Actions
+    manageDocuments: "Manage Documents",
+    viewDocuments: "View Documents",
+
+    // Settings
+    accountSettings: "Account Settings",
+    managePersonalInfo: "Manage your personal information and preferences",
+    personalInformation: "Personal Information",
+    fullName: "Full Name",
+    phone: "Phone",
+    role: "Role",
+    yourRoleInCompany: "Your role in the company",
+    company: "Company",
+    companyName: "Company name",
+
+    // Notifications
+    notifications: "Notifications",
+    emailNotifications: "Email Notifications",
+    receiveImportantUpdates: "Receive important updates by email",
+    pushNotifications: "Push Notifications",
+    receiveRealTimeNotifications: "Receive real-time notifications in the browser",
+    statusUpdates: "Status Updates",
+    notifiedWhenStatusChanges: "Be notified when the status of shipments changes",
 
     // Common
     yes: "Yes",
@@ -123,6 +226,20 @@ export const translations = {
     import: "Import",
     download: "Download",
     upload: "Upload",
+
+    // Document Types
+    documentType: "Document Type",
+    billOfLading: "Bill of Lading (BL)",
+    invoice: "Invoice",
+    packingList: "Packing List",
+    commercialInvoice: "Commercial Invoice",
+    certificateOfOrigin: "Certificate of Origin",
+    insuranceCertificate: "Insurance Certificate",
+    exportLicense: "Export License",
+    importLicense: "Import License",
+    customsDeclaration: "Customs Declaration",
+    transportDocument: "Transport Document",
+    other: "Other",
   },
   pt: {
     // Login & Register
@@ -163,6 +280,17 @@ export const translations = {
     logout: "Sair",
     profile: "Perfil",
 
+    // Sidebar
+    inicio: "Início",
+    envios: "Envios",
+    novoEnvio: "Novo Envio",
+    configuracoes: "Configurações",
+    sair: "Sair",
+
+    // Accessibility
+    collapseMenu: "Recolher menu",
+    expandMenu: "Expandir menu",
+
     // Dashboard
     administrativeDashboard: "Dashboard Administrativo",
     welcomeAdmin: "Bem-vindo, Usuario Admin!",
@@ -178,6 +306,20 @@ export const translations = {
     quickActions: "Ações Rápidas",
     adminPanel: "Painel Admin",
     configurations: "Configurações",
+
+    // Chart Titles
+    distributionByStatus: "Distribuição por Status",
+    top10Clients: "Top 10 Clientes",
+
+    // Loading Messages
+    loadingCharts: "Carregando gráficos...",
+    stabilizingData: "Estabilizando dados para exibição.",
+
+    // Welcome Messages
+    welcomeUser: "Bem-vindo,",
+
+    // Status Labels
+    statusUpdated: "Status atualizado",
 
     // Shipments
     shipmentsTitle: "Envios",
@@ -204,6 +346,55 @@ export const translations = {
     loading: "Carregando...",
     error: "Erro",
 
+    // Shipping Table
+    shippingTable: "Tabela de Envios",
+    exportAll: "Exportar Todos",
+    searchFilters: "Filtros de Busca",
+    more: "Mais",
+    less: "Menos",
+    sortBy: "Ordenar:",
+    month: "Todos os meses",
+
+    // Search Placeholders
+    searchPlaceholderAdmin: "Cliente, BL, Booking...",
+    searchPlaceholderClient: "BL, Booking...",
+
+    // Sort Options
+    mostRecent: "Mais recentes",
+    oldest: "Mais antigos",
+    etdDate: "Data partida (ETD)",
+    etaDate: "Data chegada (ETA)",
+    clientAZ: "Cliente A-Z",
+
+    // Table Headers
+    client: "Cliente",
+    type: "Tipo",
+    shipper: "Shipper",
+    pol: "POL",
+    pod: "POD",
+    etdOrigin: "ETD Origem",
+    etaDestination: "ETA Destino",
+    quantBox: "Quant Box",
+    blNumber: "N° BL",
+    carrier: "Armador",
+    booking: "Booking",
+    invoice: "Invoice",
+
+    // Form Labels
+    transportType: "Tipo de Transporte",
+    selectTransportType: "Selecione o tipo de transporte",
+    portOfOrigin: "Porto de Origem (POL)",
+    selectPortOfOrigin: "Selecione o porto de origem",
+    portOfDestination: "Porto de Destino (POD)",
+    selectPortOfDestination: "Selecione o porto de destino",
+    departureDate: "Data de Partida (ETD)",
+    arrivalDate: "Data Prevista Chegada (ETA)",
+    dateFormat: "dd/mm/aaaa",
+
+    // Messages
+    accessDenied: "Acesso negado. Apenas administradores podem criar novos shipments.",
+    fillInfoNewShipment: "Preencha as informações para criar um novo envio",
+
     // Shipment Status
     statusPending: "Pendente",
     statusInTransit: "Em Trânsito",
@@ -228,6 +419,9 @@ export const translations = {
     next: "Próximo",
     previous: "Anterior",
     finish: "Finalizar",
+    selectClient: "Selecione um cliente",
+    selectOperator: "Selecione um operador",
+    pleaseSelectValidClient: "Por favor, selecione um cliente válido.",
 
     // Messages
     success: "Sucesso",
@@ -237,6 +431,11 @@ export const translations = {
     deleteSuccess: "Item excluído com sucesso",
     saveSuccess: "Item salvo com sucesso",
     updateSuccess: "Item atualizado com sucesso",
+    redirecting: "Redirecionando...",
+
+    // Actions
+    manageDocuments: "Gerenciar Documentos",
+    viewDocuments: "Visualizar Documentos",
 
     // Common
     yes: "Sim",
@@ -248,6 +447,20 @@ export const translations = {
     import: "Importar",
     download: "Baixar",
     upload: "Enviar",
+
+    // Document Types
+    documentType: "Tipo de Documento",
+    billOfLading: "Conhecimento de Embarque (BL)",
+    invoice: "Fatura",
+    packingList: "Lista de Empacotamento",
+    commercialInvoice: "Fatura Comercial",
+    certificateOfOrigin: "Certificado de Origem",
+    insuranceCertificate: "Certificado de Seguro",
+    exportLicense: "Licença de Exportação",
+    importLicense: "Licença de Importação",
+    customsDeclaration: "Declaração Aduaneira",
+    transportDocument: "Documento de Transporte",
+    other: "Outro",
   },
   es: {
     // Login & Register
@@ -288,6 +501,17 @@ export const translations = {
     logout: "Cerrar Sesión",
     profile: "Perfil",
 
+    // Sidebar
+    inicio: "Inicio",
+    envios: "Envíos",
+    novoEnvio: "Nuevo Envío",
+    configuracoes: "Configuraciones",
+    sair: "Cerrar Sesión",
+
+    // Accessibility
+    collapseMenu: "Contraer menú",
+    expandMenu: "Expandir menú",
+
     // Dashboard
     administrativeDashboard: "Panel Administrativo",
     welcomeAdmin: "¡Bienvenido, Usuario Admin!",
@@ -303,6 +527,41 @@ export const translations = {
     quickActions: "Acciones Rápidas",
     adminPanel: "Panel Admin",
     configurations: "Configuraciones",
+
+    // Shipping Table
+    shippingTable: "Tabla de Envíos",
+    exportAll: "Exportar Todos",
+    searchFilters: "Filtros de Búsqueda",
+    more: "Más",
+    less: "Menos",
+    sortBy: "Ordenar por:",
+    month: "Mes:",
+    allMonths: "Todos los meses",
+
+    // Search Placeholders
+    searchPlaceholderAdmin: "Cliente, BL, Booking...",
+    searchPlaceholderClient: "BL, Booking...",
+
+    // Sort Options
+    mostRecent: "Más recientes",
+    oldest: "Más antiguos",
+    etdDate: "Fecha de partida (ETD)",
+    etaDate: "Fecha de llegada (ETA)",
+    clientAZ: "Cliente A-Z",
+
+    // Chart Titles
+    distributionByStatus: "Distribución por Estado",
+    top10Clients: "Top 10 Clientes",
+
+    // Loading Messages
+    loadingCharts: "Cargando gráficos...",
+    stabilizingData: "Estabilizando datos para visualización.",
+
+    // Welcome Messages
+    welcomeUser: "Bienvenido,",
+
+    // Status Labels
+    statusUpdated: "Estado actualizado",
 
     // Shipments
     shipmentsTitle: "Envíos",
@@ -353,6 +612,9 @@ export const translations = {
     next: "Siguiente",
     previous: "Anterior",
     finish: "Finalizar",
+    selectClient: "Seleccione un cliente",
+    selectOperator: "Seleccione un operador",
+    pleaseSelectValidClient: "Por favor, seleccione un cliente válido.",
 
     // Messages
     success: "Éxito",
@@ -362,6 +624,11 @@ export const translations = {
     deleteSuccess: "Elemento eliminado exitosamente",
     saveSuccess: "Elemento guardado exitosamente",
     updateSuccess: "Elemento actualizado exitosamente",
+    redirecting: "Redirigiendo...",
+
+    // Actions
+    manageDocuments: "Gestionar Documentos",
+    viewDocuments: "Ver Documentos",
 
     // Common
     yes: "Sí",
@@ -373,5 +640,19 @@ export const translations = {
     import: "Importar",
     download: "Descargar",
     upload: "Subir",
+
+    // Document Types
+    documentType: "Tipo de Documento",
+    billOfLading: "Conocimiento de Embarque (BL)",
+    invoice: "Factura",
+    packingList: "Lista de Empaque",
+    commercialInvoice: "Factura Comercial",
+    certificateOfOrigin: "Certificado de Origen",
+    insuranceCertificate: "Certificado de Seguro",
+    exportLicense: "Licencia de Exportación",
+    importLicense: "Licencia de Importación",
+    customsDeclaration: "Declaración Aduanera",
+    transportDocument: "Documento de Transporte",
+    other: "Otro",
   },
 };

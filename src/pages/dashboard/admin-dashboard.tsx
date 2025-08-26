@@ -20,17 +20,12 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../../lib/firebaseConfig';
 import { Company } from '../../types/user';
 import ChatAssistant from '../../components/chat-assistant/chat-assistant';
+import { DashboardCharts } from '../../components/dashboard-charts';
 import Navbar from '../../components/navbar/navbar';
 import { AdminPanel } from '../../components/admin-panel/admin-panel';
 import './dashboard.css';
 
-type Shipment = {
-    id?: string;
-    status: string;
-    etdOrigem?: string;
-    pol?: string;
-    pod?: string;
-}
+import type { Shipment } from '../../context/shipments-context';
 
 interface AdminDashboardStats {
     totalShipments: number;
@@ -61,12 +56,17 @@ export const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [showAdminPanel, setShowAdminPanel] = useState(false);
     const [adminPanelTab, setAdminPanelTab] = useState<"users" | "companies" | "shipments">("users");
-    
+
+
     // Função para abrir o painel admin com uma aba específica
     const openAdminPanel = (tab: "users" | "companies" | "shipments") => {
         setAdminPanelTab(tab);
         setShowAdminPanel(true);
     };
+
+    
+
+
 
     useEffect(() => {
         const loadStats = async () => {
@@ -126,9 +126,9 @@ export const AdminDashboard = () => {
             <main className="dashboard-container">
                 <Navbar />
                 <div className="dashboard-content">
-                    <div className="loading-message">
-                        Carregando...
-                    </div>
+                                    <div className="loading-message">
+                    {translations.loading}
+                </div>
                 </div>
                 <ChatAssistant />
             </main>
@@ -262,6 +262,9 @@ export const AdminDashboard = () => {
                         </button>
                     </div>
                 </div>
+
+                {/* Gráficos e Estatísticas */}
+                <DashboardCharts shipments={shipments} isAdmin={true} />
             </div>
 
             {showAdminPanel && (

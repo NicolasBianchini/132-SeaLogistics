@@ -55,6 +55,22 @@ service cloud.firestore {
       allow create: if isAdmin();
     }
     
+    // Regras para a coleção de documentos
+    match /documents/{documentId} {
+      // Admins podem ler/escrever qualquer documento
+      allow read, write: if isAdmin();
+      
+      // Usuários de empresa podem ler documentos de shipments da sua empresa
+      allow read: if isAuthenticated() && 
+                   exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+                   exists(/databases/$(database)/documents/shipments/$(resource.data.shipmentId)) &&
+                   get(/databases/$(database)/documents/shipments/$(resource.data.shipmentId)).data.companyId == 
+                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.companyId;
+      
+      // Apenas admins podem criar, atualizar e deletar documentos
+      allow create, update, delete: if isAdmin();
+    }
+    
     // Regras padrão (negação para outras coleções)
     match /{document=**} {
       allow read, write: if false;

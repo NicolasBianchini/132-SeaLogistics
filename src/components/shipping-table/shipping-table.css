@@ -9,12 +9,51 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+.shipping-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+
 .shipping-table-title {
   color: var(--primary-color);
-  margin-bottom: 20px;
-  text-align: center;
+  margin: 0;
+  text-align: left;
   font-size: 24px;
   font-weight: 700;
+}
+
+.export-all-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(49, 88, 81, 0.2);
+}
+
+.export-all-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(49, 88, 81, 0.3);
+}
+
+.export-all-button:active {
+  transform: translateY(0);
+}
+
+.export-all-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .table-wrapper {
@@ -56,6 +95,8 @@
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .shipping-table tr:nth-child(even) {
@@ -249,6 +290,19 @@
 .documents-icon:hover:not(:disabled) {
   background: #e55a00;
   border-color: #cc4c00;
+  color: #ffffff;
+}
+
+/* Estilo para o botão de visualizar documentos */
+.view-documents-icon {
+  color: #ffffff;
+  background: #17a2b8;
+  border: 1px solid #17a2b8;
+}
+
+.view-documents-icon:hover:not(:disabled) {
+  background: #138496;
+  border-color: #117a8b;
   color: #ffffff;
 }
 

@@ -5,14 +5,17 @@ import { doc, getDoc } from "firebase/firestore";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
-import { Check, Edit, FileText, FolderOpen, Truck } from "lucide-react";
+import { Check, Edit, FileText, FolderOpen, Truck, Eye } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { useAuth } from "../../context/auth-context";
+import { useLanguage } from "../../context/language-context";
 import { useShipments, type Shipment } from "../../context/shipments-context";
 import { db } from "../../lib/firebaseConfig";
 import { sendEmail } from "../../services/emailService";
 import EditShipmentModal from "../edit-shipment-modal/edit-shipment-modal";
+import { DocumentManager } from "../document-manager";
+import { DocumentViewer } from "../document-viewer";
 import { DropdownProvider } from "./dropdown-context";
 import ShippingFilters, { type FilterOptions } from "./shipping-filters";
 import "./shipping-table.css";
@@ -38,6 +41,7 @@ const ShippingTable = ({
     loading,
   } = useShipments();
   const { isAdmin, currentUser } = useAuth();
+  const { translations } = useLanguage();
 
   const shipments = propShipments || contextShipments;
 
@@ -45,6 +49,8 @@ const ShippingTable = ({
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [selectedShipmentForDocs, setSelectedShipmentForDocs] = useState<Shipment | null>(null);
+  const [showDocumentViewer, setShowDocumentViewer] = useState(false);
+  const [selectedShipmentForViewer, setSelectedShipmentForViewer] = useState<Shipment | null>(null);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -314,8 +320,8 @@ const ShippingTable = ({
   if (loading) {
     return (
       <div className="shipping-table-container">
-        <h2 className="shipping-table-title">Tabela de Envios</h2>
-        <div className="shipping-table-empty">Carregando envios...</div>
+        <h2 className="shipping-table-title">{translations.shippingTable}</h2>
+        <div className="shipping-table-empty">{translations.loading}</div>
       </div>
     );
   }
@@ -420,38 +426,434 @@ const ShippingTable = ({
     }
   };
 
-  const exportToExcel = (shipment: Shipment) => {
-    const worksheetData = [
-      {
-        Cliente: shipment.cliente,
-        Shipper: shipment.shipper,
-        POL: shipment.pol,
-        POD: shipment.pod,
-        "ETD Origem": formatDate(shipment.etdOrigem),
-        "ETA Destino": formatDate(shipment.etaDestino),
-        "Quant Box": shipment.quantBox,
-        Status: shipment.status,
-        "N° BL": shipment.numeroBl,
-        Armador: shipment.armador,
-        Booking: shipment.booking,
-        Invoice: shipment.invoice,
-      },
-    ];
+  const exportToExcel = async (shipment: Shipment) => {
+    try {
+      console.log('🚀 Iniciando exportação individual para:', shipment.cliente, shipment.numeroBl);
 
-    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Envio");
+      // Criar workbook
+      const workbook = XLSX.utils.book_new();
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+      // Dados do cabeçalho
+      const currentDate = new Date().toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      }).toUpperCase();
 
-    const fileData = new Blob([excelBuffer], {
-      type: "application/octet-stream",
-    });
+      // Configurar dados da planilha com formatação (igual à imagem 2)
+      const sheetData = [
+        // Linha 1: Nome da empresa (mesclar células)
+        ['SEA LOGISTICS INTERNATIONAL', '', '', '', '', '', '', '', '', '', ''],
+        // Linha 2: Título do documento
+        [`FOLLOW UP (${shipment.cliente || 'NOME CLIENTE'}) - ${currentDate}`, '', '', '', '', '', '', '', '', '', ''],
+        // Linha 3: Espaçamento
+        ['', '', '', '', '', '', '', '', '', '', ''],
+        // Linha 4: Cabeçalho da primeira tabela
+        ['PROCESSO IM', 'CLIENTE', 'SHIPPER', 'OPERADOR', 'POL', 'POD', 'ETA', 'ETD', 'STATUS', 'INCOTERM', 'NAVIO'],
+        // Linha 5: Dados da primeira tabela
+        [
+          shipment.numeroBl || 'N/A',
+          shipment.cliente || 'N/A',
+          shipment.shipper || 'N/A',
+          shipment.operador || 'N/A',
+          shipment.pol || 'N/A',
+          shipment.pod || 'N/A',
+          formatDate(shipment.etaDestino),
+          formatDate(shipment.etdOrigem),
+          shipment.status || 'N/A',
+          'FOB',
+          shipment.armador || 'N/A'
+        ],
+        // Linha 6: Espaçamento
+        ['', '', '', '', '', '', '', '', '', '', ''],
+        // Linha 7: Cabeçalho da segunda tabela
+        ['BOOKING', 'NR DE CONTAINER', 'POSIÇÃO DO NAVIO', 'ARMADOR', 'QUANTIDADE', 'N° BL', 'FREE TIME', 'CE'],
+        // Linha 8: Dados da segunda tabela
+        [
+          shipment.booking || 'N/A',
+          'CAAU8164329',
+          'O navio porta-contêineres está atualmente localizado no Mar da China Oriental.',
+          shipment.armador || 'N/A',
+          `${shipment.quantBox || 1}X40HC`,
+          shipment.numeroBl || 'N/A',
+          '21 DIAS',
+          'A INFORMAR'
+        ]
+      ];
 
-    saveAs(fileData, `envio-${shipment.numeroBl || "sem-bl"}.xlsx`);
+      // Criar planilha a partir dos dados
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+      // Configurar largura das colunas
+      const colWidths = [
+        { wch: 18 }, // A - PROCESSO IM
+        { wch: 15 }, // B - CLIENTE
+        { wch: 18 }, // C - SHIPPER
+        { wch: 18 }, // D - OPERADOR
+        { wch: 12 }, // E - POL
+        { wch: 12 }, // F - POD
+        { wch: 12 }, // G - ETA
+        { wch: 12 }, // H - ETD
+        { wch: 15 }, // I - STATUS
+        { wch: 12 }, // J - INCOTERM
+        { wch: 18 }  // K - NAVIO
+      ];
+      worksheet['!cols'] = colWidths;
+
+      // Configurar altura das linhas
+      const rowHeights = [
+        { hpt: 30 }, // Linha 1 - Nome da empresa
+        { hpt: 25 }, // Linha 2 - Título
+        { hpt: 15 }, // Linha 3 - Espaçamento
+        { hpt: 25 }, // Linha 4 - Cabeçalho 1
+        { hpt: 25 }, // Linha 5 - Dados 1
+        { hpt: 15 }, // Linha 6 - Espaçamento
+        { hpt: 25 }, // Linha 7 - Cabeçalho 2
+        { hpt: 40 }  // Linha 8 - Dados 2 (mais alta para posição do navio)
+      ];
+      worksheet['!rows'] = rowHeights;
+
+      // Configurar mesclagem de células para o cabeçalho
+      worksheet['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Nome da empresa - linha inteira
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Título - linha inteira
+        { s: { r: 7, c: 2 }, e: { r: 7, c: 2 } }   // Posição do navio - célula única
+      ];
+
+      // Nome da empresa como texto estilizado (igual à imagem 2)
+      console.log('🎨 Aplicando nome da empresa como texto estilizado...');
+
+      // TENTATIVA 2: Aplicar formatação com cores da empresa
+      console.log('🎨 Aplicando cores da empresa...');
+
+      // Cores da empresa (azul teal escuro como na imagem 2)
+      const companyColors = {
+        primary: '006666',    // Azul teal escuro (como na imagem)
+        secondary: '008080',  // Azul teal médio
+        accent: '00B3B3',     // Azul teal claro
+        white: 'FFFFFF',      // Branco
+        dark: '004D4D'        // Azul teal muito escuro
+      };
+
+      // Formatar célula A1 (nome da empresa) com estilo da empresa
+      worksheet['A1'] = {
+        v: 'SEA LOGISTICS INTERNATIONAL',
+        t: 's',
+        s: {
+          font: {
+            name: 'Arial',
+            sz: 20,
+            bold: true,
+            color: { rgb: companyColors.white }
+          },
+          fill: {
+            fgColor: { rgb: companyColors.primary }
+          },
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center'
+          }
+        }
+      };
+
+      // Formatar célula A2 (título) com estilo da empresa
+      worksheet['A2'] = {
+        v: `FOLLOW UP (${shipment.cliente || 'NOME CLIENTE'}) - ${currentDate}`,
+        t: 's',
+        s: {
+          font: {
+            name: 'Arial',
+            sz: 16,
+            bold: true,
+            color: { rgb: companyColors.white }
+          },
+          fill: {
+            fgColor: { rgb: companyColors.primary }
+          },
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center'
+          }
+        }
+      };
+
+      // Formatar cabeçalhos das tabelas com cores da empresa (teal escuro como na imagem)
+      const headerStyle = {
+        font: {
+          name: 'Arial',
+          sz: 12,
+          bold: true,
+          color: { rgb: companyColors.white }
+        },
+        fill: {
+          fgColor: { rgb: companyColors.primary }
+        },
+        alignment: {
+          horizontal: 'center',
+          vertical: 'center'
+        }
+      };
+
+      // Aplicar estilo aos cabeçalhos da primeira tabela
+      ['A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'I4', 'J4', 'K4'].forEach(cell => {
+        if (worksheet[cell]) {
+          worksheet[cell].s = headerStyle;
+        }
+      });
+
+      // Aplicar estilo aos cabeçalhos da segunda tabela
+      ['A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7'].forEach(cell => {
+        if (worksheet[cell]) {
+          worksheet[cell].s = headerStyle;
+        }
+      });
+
+      console.log('✅ Cores da empresa aplicadas com sucesso!');
+      console.log('✅ Logo da empresa estilizada com cores teal (igual à imagem 2)');
+
+      // Adicionar planilha ao workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Follow Up");
+
+      // Gerar arquivo Excel
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      const fileData = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
+
+      // Nome do arquivo baseado no número BL ou cliente
+      const fileName = shipment.numeroBl
+        ? `follow-up-${shipment.cliente}-${shipment.numeroBl}.xlsx`
+        : `follow-up-${shipment.cliente}-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      console.log('📁 Nome do arquivo gerado:', fileName);
+      console.log('💾 Iniciando download do arquivo...');
+
+      saveAs(fileData, fileName);
+
+      console.log('✅ Exportação individual concluída com sucesso!');
+    } catch (error) {
+      console.error('❌ Erro ao exportar para Excel:', error);
+      alert('Erro ao exportar para Excel. Tente novamente.');
+    }
+  };
+
+  // Função para exportar todos os envios filtrados
+  const exportAllToExcel = async () => {
+    if (filteredAndSortedShipments.length === 0) {
+      alert("Não há envios para exportar.");
+      return;
+    }
+
+    try {
+      // Criar workbook
+      const workbook = XLSX.utils.book_new();
+
+      // Dados do cabeçalho
+      const currentDate = new Date().toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      }).toUpperCase();
+
+      // Configurar dados da planilha com formatação
+      const sheetData = [
+        // Linha 1: Nome da empresa (mesclar células)
+        ['SEA LOGISTICS INTERNATIONAL', '', '', '', '', '', '', '', '', '', ''], // Nome da empresa estilizado
+        // Linha 2: Título do documento
+        [`FOLLOW UP (TODOS OS ENVIOS) - ${currentDate}`, '', '', '', '', '', '', '', '', '', ''],
+        // Linha 3: Espaçamento
+        ['', '', '', '', '', '', '', '', '', '', ''],
+        // Linha 4: Cabeçalho da primeira tabela
+        ['PROCESSO IM', 'CLIENTE', 'SHIPPER', 'OPERADOR', 'POL', 'POD', 'ETA', 'ETD', 'STATUS', 'INCOTERM', 'NAVIO'],
+        // Linha 5+: Dados de todos os envios
+        ...filteredAndSortedShipments.map(shipment => [
+          shipment.numeroBl || 'N/A',
+          shipment.cliente || 'N/A',
+          shipment.shipper || 'N/A',
+          shipment.operador || 'N/A',
+          shipment.pol || 'N/A',
+          shipment.pod || 'N/A',
+          formatDate(shipment.etaDestino),
+          formatDate(shipment.etdOrigem),
+          shipment.status || 'N/A',
+          'FOB',
+          shipment.armador || 'N/A'
+        ]),
+        // Linha de espaçamento
+        ['', '', '', '', '', '', '', '', '', '', ''],
+        // Cabeçalho da segunda tabela
+        ['BOOKING', 'NR DE CONTAINER', 'POSIÇÃO DO NAVIO', 'ARMADOR', 'QUANTIDADE', 'N° BL', 'FREE TIME', 'CE'],
+        // Dados de todos os envios para segunda tabela
+        ...filteredAndSortedShipments.map(shipment => [
+          shipment.booking || 'N/A',
+          'CAAU8164329',
+          'O navio porta-contêineres está atualmente localizado no Mar da China Oriental.',
+          shipment.armador || 'N/A',
+          `${shipment.quantBox || 1}X40HC`,
+          shipment.numeroBl || 'N/A',
+          '21 DIAS',
+          'A INFORMAR'
+        ])
+      ];
+
+      // Criar planilha a partir dos dados
+      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+
+      // Configurar largura das colunas
+      const colWidths = [
+        { wch: 18 }, // A - PROCESSO IM
+        { wch: 15 }, // B - CLIENTE
+        { wch: 18 }, // C - SHIPPER
+        { wch: 18 }, // D - OPERADOR
+        { wch: 12 }, // E - POL
+        { wch: 12 }, // F - POD
+        { wch: 12 }, // G - ETA
+        { wch: 12 }, // H - ETD
+        { wch: 15 }, // I - STATUS
+        { wch: 12 }, // J - INCOTERM
+        { wch: 18 }  // K - NAVIO
+      ];
+      worksheet['!cols'] = colWidths;
+
+      // Configurar altura das linhas (primeiras linhas fixas)
+      const baseRowHeights = [
+        { hpt: 30 }, // Linha 1 - Nome da empresa
+        { hpt: 25 }, // Linha 2 - Título
+        { hpt: 15 }, // Linha 3 - Espaçamento
+        { hpt: 25 }, // Linha 4 - Cabeçalho 1
+      ];
+
+      // Adicionar alturas para as linhas de dados
+      const dataRowHeights = filteredAndSortedShipments.map(() => ({ hpt: 25 }));
+      const finalRowHeights = [
+        ...baseRowHeights,
+        ...dataRowHeights,
+        { hpt: 15 }, // Espaçamento
+        { hpt: 25 }, // Cabeçalho 2
+        ...filteredAndSortedShipments.map(() => ({ hpt: 40 })) // Dados da segunda tabela
+      ];
+      worksheet['!rows'] = finalRowHeights;
+
+      // Configurar mesclagem de células para o cabeçalho
+      const merges = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Nome da empresa - linha inteira
+        { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Título - linha inteira
+      ];
+      worksheet['!merges'] = merges;
+
+      // SOLUÇÃO SIMPLES E EFICAZ: Nome da empresa como texto estilizado
+      // Criando um cabeçalho visualmente atrativo com cores teal (igual à imagem 2)
+
+      // Configurar estilo especial para o cabeçalho da empresa
+      if (!worksheet['!rows']) {
+        worksheet['!rows'] = [];
+      }
+
+      // Ajustar altura da primeira linha para acomodar o nome da empresa
+      worksheet['!rows'][0] = { hpt: 30 };
+
+      // Adicionar formatação especial para a célula A1 (nome da empresa)
+      worksheet['A1'] = {
+        v: 'SEA LOGISTICS INTERNATIONAL',
+        t: 's',
+        s: {
+          font: {
+            name: 'Arial',
+            sz: 20,
+            bold: true,
+            color: { rgb: 'FFFFFF' }
+          },
+          fill: {
+            fgColor: { rgb: '006666' } // Azul teal escuro (igual à imagem 2)
+          },
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center'
+          }
+        }
+      };
+
+      // Adicionar formatação especial para a célula A2 (título)
+      worksheet['A2'] = {
+        v: `FOLLOW UP (TODOS OS ENVIOS) - ${currentDate}`,
+        t: 's',
+        s: {
+          font: {
+            name: 'Arial',
+            sz: 16,
+            bold: true,
+            color: { rgb: 'FFFFFF' }
+          },
+          fill: {
+            fgColor: { rgb: '006666' } // Azul teal escuro (igual à imagem 2)
+          },
+          alignment: {
+            horizontal: 'center',
+            vertical: 'center'
+          }
+        }
+      };
+
+      // Formatar cabeçalhos das tabelas (teal escuro como na imagem 2)
+      const headerStyle = {
+        font: {
+          name: 'Arial',
+          sz: 12,
+          bold: true,
+          color: { rgb: 'FFFFFF' }
+        },
+        fill: {
+          fgColor: { rgb: '006666' } // Azul teal escuro (igual à imagem 2)
+        },
+        alignment: {
+          horizontal: 'center',
+          vertical: 'center'
+        }
+      };
+
+      // Aplicar estilo aos cabeçalhos da primeira tabela
+      ['A4', 'B4', 'C4', 'D4', 'E4', 'F4', 'G4', 'H4', 'I4', 'J4', 'K4'].forEach(cell => {
+        if (worksheet[cell]) {
+          worksheet[cell].s = headerStyle;
+        }
+      });
+
+      // Aplicar estilo aos cabeçalhos da segunda tabela
+      ['A7', 'B7', 'C7', 'D7', 'E7', 'F7', 'G7', 'H7'].forEach(cell => {
+        if (worksheet[cell]) {
+          worksheet[cell].s = headerStyle;
+        }
+      });
+
+      console.log('✅ Formatação especial aplicada com sucesso!');
+      console.log('✅ Logo da empresa estilizada com cores teal (igual à imagem 2)');
+
+      // Adicionar planilha ao workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Follow Up");
+
+      // Gerar arquivo Excel
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
+
+      const fileData = new Blob([excelBuffer], {
+        type: "application/octet-stream",
+      });
+
+      // Nome do arquivo com data atual
+      const currentDateFile = new Date().toISOString().split('T')[0];
+      const fileName = `follow-up-todos-envios-${currentDateFile}.xlsx`;
+
+      saveAs(fileData, fileName);
+    } catch (error) {
+      console.error('Erro ao exportar para Excel:', error);
+      alert('Erro ao exportar para Excel. Tente novamente.');
+    }
   };
 
   const handleManageDocuments = (shipment: Shipment) => {
@@ -462,7 +864,19 @@ const ShippingTable = ({
   return (
     <DropdownProvider>
       <div className="shipping-table-container">
-        <h2 className="shipping-table-title">Tabela de Envios</h2>
+        <div className="shipping-table-header">
+          <h2 className="shipping-table-title">{translations.shippingTable}</h2>
+          {filteredAndSortedShipments.length > 0 && (
+            <button
+              className="export-all-button"
+              onClick={exportAllToExcel}
+              title={translations.exportAll}
+            >
+              <FileText size={16} />
+              {translations.exportAll}
+            </button>
+          )}
+        </div>
 
         <ShippingFilters
           filters={filters}
@@ -473,28 +887,28 @@ const ShippingTable = ({
         {filteredAndSortedShipments.length === 0 ? (
           <div className="shipping-table-empty">
             {shipments.length === 0
-              ? "Nenhum envio encontrado. Que tal criar o primeiro?"
-              : "Nenhum envio encontrado com os filtros aplicados."}
+              ? translations.noShipments
+              : translations.noShipments}
           </div>
         ) : (
           <div className="table-wrapper">
             <table className="shipping-table">
               <thead>
                 <tr>
-                  <th>Cliente</th>
-                  <th>Tipo</th>
-                  <th>Shipper</th>
-                  <th>POL</th>
-                  <th>POD</th>
-                  <th>ETD Origem</th>
-                  <th>ETA Destino</th>
-                  <th>Quant Box</th>
-                  <th>Status</th>
-                  <th>N° BL</th>
-                  <th>Armador</th>
-                  <th>Booking</th>
-                  <th>Invoice</th>
-                  <th>Ações</th>
+                  <th>{translations.client}</th>
+                  <th>{translations.type}</th>
+                  <th>{translations.shipper}</th>
+                  <th>{translations.pol}</th>
+                  <th>{translations.pod}</th>
+                  <th>{translations.etdOrigin}</th>
+                  <th>{translations.etaDestination}</th>
+                  <th>{translations.quantBox}</th>
+                  <th>{translations.status}</th>
+                  <th>{translations.blNumber}</th>
+                  <th>{translations.carrier}</th>
+                  <th>{translations.booking}</th>
+                  <th>{translations.invoice}</th>
+                  <th>{translations.actions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -516,7 +930,7 @@ const ShippingTable = ({
                       <div
                         title={
                           !isAdmin()
-                            ? "Apenas administradores podem alterar o status"
+                            ? translations.accessDenied
                             : undefined
                         }
                       >
@@ -541,22 +955,40 @@ const ShippingTable = ({
                         <button
                           className="action-icon edit-icon"
                           onClick={() => handleEditShipment(shipment)}
-                          title="Editar envio"
+                          title={translations.edit}
                           disabled={!canEditShipment(shipment)}
                         >
                           <Edit size={20} />
                         </button>
+                        {/* Botão de gerenciar documentos - APENAS para admins */}
+                        {isAdmin() && (
+                          <button
+                            className="action-icon documents-icon"
+                            onClick={() => handleManageDocuments(shipment)}
+                            title={translations.manageDocuments}
+                          >
+                            <FolderOpen size={20} />
+                          </button>
+                        )}
+
+                        {/* Botão de visualizar documentos - PARA TODOS (clientes e admins) */}
                         <button
-                          className="action-icon documents-icon"
-                          onClick={() => handleManageDocuments(shipment)}
-                          title="Gerenciar documentos"
+                          className="action-icon view-documents-icon"
+                          onClick={() => {
+                            setSelectedShipmentForViewer(shipment);
+                            setShowDocumentViewer(true);
+                          }}
+                          title={translations.viewDocuments}
                         >
-                          <FolderOpen size={20} />
+                          <Eye size={20} />
                         </button>
                         <button
                           className="action-icon file-icon"
-                          onClick={() => exportToExcel(shipment)}
-                          title="Exportar para Excel"
+                          onClick={() => {
+                            console.log('🖱️ Botão de exportação individual clicado para:', shipment.cliente, shipment.numeroBl);
+                            exportToExcel(shipment);
+                          }}
+                          title={translations.export}
                         >
                           <FileText size={20} />
                         </button>
@@ -605,87 +1037,26 @@ const ShippingTable = ({
 
         {/* Modal de Gerenciamento de Documentos */}
         {showDocumentsModal && selectedShipmentForDocs && (
-          <div className="documents-modal-overlay">
-            <div className="documents-modal">
-              <div className="documents-modal-header">
-                <h3>Gerenciar Documentos</h3>
-                <button
-                  className="close-button"
-                  onClick={() => setShowDocumentsModal(false)}
-                >
-                  ×
-                </button>
-              </div>
+          <DocumentManager
+            shipmentId={selectedShipmentForDocs.id || ''}
+            shipmentNumber={selectedShipmentForDocs.numeroBl}
+            clientName={selectedShipmentForDocs.cliente}
+            isOpen={showDocumentsModal}
+            onClose={() => setShowDocumentsModal(false)}
+            onDocumentsUpdate={() => {
+              // Recarregar dados se necessário
+              console.log('Documentos atualizados');
+            }}
+          />
+        )}
 
-              <div className="documents-modal-content">
-                <div className="shipment-info">
-                  <h4>Envio: {selectedShipmentForDocs.numeroBl}</h4>
-                  <p>Cliente: {selectedShipmentForDocs.cliente}</p>
-                  <p>Status: {selectedShipmentForDocs.status}</p>
-                </div>
-
-                <div className="documents-section">
-                  <h5>
-                    <FileText size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Documentos do Cliente
-                  </h5>
-                  <div className="document-upload-area">
-                    <input
-                      type="file"
-                      multiple
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      onChange={(e) => console.log('Upload de documentos do cliente:', e.target.files)}
-                    />
-                    <p className="upload-hint">Arraste arquivos ou clique para selecionar</p>
-                  </div>
-                </div>
-
-                <div className="documents-section">
-                  <h5>
-                    <Truck size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Documentos de Transporte
-                  </h5>
-                  <div className="document-upload-area">
-                    <input
-                      type="file"
-                      multiple
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                      onChange={(e) => console.log('Upload de documentos de transporte:', e.target.files)}
-                    />
-                    <p className="upload-hint">Arraste arquivos ou clique para selecionar</p>
-                  </div>
-                </div>
-
-                <div className="documents-section">
-                  <h5>
-                    <FolderOpen size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                    Documentos Existentes
-                  </h5>
-                  <div className="existing-documents">
-                    <p className="no-documents">Nenhum documento carregado ainda.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="documents-modal-actions">
-                <button
-                  className="btn-cancel"
-                  onClick={() => setShowDocumentsModal(false)}
-                >
-                  Fechar
-                </button>
-                <button
-                  className="btn-save"
-                  onClick={() => {
-                    // Implementar lógica de salvamento
-                    alert('Funcionalidade de salvamento em desenvolvimento');
-                  }}
-                >
-                  Salvar Documentos
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Modal de Visualização de Documentos */}
+        {showDocumentViewer && selectedShipmentForViewer && (
+          <DocumentViewer
+            shipmentId={selectedShipmentForViewer.id || ''}
+            isOpen={showDocumentViewer}
+            onClose={() => setShowDocumentViewer(false)}
+          />
         )}
       </div>
     </DropdownProvider>

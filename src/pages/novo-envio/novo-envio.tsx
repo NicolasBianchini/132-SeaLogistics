@@ -249,7 +249,7 @@ const NovoEnvioPage = () => {
       );
 
       if (!clienteSelecionado) {
-        alert("Por favor, selecione um cliente válido.");
+        alert(translations.pleaseSelectValidClient);
         setIsSubmitting(false);
         return;
       }
@@ -385,7 +385,7 @@ const NovoEnvioPage = () => {
                     disabled={loadingClientes}
                   >
                     <option value="">
-                      {loadingClientes ? "Carregando..." : "Selecione um cliente"}
+                      {loadingClientes ? translations.loading : translations.selectClient}
                     </option>
                     {clientes.map((cliente) => (
                       <option key={cliente.id} value={cliente.id}>
@@ -406,7 +406,7 @@ const NovoEnvioPage = () => {
                     disabled={loadingOperadores}
                   >
                     <option value="">
-                      {loadingOperadores ? "Carregando..." : "Selecione um operador"}
+                      {loadingOperadores ? translations.loading : translations.selectOperator}
                     </option>
                     {operadores.map((operador) => (
                       <option key={operador.id} value={operador.id}>
