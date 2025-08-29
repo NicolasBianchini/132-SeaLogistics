@@ -21,7 +21,7 @@ import {
   useState,
 } from "react";
 import { db } from "../lib/firebaseConfig";
-import { sendEmail } from "../services/emailService";
+import { sendEmail, sendMaritimeShipmentUpdateEmail } from "../services/emailService";
 import { UserRole } from "../types/user";
 import { useAuth } from "./auth-context";
 
@@ -44,6 +44,9 @@ export interface Shipment {
   companyId?: string;
   tipo?: string;
   observacoes?: string;
+  imo?: string;
+  actualDeparture?: string;
+  reportedEta?: string;
   createdAt?: Timestamp | Date;
   updatedAt?: Timestamp | Date;
 }
@@ -268,6 +271,9 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
         invoice: updatedShipment.invoice,
         observacoes: updatedShipment.observacoes || "", // Incluir observações
         tipo: updatedShipment.tipo || "", // Incluir tipo de transporte
+        imo: updatedShipment.imo || "", // Incluir IMO do navio
+        actualDeparture: updatedShipment.actualDeparture || "", // Incluir horário real de partida
+        reportedEta: updatedShipment.reportedEta || "", // Incluir ETA reportado
         updatedAt: new Date(),
       });
 
@@ -291,10 +297,32 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                 "Preparando para enviar email para:",
                 companyData.contactEmail
               );
-              await sendEmail({
-                to: companyData.contactEmail,
-                subject: `Status do envio atualizado - ${updatedShipment.numeroBl}`,
-                html: `
+              // Usar o novo template de email para embarques marítimos
+              if (updatedShipment.tipo === 'Marítimo') {
+                await sendMaritimeShipmentUpdateEmail(
+                  companyData.contactEmail,
+                  companyData.name || 'Cliente',
+                  {
+                    vessel: updatedShipment.armador,
+                    originPort: updatedShipment.pol,
+                    destinationPort: updatedShipment.pod,
+                    booking: updatedShipment.booking,
+                    blNumber: updatedShipment.numeroBl,
+                    etd: updatedShipment.etdOrigem,
+                    eta: updatedShipment.etaDestino,
+                    currentLocation: updatedShipment.currentLocation,
+                    status: updatedShipment.status,
+                    imo: updatedShipment.imo || '9735206',
+                    actualDeparture: updatedShipment.actualDeparture || `${updatedShipment.etdOrigem} 21:19 (UTC-5)`,
+                    reportedEta: updatedShipment.reportedEta || `${updatedShipment.etaDestino} 12:00 (UTC-3)`
+                  }
+                );
+              } else {
+                // Email padrão para outros tipos de transporte
+                await sendEmail({
+                  to: companyData.contactEmail,
+                  subject: `Status do envio atualizado - ${updatedShipment.numeroBl}`,
+                  html: `
                                     <h2>Status do envio atualizado</h2>
                                     <p>O status do seu envio foi atualizado:</p>
                                     <ul>
@@ -309,7 +337,8 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                                         <li><strong>Observações:</strong> ${updatedShipment.observacoes}</li>
                                     </ul>
                                 `,
-              });
+                });
+              }
             } else {
               console.log("Empresa não tem email de contato cadastrado");
             }

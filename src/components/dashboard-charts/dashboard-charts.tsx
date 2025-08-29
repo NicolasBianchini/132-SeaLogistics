@@ -98,20 +98,71 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
     }));
   };
 
-  // Dados para gráfico de barras por cliente
+  // Dados para gráfico de evolução mensal (para usuários comuns)
+  const getMonthlyData = (): ChartData[] => {
+    if (validShipments.length === 0) return [];
+
+    const monthlyCounts: { [key: string]: number } = {};
+
+    validShipments.forEach(shipment => {
+      if (shipment.etdOrigem) {
+        const date = new Date(shipment.etdOrigem);
+        const monthKey = `${date.getMonth() + 1}/${date.getFullYear()}`;
+        monthlyCounts[monthKey] = (monthlyCounts[monthKey] || 0) + 1;
+      }
+    });
+
+    return Object.entries(monthlyCounts)
+      .sort((a, b) => {
+        const [monthA, yearA] = a[0].split('/');
+        const [monthB, yearB] = b[0].split('/');
+        return new Date(parseInt(yearA), parseInt(monthA) - 1).getTime() -
+          new Date(parseInt(yearB), parseInt(monthB) - 1).getTime();
+      })
+      .map(([month, count]) => ({
+        name: month,
+        value: count,
+        color: '#8884d8'
+      }));
+  };
+
+  // Dados para gráfico de portos de origem (para usuários comuns)
+  const getPortData = (): ChartData[] => {
+    if (validShipments.length === 0) return [];
+
+    const portCounts: { [key: string]: number } = {};
+
+    validShipments.forEach(shipment => {
+      if (shipment.pol) {
+        const port = shipment.pol;
+        portCounts[port] = (portCounts[port] || 0) + 1;
+      }
+    });
+
+    return Object.entries(portCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([port, count], index) => ({
+        name: port,
+        value: count,
+        color: COLORS[index % COLORS.length]
+      }));
+  };
+
+  // Dados para gráfico de clientes (apenas para admins)
   const getClientData = (): ChartData[] => {
     if (validShipments.length === 0) return [];
 
     const clientCounts: { [key: string]: number } = {};
 
     validShipments.forEach(shipment => {
-      const client = shipment.cliente || 'Cliente não definido';
+      const client = shipment.cliente || 'Não definido';
       clientCounts[client] = (clientCounts[client] || 0) + 1;
     });
 
     return Object.entries(clientCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 10) // Top 10 clientes
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 10)
       .map(([client, count], index) => ({
         name: client,
         value: count,
@@ -119,56 +170,24 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
       }));
   };
 
-  // Dados para gráfico de barras por navio/armador
+  // Dados para gráfico de navios/armadores (apenas para admins)
   const getVesselData = (): ChartData[] => {
     if (validShipments.length === 0) return [];
 
     const vesselCounts: { [key: string]: number } = {};
 
     validShipments.forEach(shipment => {
-      const vessel = shipment.armador || 'Navio não definido';
-      vesselCounts[vessel] = (vesselCounts[vessel] || 0) + 1;
-    });
-
-    return Object.entries(vesselCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 8) // Top 8 navios
-      .map(([vessel, count], index) => ({
-        name: vessel,
-        value: count,
-        color: COLORS[index % COLORS.length]
-      }));
-  };
-
-  // Dados para gráfico de linha por mês
-  const getMonthlyData = (): ChartData[] => {
-    if (validShipments.length === 0) return [];
-
-    const monthlyCounts: { [key: string]: number } = {};
-
-    validShipments.forEach(shipment => {
-      if (shipment.createdAt) {
-        let date: Date;
-        if (shipment.createdAt instanceof Date) {
-          date = shipment.createdAt;
-        } else {
-          // É um Timestamp do Firestore
-          date = shipment.createdAt.toDate();
-        }
-        const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`;
-        monthlyCounts[monthYear] = (monthlyCounts[monthYear] || 0) + 1;
+      if (shipment.armador) {
+        const vessel = shipment.armador;
+        vesselCounts[vessel] = (vesselCounts[vessel] || 0) + 1;
       }
     });
 
-    return Object.entries(monthlyCounts)
-      .sort(([a], [b]) => {
-        const [monthA, yearA] = a.split('/');
-        const [monthB, yearB] = b.split('/');
-        return new Date(parseInt(yearA), parseInt(monthA) - 1).getTime() -
-          new Date(parseInt(yearB), parseInt(monthB) - 1).getTime();
-      })
-      .map(([month, count], index) => ({
-        name: month,
+    return Object.entries(vesselCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([vessel, count], index) => ({
+        name: vessel,
         value: count,
         color: COLORS[index % COLORS.length]
       }));
@@ -191,10 +210,12 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
     };
   };
 
-  const statusData = useMemo(() => getStatusData(), [validShipments]);
-  const clientData = useMemo(() => getClientData(), [validShipments]);
-  const vesselData = useMemo(() => getVesselData(), [validShipments]);
-  const monthlyData = useMemo(() => getMonthlyData(), [validShipments]);
+  // Dados para gráficos
+  const statusData = getStatusData();
+  const monthlyData = getMonthlyData();
+  const portData = getPortData();
+  const clientData = getClientData();
+  const vesselData = getVesselData();
   const stats = useMemo(() => getGeneralStats(), [validShipments]);
 
   // Verificar se há dados para mostrar
@@ -282,7 +303,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
@@ -296,27 +317,13 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
           </ResponsiveContainer>
         </div>
 
-        {/* Gráfico de Barras - Clientes */}
+        {/* Gráfico de Barras - Evolução Mensal Pessoal */}
         <div className="chart-container">
-          <h3>{translations.top10Clients}</h3>
+          <h3>Evolução dos Meus Envios</h3>
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={clientData}>
+            <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Gráfico de Barras - Navios */}
-        <div className="chart-container">
-          <h3>Top 8 Navios/Armadores</h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={vesselData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+              <XAxis dataKey="name" />
               <YAxis />
               <Tooltip />
               <Bar dataKey="value" fill="#82ca9d" />
@@ -324,9 +331,9 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
           </ResponsiveContainer>
         </div>
 
-        {/* Gráfico de Linha - Evolução Mensal */}
+        {/* Gráfico de Linha - Status ao Longo do Tempo */}
         <div className="chart-container">
-          <h3>Evolução Mensal</h3>
+          <h3>Status dos Meus Envios</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -338,59 +345,21 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
             </LineChart>
           </ResponsiveContainer>
         </div>
-      </div>
 
-      {/* Filtros Avançados */}
-      {isAdmin && (
-        <div className="advanced-filters">
-          <h3>Filtros Avançados</h3>
-          <div className="filters-grid">
-            <div className="filter-group">
-              <label>Período</label>
-              <select defaultValue="">
-                <option value="">Todos os períodos</option>
-                <option value="this-month">Este mês</option>
-                <option value="last-month">Mês passado</option>
-                <option value="this-quarter">Este trimestre</option>
-                <option value="this-year">Este ano</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label>Status</label>
-              <select defaultValue="">
-                <option value="">Todos os status</option>
-                <option value="documentacao">Documentação</option>
-                <option value="agendado">Agendado</option>
-                <option value="embarcado">Embarcado</option>
-                <option value="em-transito">Em Trânsito</option>
-                <option value="concluido">Concluído</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label>Tipo de Documento</label>
-              <select defaultValue="">
-                <option value="">Todos os tipos</option>
-                <option value="bl">Bill of Lading</option>
-                <option value="invoice">Invoice</option>
-                <option value="packing-list">Packing List</option>
-                <option value="certificate">Certificate</option>
-              </select>
-            </div>
-
-            <div className="filter-group">
-              <label>Cliente</label>
-              <select defaultValue="">
-                <option value="">Todos os clientes</option>
-                {Array.from(new Set(shipments.map(s => s.cliente))).map(client => (
-                  <option key={client} value={client}>{client}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+        {/* Gráfico de Barras - Portos de Origem */}
+        <div className="chart-container">
+          <h3>Portos de Origem</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={portData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="value" fill="#ffc658" />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
-      )}
+      </div>
     </div>
   );
 };

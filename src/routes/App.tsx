@@ -7,7 +7,7 @@ import { Footer } from "../components/footer/footer";
 import { AdminDashboard } from "../pages/dashboard/admin-dashboard";
 import { Dashboard } from "../pages/dashboard/dashboard";
 import { EnviosPage } from "../pages/envios/envios-page";
-import { HomePage as Home } from "../pages/home/home-page";
+import { HomePage as Home } from "../pages/home/HomePage";
 import { LoginPage as Login } from "../pages/login/login-page";
 import NovoEnvioPage from "../pages/novo-envio/novo-envio";
 import { RegisterPage as Register } from "../pages/register/register-page";

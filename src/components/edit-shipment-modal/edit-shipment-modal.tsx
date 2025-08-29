@@ -5,6 +5,7 @@ import type React from "react";
 import { FileText, MapPin, Package, Save, Ship, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Shipment } from "../../context/shipments-context";
+import StatusSelector from "../shipping-table/status-selector";
 import "./edit-shipment-modal.css";
 
 interface EditShipmentModalProps {
@@ -31,6 +32,9 @@ interface FormData {
   invoice: string;
   observacoes: string;
   tipo: string;
+  imo: string;
+  actualDeparture: string;
+  reportedEta: string;
 }
 
 const EditShipmentModal = ({
@@ -56,13 +60,15 @@ const EditShipmentModal = ({
     invoice: "",
     observacoes: "",
     tipo: "",
+    imo: "",
+    actualDeparture: "",
+    reportedEta: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Opções para os selects
-  const statusOptions = ["A Embarcar", "Embarcado", "Concluído"];
+
 
   const armadores = [
     "MSC",
@@ -130,7 +136,8 @@ const EditShipmentModal = ({
   // Carregar dados do shipment no formulário
   useEffect(() => {
     if (shipment) {
-      setFormData({
+      console.log("Carregando dados do shipment:", shipment);
+      const newFormData = {
         cliente: shipment.cliente || "",
         operador: shipment.operador || "",
         shipper: shipment.shipper || "",
@@ -145,23 +152,18 @@ const EditShipmentModal = ({
         armador: shipment.armador || "",
         booking: shipment.booking || "",
         invoice: shipment.invoice || "",
-        observacoes: (shipment as any).observacoes || "",
-        tipo: (shipment as any).tipo || "",
-      });
+        observacoes: shipment.observacoes || "",
+        tipo: shipment.tipo || "",
+        imo: shipment.imo || "",
+        actualDeparture: shipment.actualDeparture || "",
+        reportedEta: shipment.reportedEta || "",
+      };
+      console.log("FormData configurado:", newFormData);
+      setFormData(newFormData);
     }
   }, [shipment]);
 
-  // Limpar campos de origem e destino quando o tipo de transporte for alterado
-  useEffect(() => {
-    if (formData.tipo) {
-      setFormData(prev => ({
-        ...prev,
-        pol: "",
-        pod: "",
-        currentLocation: ""
-      }));
-    }
-  }, [formData.tipo]);
+
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -196,11 +198,14 @@ const EditShipmentModal = ({
     if (!formData.tipo.trim()) {
       newErrors.tipo = "Tipo de transporte é obrigatório";
     }
-    if (!formData.pol.trim()) {
-      newErrors.pol = "Porto de origem é obrigatório";
-    }
-    if (!formData.pod.trim()) {
-      newErrors.pod = "Porto de destino é obrigatório";
+    // Validação dos portos apenas se o tipo for marítimo
+    if (formData.tipo === 'Marítimo') {
+      if (!formData.pol.trim()) {
+        newErrors.pol = "Porto de origem é obrigatório";
+      }
+      if (!formData.pod.trim()) {
+        newErrors.pod = "Porto de destino é obrigatório";
+      }
     }
     if (!formData.etdOrigem) {
       newErrors.etdOrigem = "Data de partida é obrigatória";
@@ -236,7 +241,10 @@ const EditShipmentModal = ({
       return;
     }
 
+    console.log("FormData antes da validação:", formData);
+
     if (!validateForm()) {
+      console.log("Validação falhou");
       return;
     }
 
@@ -261,8 +269,13 @@ const EditShipmentModal = ({
         invoice: formData.invoice,
         observacoes: formData.observacoes,
         tipo: formData.tipo,
+        imo: formData.imo,
+        actualDeparture: formData.actualDeparture,
+        reportedEta: formData.reportedEta,
         updatedAt: new Date(),
       };
+
+      console.log("Shipment atualizado:", updatedShipment);
 
       await onSave(updatedShipment);
       onClose();
@@ -571,20 +584,14 @@ const EditShipmentModal = ({
 
                 <div className="form-group">
                   <label htmlFor="status">Status</label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
+                  <StatusSelector
+                    currentStatus={formData.status}
+                    onStatusChange={(newStatus) => {
+                      setFormData(prev => ({ ...prev, status: newStatus }));
+                    }}
+                    instanceId={`edit-modal-${shipment.id}`}
                     disabled={!canEdit}
-                  >
-                    <option value="">Selecione o status</option>
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               </div>
 

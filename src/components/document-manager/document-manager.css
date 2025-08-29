@@ -4,24 +4,46 @@
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+  z-index: 9999999;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Garantir que o overlay cubra toda a tela e apareça acima de tudo */
+.document-manager-overlay * {
+  z-index: inherit;
+}
+
+/* Forçar o overlay a cobrir toda a viewport */
+.document-manager-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999999 !important;
 }
 
 .document-manager-modal {
   background: white;
   border-radius: 16px;
-  width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
+  width: 95%;
+  max-width: 1200px;
+  max-height: 95vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  margin: 0;
 }
 
 /* Header */

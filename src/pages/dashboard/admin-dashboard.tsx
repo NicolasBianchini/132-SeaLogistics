@@ -236,7 +236,6 @@ export const AdminDashboard = () => {
                     <h2>{translations.quickActions}</h2>
                     <div className="actions-grid">
                         <button
-                            className="action-button"
                             onClick={() => navigate('/novo-envio')}
                         >
                             <Plus size={20} />
@@ -244,7 +243,6 @@ export const AdminDashboard = () => {
                         </button>
 
                         <button
-                            className="action-button"
                             onClick={() => {
                                 openAdminPanel("users");
                             }}
@@ -254,7 +252,6 @@ export const AdminDashboard = () => {
                         </button>
 
                         <button
-                            className="action-button"
                             onClick={() => navigate('/settings')}
                         >
                             <Settings size={20} />

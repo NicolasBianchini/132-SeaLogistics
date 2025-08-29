@@ -420,7 +420,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, initialTab }) =
               <h3 style={{ margin: 0 }}>Gerenciar Usuários</h3>
               <button
                 onClick={() => setShowCreateUserModal(true)}
-                className="action-button"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -472,13 +471,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, initialTab }) =
                             onClick={() =>
                               toggleUserStatus(user.uid, user.isActive)
                             }
-                            className="action-button"
                           >
                             {user.isActive ? "Desativar" : "Ativar"}
                           </button>
                           <button
                             onClick={() => deleteUser(user.uid)}
-                            className="action-button delete"
+                            className="delete"
                           >
                             Excluir
                           </button>
@@ -525,7 +523,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, initialTab }) =
                           onClick={() =>
                             toggleCompanyStatus(company.id, company.isActive)
                           }
-                          className="action-button"
                         >
                           {company.isActive ? "Desativar" : "Ativar"}
                         </button>
@@ -958,8 +955,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, initialTab }) =
                         width: "100%",
                         padding: "0.75rem",
                         border: `1px solid ${createUserErrors.confirmPassword
-                            ? "#e74c3c"
-                            : "#e5e7eb"
+                          ? "#e74c3c"
+                          : "#e5e7eb"
                           }`,
                         borderRadius: "6px",
                         fontSize: "0.95rem",
@@ -989,7 +986,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, initialTab }) =
                 >
                   <button
                     onClick={handleCancelCreateUser}
-                    className="action-button"
                     style={{ backgroundColor: "#6c757d", color: "white" }}
                     disabled={isCreatingUser}
                   >
@@ -997,7 +993,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onClose, initialTab }) =
                   </button>
                   <button
                     onClick={handleCreateUser}
-                    className="action-button"
                     style={{ backgroundColor: "#789170", color: "white" }}
                     disabled={isCreatingUser}
                   >

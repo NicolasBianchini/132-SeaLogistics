@@ -267,7 +267,8 @@
   gap: 16px;
 }
 
-.action-button {
+/* Estilos específicos para os botões das ações rápidas */
+.actions-grid button {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -282,11 +283,13 @@
   transition: all 0.2s ease;
 }
 
-.action-button:hover {
+.actions-grid button:hover {
   background: #e9ecef;
   border-color: #dee2e6;
   transform: translateY(-1px);
 }
+
+/* Estilos removidos da classe action-button para resolver conflitos */
 
 /* Responsividade */
 @media (max-width: 1400px) {

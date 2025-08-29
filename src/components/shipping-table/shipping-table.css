@@ -1,28 +1,25 @@
 .shipping-table-container {
-  width: 100%;
-  max-width: 2000px;
-  margin: 0;
-  padding: 0;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  background: #f8f9fa;
+  min-height: auto;
+  position: relative;
   overflow: visible;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  isolation: isolate;
+  /* Garantir contexto de empilhamento consistente */
+  z-index: 1;
+  /* Garantir que o contexto de empilhamento seja estável */
+  transform: translateZ(0);
 }
 
 .shipping-table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 0 20px;
+  margin-bottom: 16px;
 }
 
 .shipping-table-title {
-  color: var(--primary-color);
-  margin: 0;
-  text-align: left;
   font-size: 24px;
   font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 12px 0;
 }
 
 .export-all-button {
@@ -52,7 +49,7 @@
 
 .export-all-button:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
+  cursor:  not-allowed;
   transform: none;
 }
 
@@ -61,42 +58,91 @@
   overflow-x: auto;
   overflow-y: visible;
   border-radius: 12px;
+  min-height: 200px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  isolation: isolate;
+  /* Garantir contexto de empilhamento consistente */
+  z-index: 1;
+  /* Garantir que o contexto de empilhamento seja estável */
+  transform: translateZ(0);
 }
 
 .shipping-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  min-height: 180px;
   position: relative;
+}
+
+.shipping-table tbody {
+  min-height: 100px;
+}
+
+.shipping-table tbody tr {
+  min-height: 36px;
+}
+
+.shipping-table tbody tr:last-child {
+  border-bottom: none;
 }
 
 .shipping-table th,
 .shipping-table td {
-  padding: 16px 20px;
+  padding: 10px 8px;
   text-align: left;
+  vertical-align: middle;
   border-bottom: 1px solid #e9ecef;
+  font-size: 13px;
 }
 
 .shipping-table td {
   position: relative;
   overflow: visible;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 0;
+}
+
+/* Sistema de z-index hierárquico para a tabela */
+.shipping-table {
+  isolation: isolate;
+  /* Garantir contexto de empilhamento consistente */
+  position: relative;
+  z-index: 1;
+}
+
+.shipping-table td {
+  isolation: isolate;
+  /* Garantir contexto de empilhamento consistente */
+  position: relative;
+  z-index: 1;
+}
+
+/* Permitir quebra de linha em células específicas */
+.shipping-table td.allow-wrap {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Estilo para células com dados longos */
+.shipping-table td.truncate {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .shipping-table th {
-  background: linear-gradient(
-    135deg,
-    var(--primary-color) 0%,
-    var(--secondary-color) 100%
-  );
-  color: var(--white);
+  background: #008080;
+  color: white;
   font-weight: 600;
-  position: sticky;
-  top: 0;
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: center;
-  vertical-align: middle;
+  letter-spacing: 0.3px;
+  padding: 8px 6px;
 }
 
 .shipping-table tr:nth-child(even) {
@@ -104,37 +150,20 @@
 }
 
 .shipping-table tr:hover {
-  background-color: rgba(49, 88, 81, 0.08);
-  transition: background-color var(--transition-speed);
+  background-color: #f0f8ff;
+  transition: all 0.2s ease;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
-  text-align: center;
+.shipping-table tr {
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.status-em-trânsito {
-  background-color: #ffd166;
-  color: #333;
-}
-
-.status-agendado {
-  background-color: #118ab2;
-  color: white;
-}
-
-.status-documentação {
-  background-color: #073b4c;
-  color: white;
-}
-
-.status-concluído {
-  background-color: #06d6a0;
-  color: #333;
+.shipping-table tr:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 @media screen and (max-width: 1900px) {
@@ -180,8 +209,52 @@
 
   .shipping-table th,
   .shipping-table td {
-    padding: 8px 10px;
-    font-size: 12px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+  
+  .shipping-table-title {
+    font-size: 20px;
+  }
+}
+
+/* Estilos para telas muito grandes - tornar mais compacta */
+@media screen and (min-width: 1920px) {
+  .shipping-table th,
+  .shipping-table td {
+    padding: 6px 4px;
+    font-size: 11px;
+  }
+  
+  .shipping-table tbody tr {
+    min-height: 28px;
+  }
+  
+  .shipping-table-container {
+    padding: 12px;
+  }
+  
+  .shipping-table-title {
+    font-size: 22px;
+  }
+}
+
+/* Estilos para telas ultra-wide */
+@media screen and (min-width: 2560px) {
+  .shipping-table th,
+  .shipping-table td {
+    padding: 4px 3px;
+    font-size: 10px;
+  }
+  
+  .shipping-table tbody tr {
+    min-height: 24px;
+  }
+  
+  .action-button {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
   }
 }
 
@@ -199,29 +272,340 @@
   border-radius: 4px;
 }
 
+/* Estilos para botões de ação na tabela */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 10;
+}
+
+.action-button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.action-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.action-button:active {
+  transform: scale(0.95);
+}
+
+/* Cores dos botões de ação */
+.action-button.edit {
+  background: #3b82f6;
+  color: white;
+}
+
+.action-button.copy {
+  background: #f59e0b;
+  color: white;
+}
+
+.action-button.confirm {
+  background: #10b981;
+  color: white;
+}
+
+.action-button.download {
+  background: #6366f1;
+  color: white;
+}
+
+/* Melhorar a responsividade da tabela */
+.shipping-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.shipping-table th:nth-child(1), /* CLIENTE */
+.shipping-table td:nth-child(1) {
+  width: 11%;
+}
+
+.shipping-table th:nth-child(2), /* TIPO */
+.shipping-table td:nth-child(2) {
+  width: 8%;
+}
+
+.shipping-table th:nth-child(3), /* SHIPPER */
+.shipping-table td:nth-child(3) {
+  width: 6%;
+}
+
+.shipping-table th:nth-child(4), /* POL */
+.shipping-table td:nth-child(4) {
+  width: 11%;
+}
+
+.shipping-table th:nth-child(5), /* POD */
+.shipping-table td:nth-child(5) {
+  width: 11%;
+}
+
+.shipping-table th:nth-child(6), /* ETD */
+.shipping-table td:nth-child(6) {
+  width: 8%;
+}
+
+.shipping-table th:nth-child(7), /* ETA */
+.shipping-table td:nth-child(7) {
+  width: 8%;
+}
+
+.shipping-table th:nth-child(8), /* QUANT BOX */
+.shipping-table td:nth-child(8) {
+  width: 6%;
+}
+
+.shipping-table th:nth-child(9), /* N° BL */
+.shipping-table td:nth-child(9) {
+  width: 8%;
+}
+
+.shipping-table th:nth-child(10), /* ARMADOR */
+.shipping-table td:nth-child(10) {
+  width: 8%;
+}
+
+.shipping-table th:nth-child(11), /* BOOKING */
+.shipping-table td:nth-child(11) {
+  width: 8%;
+}
+
+.shipping-table th:nth-child(12), /* FATURA */
+.shipping-table td:nth-child(12) {
+  width: 8%;
+}
+
+.shipping-table th:nth-child(13), /* AÇÕES */
+.shipping-table td:nth-child(13) {
+  width: 16%;
+  position: relative;
+  z-index: 100;
+  overflow: visible;
+  /* Garantir espaçamento adequado */
+  padding-right: 12px !important;
+  /* Prevenir quebra de texto */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ===== CORREÇÃO CRÍTICA: PREVENIR SOBREPOSIÇÃO DE TEXTO ===== */
+
+/* Garantir que cada coluna tenha seu espaço bem definido */
+.shipping-table th,
+.shipping-table td {
+  /* Espaçamento interno consistente */
+  padding: 10px 8px !important;
+  /* Garantir que o texto não se sobreponha */
+  box-sizing: border-box !important;
+  /* Prevenir quebra de linha indesejada */
+  white-space: nowrap !important;
+  /* Garantir que o texto seja cortado se necessário */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  /* Garantir que cada coluna tenha seu espaço */
+  min-width: 0 !important;
+  max-width: none !important;
+}
+
+/* Permitir quebra de linha em células específicas quando necessário */
+.shipping-table td.allow-wrap {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  /* Garantir que o texto quebre adequadamente */
+  line-height: 1.4 !important;
+}
+
+/* Estilo para células com dados longos */
+.shipping-table td.truncate {
+  max-width: 120px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  /* Garantir que não haja sobreposição */
+  padding-right: 12px !important;
+}
+
+/* ===== GARANTIR ESPAÇAMENTO ENTRE COLUNAS ===== */
+
+/* Manter apenas espaçamento invisível entre colunas */
+.shipping-table th,
+.shipping-table td {
+  /* Sem bordas visíveis - apenas espaçamento interno */
+  border-right: none !important;
+}
+
+/* Última coluna sem borda direita */
+.shipping-table th:last-child,
+.shipping-table td:last-child {
+  border-right: none !important;
+}
+
+/* ===== RESPONSIVIDADE MELHORADA ===== */
+
+/* Para telas menores, ajustar larguras das colunas */
+@media screen and (max-width: 1200px) {
+  .shipping-table th:nth-child(1), /* CLIENTE */
+  .shipping-table td:nth-child(1) {
+    width: 12% !important;
+    padding-right: 8px !important;
+  }
+  
+  .shipping-table th:nth-child(4), /* POL */
+  .shipping-table td:nth-child(4) {
+    width: 12% !important;
+    padding-right: 8px !important;
+  }
+  
+  .shipping-table th:nth-child(5), /* POD */
+  .shipping-table td:nth-child(5) {
+    width: 12% !important;
+    padding-right: 8px !important;
+  }
+}
+
+/* Para telas muito pequenas, permitir quebra de linha */
+@media screen and (max-width: 768px) {
+  .shipping-table th,
+  .shipping-table td {
+    /* Permitir quebra de linha em telas pequenas */
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    /* Reduzir padding para economizar espaço */
+    padding: 6px 4px !important;
+  }
+  
+  .shipping-table th:nth-child(4), /* POL */
+  .shipping-table td:nth-child(4),
+  .shipping-table th:nth-child(5), /* POD */
+  .shipping-table td:nth-child(5) {
+    /* Aumentar largura para evitar sobreposição */
+    width: 15% !important;
+    padding-right: 6px !important;
+  }
+}
+
+/* ===== CORREÇÃO ESPECÍFICA PARA COLUNAS POL E POD ===== */
+
+/* Garantir que as colunas POL e POD tenham espaço suficiente */
+.shipping-table th:nth-child(4), /* POL */
+.shipping-table td:nth-child(4) {
+  /* Aumentar largura para evitar sobreposição */
+  width: 12% !important;
+  /* Garantir espaçamento adequado */
+  padding-right: 16px !important;
+  /* Prevenir quebra de texto */
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  /* Garantir que não haja sobreposição */
+  min-width: 120px !important;
+}
+
+.shipping-table th:nth-child(5), /* POD */
+.shipping-table td:nth-child(5) {
+  /* Aumentar largura para evitar sobreposição */
+  width: 12% !important;
+  /* Garantir espaçamento adequado */
+  padding-right: 16px !important;
+  /* Prevenir quebra de texto */
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  /* Garantir que não haja sobreposição */
+  min-width: 120px !important;
+}
+
+/* ===== GARANTIR SEPARAÇÃO VISUAL ENTRE COLUNAS ===== */
+
+/* Adicionar separadores visuais entre colunas críticas */
+.shipping-table th:nth-child(3), /* SHIPPER */
+.shipping-table td:nth-child(3) {
+  /* Remover bordas visíveis - manter apenas espaçamento invisível */
+  border-right: none !important;
+}
+
+.shipping-table th:nth-child(4), /* POL */
+.shipping-table td:nth-child(4) {
+  /* Remover bordas visíveis - manter apenas espaçamento invisível */
+  border-right: none !important;
+}
+
+.shipping-table th:nth-child(5), /* POD */
+.shipping-table td:nth-child(5) {
+  /* Remover bordas visíveis - manter apenas espaçamento invisível */
+  border-right: none !important;
+}
+
+/* ===== PREVENIR SOBREPOSIÇÃO EM TODAS AS COLUNAS ===== */
+
+/* Garantir que todas as colunas tenham espaço adequado */
+.shipping-table th,
+.shipping-table td {
+  /* Garantir que o texto não se sobreponha */
+  box-sizing: border-box !important;
+  /* Prevenir quebra de linha indesejada */
+  white-space: nowrap !important;
+  /* Garantir que o texto seja cortado se necessário */
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  /* Garantir que cada coluna tenha seu espaço */
+  min-width: 0 !important;
+  max-width: none !important;
+  /* Espaçamento interno consistente */
+  padding: 10px 8px !important;
+  /* Garantir que não haja sobreposição */
+  position: relative !important;
+  z-index: 1 !important;
+  /* Remover todas as bordas visíveis */
+  border-right: none !important;
+  border-left: none !important;
+  border-top: none !important;
+  border-bottom: 1px solid #e9ecef !important;
+}
+
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background-color: var(--secondary-color);
 }
 
 .shipping-table-empty {
-  text-align: center;
-  padding: 3rem;
-  color: #6c757d;
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
+  color: #6c757d;
+  font-size: 18px;
   border: 2px dashed #dee2e6;
 }
 
 .table-summary {
   text-align: center;
-  padding: 1rem;
+  padding: 20px;
   color: #6c757d;
-  font-size: 0.9rem;
-  border-top: 1px solid #dee2e6;
-  background: #f8f9fa;
-  border-radius: 0 0 8px 8px;
-  margin-top: 1rem;
+  font-size: 16px;
+  background: white;
+  border-top: 1px solid #e9ecef;
+  border-radius: 0 0 12px 12px;
+  margin-top: 0;
 }
 
 /* Estilos para os ícones de ação */
@@ -230,6 +614,8 @@
   gap: 10px;
   align-items: center;
   justify-content: center;
+  position: relative;
+  z-index: 100;
 }
 
 .action-icon {
@@ -243,6 +629,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   background: transparent;
+  position: relative;
+  z-index: 100;
 }
 
 .action-icon:hover:not(:disabled) {
@@ -552,4 +940,42 @@
 
 .btn-save:hover {
   background: #218838;
+}
+
+/* CORREÇÃO PRINCIPAL: Estilos para o botão de exportação direta */
+.action-icon.export-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #008080 !important;
+  color: white !important;
+  /* Garantir que não haja interferência */
+  z-index: 1000;
+  /* Garantir contexto de empilhamento estável */
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+.action-icon.export-icon:hover {
+  background: #006666 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 128, 128, 0.3);
+}
+
+.action-icon.export-icon:active {
+  transform: scale(0.95);
+}
+
+/* Remover estilos do dropdown que não são mais necessários */
+.export-dropdown-container,
+.export-dropdown,
+.export-option {
+  display: none !important;
 }

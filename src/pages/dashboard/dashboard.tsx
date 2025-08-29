@@ -13,7 +13,6 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
 import { DashboardCharts } from "../../components/dashboard-charts";
-import { AdvancedFilters, type FilterOptions } from "../../components/advanced-filters";
 import Navbar from "../../components/navbar/navbar";
 import { useAuth } from "../../context/auth-context";
 import { useLanguage } from "../../context/language-context";
@@ -49,7 +48,6 @@ export const Dashboard = () => {
     thisMonth: 0,
   });
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
-  const [filteredShipments, setFilteredShipments] = useState<Shipment[]>([]);
 
   // Redirecionar admins para a página de envios
   useEffect(() => {
@@ -57,116 +55,6 @@ export const Dashboard = () => {
       navigate("/envios");
     }
   }, [isAdmin, loading, navigate]);
-
-  useEffect(() => {
-    if (shipments.length > 0) {
-      setFilteredShipments(shipments); // Inicialmente, todos os envios
-      calculateStats(shipments);
-      generateRecentActivity(shipments);
-    }
-  }, [shipments]);
-
-  const handleFiltersChange = useCallback((filters: FilterOptions) => {
-    // Aplicar filtros aos envios
-    let filtered = [...shipments];
-
-    // Filtro por período
-    if (filters.period) {
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
-
-      switch (filters.period) {
-        case 'this-month':
-          filtered = filtered.filter(s => {
-            if (s.etdOrigem) {
-              const date = new Date(s.etdOrigem);
-              return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
-            }
-            return false;
-          });
-          break;
-        case 'last-month':
-          const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-          const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-          filtered = filtered.filter(s => {
-            if (s.etdOrigem) {
-              const date = new Date(s.etdOrigem);
-              return date.getMonth() === lastMonth && date.getFullYear() === lastMonthYear;
-            }
-            return false;
-          });
-          break;
-        case 'this-quarter':
-          const currentQuarter = Math.floor(currentMonth / 3);
-          filtered = filtered.filter(s => {
-            if (s.etdOrigem) {
-              const date = new Date(s.etdOrigem);
-              const shipmentQuarter = Math.floor(date.getMonth() / 3);
-              return shipmentQuarter === currentQuarter && date.getFullYear() === currentYear;
-            }
-            return false;
-          });
-          break;
-        case 'this-year':
-          filtered = filtered.filter(s => {
-            if (s.etdOrigem) {
-              const date = new Date(s.etdOrigem);
-              return date.getFullYear() === currentYear;
-            }
-            return false;
-          });
-          break;
-      }
-    }
-
-    // Filtro por status
-    if (filters.status) {
-      filtered = filtered.filter(s => s.status === filters.status);
-    }
-
-    // Filtro por cliente
-    if (filters.client) {
-      filtered = filtered.filter(s => s.cliente === filters.client);
-    }
-
-    // Filtros de data
-    if (filters.dateFrom) {
-      filtered = filtered.filter(s => {
-        if (s.etdOrigem) {
-          return new Date(s.etdOrigem) >= new Date(filters.dateFrom);
-        }
-        return false;
-      });
-    }
-
-    if (filters.dateTo) {
-      filtered = filtered.filter(s => {
-        if (s.etdOrigem) {
-          return new Date(s.etdOrigem) <= new Date(filters.dateTo);
-        }
-        return false;
-      });
-    }
-
-    setFilteredShipments(filtered);
-
-    // Atualizar estatísticas com os dados filtrados
-    if (filtered.length > 0) {
-      calculateStats(filtered);
-      generateRecentActivity(filtered);
-    } else {
-      // Se não há dados filtrados, mostrar estatísticas vazias
-      setStats({
-        totalShipments: 0,
-        inTransit: 0,
-        delivered: 0,
-        pending: 0,
-        thisMonth: 0,
-      });
-      setRecentActivity([]);
-    }
-  }, [shipments, calculateStats, generateRecentActivity]);
 
   const calculateStats = useCallback((shipmentsToStat: Shipment[]) => {
     const now = new Date();
@@ -216,7 +104,7 @@ export const Dashboard = () => {
       }));
 
     setRecentActivity(activities);
-  }, []);
+  }, [translations]);
 
   const getActionText = (status: string) => {
     switch (status) {
@@ -232,6 +120,13 @@ export const Dashboard = () => {
         return translations.statusUpdated;
     }
   };
+
+  useEffect(() => {
+    if (shipments.length > 0) {
+      calculateStats(shipments);
+      generateRecentActivity(shipments);
+    }
+  }, [shipments, calculateStats, generateRecentActivity]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -278,119 +173,135 @@ export const Dashboard = () => {
           <p>{translations.welcomeUser} {currentUser?.displayName}!</p>
         </div>
 
-        {/* Cards de Estatísticas */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">
-              <Ship size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{translations.totalShipments}</h3>
-              <p className="stat-number">{stats.totalShipments}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon in-transit">
-              <Package size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{translations.inTransit}</h3>
-              <p className="stat-number">{stats.inTransit}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon delivered">
-              <CheckCircle size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{translations.delivered}</h3>
-              <p className="stat-number">{stats.delivered}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon pending">
-              <Clock size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{translations.pending}</h3>
-              <p className="stat-number">{stats.pending}</p>
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-icon this-month">
-              <TrendingUp size={24} />
-            </div>
-            <div className="stat-info">
-              <h3>{translations.thisMonth}</h3>
-              <p className="stat-number">{stats.thisMonth}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Seção de Atividades Recentes */}
-        <div className="recent-activity">
-          <h2>{translations.shipmentsTitle}</h2>
-          {recentActivity.length > 0 ? (
-            <div className="activity-list">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="activity-item">
-                  <div
-                    className="activity-status-dot"
-                    style={{
-                      backgroundColor: getStatusColor(activity.status),
-                    }}
-                  ></div>
-                  <div className="activity-details">
-                    <p className="activity-action">{activity.action}</p>
-                    <p className="activity-shipment">
-                      <MapPin size={14} />
-                      {activity.shipment}
-                    </p>
-                  </div>
-                  <div className="activity-date">
-                    <Calendar size={14} />
-                    {formatDate(activity.date)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-activity">
-              <AlertCircle size={48} />
-              <p>{translations.noShipments}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Filtros Avançados e Links Rápidos */}
-        <div className="filters-and-actions-container">
-          <AdvancedFilters
-            shipments={shipments}
-            onFiltersChange={handleFiltersChange}
-            isAdmin={false}
-          />
-
-          <div className="quick-links">
-            <h2>{translations.quickActions}</h2>
-            <div className="links-grid">
-              <a href="/envios" className="quick-link-card">
+        {/* Cards de Estatísticas - Primeira Linha */}
+        <div className="stats-section">
+          <h2 className="section-title">{translations.overview}</h2>
+          <div className="stats-grid">
+            <div className="stat-card" onClick={() => navigate("/envios")}>
+              <div className="stat-icon">
                 <Ship size={24} />
-                <span>{translations.shipmentsTitle}</span>
-              </a>
-              <a href="/settings" className="quick-link-card">
-                <Settings size={24} />
-                <span>{translations.settings}</span>
-              </a>
+              </div>
+              <div className="stat-info">
+                <h3>{translations.totalShipments}</h3>
+                <p className="stat-number">{stats.totalShipments}</p>
+              </div>
+            </div>
+
+            <div className="stat-card" onClick={() => navigate("/envios?status=em-transito")}>
+              <div className="stat-icon in-transit">
+                <Package size={24} />
+              </div>
+              <div className="stat-info">
+                <h3>{translations.inTransit}</h3>
+                <p className="stat-number">{stats.inTransit}</p>
+              </div>
+            </div>
+
+            <div className="stat-card" onClick={() => navigate("/envios?status=concluido")}>
+              <div className="stat-icon delivered">
+                <CheckCircle size={24} />
+              </div>
+              <div className="stat-info">
+                <h3>{translations.delivered}</h3>
+                <p className="stat-number">{stats.delivered}</p>
+              </div>
+            </div>
+
+            <div className="stat-card" onClick={() => navigate("/envios?status=documentacao")}>
+              <div className="stat-icon pending">
+                <Clock size={24} />
+              </div>
+              <div className="stat-info">
+                <h3>{translations.pending}</h3>
+                <p className="stat-number">{stats.pending}</p>
+              </div>
+            </div>
+
+            <div className="stat-card" onClick={() => navigate("/envios?period=this-month")}>
+              <div className="stat-icon this-month">
+                <TrendingUp size={24} />
+              </div>
+              <div className="stat-info">
+                <h3>{translations.thisMonth}</h3>
+                <p className="stat-number">{stats.thisMonth}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Gráficos e Estatísticas */}
-        <DashboardCharts shipments={filteredShipments} isAdmin={false} />
+        {/* Seção Principal - Duas Colunas */}
+        <div className="main-content-grid">
+          {/* Coluna Esquerda - Atividades Recentes */}
+          <div className="left-column">
+            <div className="recent-activity clickable-card" onClick={() => navigate("/envios")}>
+              <h2 className="section-title">{translations.shipmentsTitle}</h2>
+              {recentActivity.length > 0 ? (
+                <div className="activity-list">
+                  {recentActivity.map((activity) => (
+                    <div key={activity.id} className="activity-item">
+                      <div
+                        className="activity-status-dot"
+                        style={{
+                          backgroundColor: getStatusColor(activity.status),
+                        }}
+                      ></div>
+                      <div className="activity-details">
+                        <p className="activity-action">{activity.action}</p>
+                        <p className="activity-shipment">
+                          <MapPin size={14} />
+                          {activity.shipment}
+                        </p>
+                      </div>
+                      <div className="activity-date">
+                        <Calendar size={14} />
+                        {formatDate(activity.date)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="empty-activity">
+                  <AlertCircle size={48} />
+                  <p>{translations.noShipments}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Coluna Direita - Ações Rápidas */}
+          <div className="right-column">
+            {/* Ações Rápidas */}
+            <div className="quick-actions-section">
+              <h2 className="section-title">{translations.quickActions}</h2>
+              <div className="quick-actions-grid">
+                <a href="/envios" className="quick-action-card">
+                  <div className="action-icon">
+                    <Ship size={24} />
+                  </div>
+                  <div className="action-content">
+                    <h3>{translations.shipmentsTitle}</h3>
+                    <p>{translations.manageShipments}</p>
+                  </div>
+                </a>
+                <a href="/settings" className="quick-action-card">
+                  <div className="action-icon">
+                    <Settings size={24} />
+                  </div>
+                  <div className="action-content">
+                    <h3>{translations.settings}</h3>
+                    <p>{translations.configurePreferences}</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Gráficos - Largura Total */}
+        <div className="charts-section-full">
+          <h2 className="section-title">{translations.analytics}</h2>
+          <DashboardCharts shipments={shipments} isAdmin={false} />
+        </div>
       </div>
       <ChatAssistant />
     </main>

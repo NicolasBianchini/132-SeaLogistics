@@ -2,6 +2,8 @@
   position: relative;
   display: inline-block;
   width: 140px;
+  /* Z-index baixo para não interferir com dropdowns de exportação */
+  z-index: 10;
 }
 
 .status-selector-trigger {
@@ -30,7 +32,8 @@
 }
 
 .status-selector-trigger.open {
-  z-index: 1001;
+  /* Z-index baixo para não interferir com dropdowns de exportação */
+  z-index: 100;
   position: relative;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -39,7 +42,8 @@
   flex: 1;
   text-align: left;
   white-space: nowrap;
-  overflow: hidden;
+  /* CORREÇÃO: Mudar de hidden para visible para não interferir */
+  overflow: visible;
   text-overflow: ellipsis;
 }
 
@@ -54,27 +58,61 @@
 }
 
 .status-dropdown {
-  position: fixed;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
   background: white;
   border-radius: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  z-index: 9999;
-  overflow: hidden;
+  /* Z-index baixo para não interferir com dropdowns de exportação */
+  z-index: 1000;
+  /* CORREÇÃO: Mudar de hidden para visible para não interferir */
+  overflow: visible;
   min-width: 140px;
   width: 140px;
+  margin-top: 4px;
+  /* Garantir que o z-index seja sempre respeitado */
+  will-change: z-index;
+  contain: layout style paint;
 }
 
 .status-dropdown.dropdown-down {
   animation: dropdownSlideDown 0.2s ease-out;
-  max-height: 200px;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 .status-dropdown.dropdown-up {
   animation: dropdownSlideUp 0.2s ease-out;
-  max-height: 200px;
-  overflow-y: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+/* Seta visual para o dropdown */
+.status-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-bottom-color: white;
+  /* Z-index baixo para não interferir */
+  z-index: 1001;
+}
+
+.status-dropdown::after {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 7px solid transparent;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+  /* Z-index baixo para não interferir */
+  z-index: 1000;
 }
 
 @keyframes dropdownSlideDown {
@@ -97,6 +135,11 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Prevenir animações durante hover para estabilizar posição */
+.status-dropdown:hover {
+  animation-play-state: paused;
 }
 
 .status-option {
@@ -123,6 +166,73 @@
   transform: translateX(2px);
 }
 
+/* Estabilizar o posicionamento do dropdown */
+.status-selector {
+  position: relative;
+  /* Z-index baixo para não interferir */
+  z-index: 10;
+}
+
+.status-selector:has(.status-dropdown) {
+  /* Z-index baixo para não interferir com dropdowns de exportação */
+  z-index: 1000;
+}
+
+/* Prevenir mudanças de posição durante hover */
+.status-dropdown {
+  pointer-events: auto;
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* Z-index baixo para não interferir */
+  z-index: 1000 !important;
+}
+
+.status-option {
+  pointer-events: auto;
+}
+
+/* Garantir que o dropdown não mude de posição */
+.status-dropdown.dropdown-down,
+.status-dropdown.dropdown-up {
+  position: absolute !important;
+  top: 100% !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  /* Z-index baixo para não interferir */
+  z-index: 1000 !important;
+}
+
+/* Prevenir que o dropdown seja cortado */
+.status-dropdown {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Sistema de z-index hierárquico para garantir consistência */
+.status-selector {
+  isolation: isolate;
+  /* Z-index baixo para não interferir */
+  z-index: 10;
+  position: relative;
+}
+
+.status-selector:has(.status-dropdown) {
+  /* Quando o dropdown está aberto, z-index baixo para não interferir */
+  z-index: 1000;
+  /* Garantir que o contexto de empilhamento seja respeitado */
+  position: relative;
+}
+
+.status-dropdown {
+  isolation: isolate;
+  /* Z-index baixo para não interferir com dropdowns de exportação */
+  z-index: 1000 !important;
+  /* Forçar o contexto de empilhamento */
+  position: absolute !important;
+}
+
 .status-option:active {
   transform: translateX(1px) scale(0.98);
 }
@@ -140,8 +250,14 @@
   left: 0;
   right: 0;
   bottom: 0;
+  /* Z-index baixo para não interferir */
   z-index: 999;
   background: transparent;
+  pointer-events: none;
+}
+
+.dropdown-overlay.active {
+  pointer-events: auto;
 }
 
 /* Overlay para o modal de confirmação */
@@ -151,6 +267,7 @@
   left: 0;
   right: 0;
   bottom: 0;
+  /* Z-index baixo para não interferir com dropdowns de exportação */
   z-index: 10000;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
@@ -162,7 +279,8 @@
 }
 
 .status-selector:has(.status-dropdown) {
-  z-index: 1002;
+  /* Z-index baixo para não interferir */
+  z-index: 1000;
 }
 
 /* Responsividade */
