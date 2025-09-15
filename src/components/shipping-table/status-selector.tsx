@@ -25,7 +25,7 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#6c757d",
   },
-  
+
   // Status de Planejamento
   {
     value: "agendado",
@@ -33,7 +33,7 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#17a2b8",
   },
-  
+
   // Status de Preparação
   {
     value: "a-embarcar",
@@ -41,7 +41,7 @@ const statusOptions: StatusOption[] = [
     color: "#8b5a00",
     bgColor: "#ffd166",
   },
-  
+
   // Status de Embarque
   {
     value: "embarcando",
@@ -49,7 +49,7 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#fd7e14",
   },
-  
+
   // Status de Trânsito
   {
     value: "em-transito",
@@ -57,7 +57,7 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#118ab2",
   },
-  
+
   // Status de Desembarque
   {
     value: "desembarcando",
@@ -65,7 +65,7 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#6f42c1",
   },
-  
+
   // Status de Entrega
   {
     value: "em-entrega",
@@ -73,7 +73,7 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#20c997",
   },
-  
+
   // Status Final
   {
     value: "concluido",
@@ -81,7 +81,7 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#073b4c",
   },
-  
+
   // Status de Problemas
   {
     value: "atrasado",
@@ -89,14 +89,14 @@ const statusOptions: StatusOption[] = [
     color: "#ffffff",
     bgColor: "#dc3545",
   },
-  
+
   {
     value: "cancelado",
     label: "Cancelado",
     color: "#ffffff",
     bgColor: "#6c757d",
   },
-  
+
   {
     value: "suspenso",
     label: "Suspenso",
@@ -135,7 +135,7 @@ const StatusSelector = ({
     if (triggerRef.current && dropdownRef.current) {
       const triggerRect = triggerRef.current.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const dropdownHeight = 120; // Altura mais realista do dropdown (3-4 opções)
+      const dropdownHeight = Math.min(300, statusOptions.length * 42 + 20); // Altura dinâmica baseada no conteúdo
       const padding = 20; // Margem de segurança
 
       const spaceBelow = viewportHeight - triggerRect.bottom - padding;
@@ -154,22 +154,19 @@ const StatusSelector = ({
 
         if (spaceBelow >= dropdownHeight) {
           setDropdownPosition("bottom");
-          (dropdownElement as HTMLElement).style.top = `${
-            triggerRect.bottom + 4
-          }px`;
+          (dropdownElement as HTMLElement).style.top = `${triggerRect.bottom + 8
+            }px`;
           (dropdownElement as HTMLElement).style.bottom = "auto";
         } else if (spaceAbove >= dropdownHeight) {
           setDropdownPosition("top");
-          (dropdownElement as HTMLElement).style.bottom = `${
-            viewportHeight - triggerRect.top + 4
-          }px`;
+          (dropdownElement as HTMLElement).style.bottom = `${viewportHeight - triggerRect.top + 8
+            }px`;
           (dropdownElement as HTMLElement).style.top = "auto";
         } else {
           // Se não há espaço suficiente, preferir para cima
           setDropdownPosition("top");
-          (dropdownElement as HTMLElement).style.bottom = `${
-            viewportHeight - triggerRect.top + 4
-          }px`;
+          (dropdownElement as HTMLElement).style.bottom = `${viewportHeight - triggerRect.top + 8
+            }px`;
           (dropdownElement as HTMLElement).style.top = "auto";
         }
       }
@@ -303,9 +300,8 @@ const StatusSelector = ({
       <div className="status-selector" ref={dropdownRef}>
         <button
           ref={triggerRef}
-          className={`status-selector-trigger ${disabled ? "disabled" : ""} ${
-            isOpen ? "open" : ""
-          }`}
+          className={`status-selector-trigger ${disabled ? "disabled" : ""} ${isOpen ? "open" : ""
+            }`}
           onClick={handleToggle}
           onKeyDown={handleKeyDown}
           disabled={disabled}
@@ -328,9 +324,8 @@ const StatusSelector = ({
 
         {isOpen && !disabled && (
           <div
-            className={`status-dropdown ${
-              dropdownPosition === "top" ? "dropdown-up" : "dropdown-down"
-            }`}
+            className={`status-dropdown ${dropdownPosition === "top" ? "dropdown-up" : "dropdown-down"
+              }`}
             role="listbox"
           >
             {statusOptions

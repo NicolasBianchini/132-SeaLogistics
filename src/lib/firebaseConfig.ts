@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Debug: Verificar se as variáveis de ambiente estão sendo carregadas
 console.log('Variáveis de ambiente:', {
@@ -26,3 +27,4 @@ console.log('Firebase Config:', firebaseConfig);
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
+export const storage = getStorage(app);

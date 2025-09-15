@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Upload,
   FileText,
@@ -61,7 +62,8 @@ import {
   validateFileType,
   validateFileSize,
   formatFileSize,
-  detectDocumentType
+  detectDocumentType,
+  downloadDocument
 } from '../../services/documentService';
 import './document-manager.css';
 
@@ -209,6 +211,23 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
         // Detectar tipo de documento
         const detectedType = detectDocumentType(file.name);
 
+        // Garantir que o documentType seja sempre válido
+        let finalDocumentType: DocumentType;
+        if (selectedDocumentType !== DocumentType.OTHER) {
+          finalDocumentType = selectedDocumentType;
+        } else if (detectedType && Object.values(DocumentType).includes(detectedType)) {
+          finalDocumentType = detectedType;
+        } else {
+          finalDocumentType = DocumentType.OTHER;
+        }
+
+        console.log('Document type debug:', {
+          selectedDocumentType,
+          detectedType,
+          finalDocumentType,
+          fileName: file.name
+        });
+
         // Salvar no Firestore
         await saveDocument({
           shipmentId,
@@ -216,7 +235,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
           originalName: file.name,
           fileType: file.type,
           fileSize: file.size,
-          documentType: selectedDocumentType !== DocumentType.OTHER ? selectedDocumentType : detectedType,
+          documentType: finalDocumentType,
           uploadedBy: currentUser?.displayName || currentUser?.email || 'Usuário',
           downloadUrl,
           isActive: true
@@ -277,13 +296,14 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
   };
 
   // Download de documento
-  const handleDownload = (doc: Document) => {
-    const link = document.createElement('a');
-    link.href = doc.downloadUrl;
-    link.download = doc.originalName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async (doc: Document) => {
+    try {
+      await downloadDocument(doc);
+    } catch (error) {
+      console.error('Erro no download:', error);
+      setError('Erro ao fazer download do documento');
+      setTimeout(() => setError(null), 5000);
+    }
   };
 
   // Agrupar documentos por tipo
@@ -297,7 +317,7 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  const modalContent = (
     <div className="document-manager-overlay" onClick={onClose}>
       <div className="document-manager-modal" onClick={e => e.stopPropagation()}>
         {/* Header */}
@@ -524,4 +544,6 @@ export const DocumentManager: React.FC<DocumentManagerProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
 };

@@ -4,6 +4,7 @@ import type React from "react";
 
 import { FileText, MapPin, Package, Save, Ship, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Shipment } from "../../context/shipments-context";
 import StatusSelector from "../shipping-table/status-selector";
 import "./edit-shipment-modal.css";
@@ -293,7 +294,7 @@ const EditShipmentModal = ({
     }
   };
 
-  return (
+  const modalContent = (
     <div className="edit-modal-overlay" onClick={handleOverlayClick}>
       <div className="edit-modal-content">
         <div className="edit-modal-header">
@@ -720,6 +721,8 @@ const EditShipmentModal = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
 };
 
 export default EditShipmentModal;
