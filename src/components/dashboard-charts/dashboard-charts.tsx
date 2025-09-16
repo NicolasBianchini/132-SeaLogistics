@@ -253,7 +253,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
             <Ship size={20} />
           </div>
           <div className="stat-content">
-            <h3>Total de Envios</h3>
+            <h3>{translations.totalShipments}</h3>
             <p className="stat-number">{stats.total}</p>
           </div>
         </div>
@@ -263,7 +263,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
             <CheckCircle size={20} />
           </div>
           <div className="stat-content">
-            <h3>Completos</h3>
+            <h3>{translations.completed}</h3>
             <p className="stat-number">{stats.completedPercentage}%</p>
             <small>{stats.completed} de {stats.total}</small>
           </div>
@@ -274,7 +274,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
             <Clock size={20} />
           </div>
           <div className="stat-content">
-            <h3>Pendentes</h3>
+            <h3>{translations.pending}</h3>
             <p className="stat-number">{stats.pendingPercentage}%</p>
             <small>{stats.pending} de {stats.total}</small>
           </div>
@@ -285,7 +285,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
             <Package size={20} />
           </div>
           <div className="stat-content">
-            <h3>Em Trânsito</h3>
+            <h3>{translations.inTransit}</h3>
             <p className="stat-number">{stats.inTransit}</p>
           </div>
         </div>
@@ -319,7 +319,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
 
         {/* Gráfico de Barras - Evolução Mensal Pessoal */}
         <div className="chart-container">
-          <h3>Evolução dos Meus Envios</h3>
+          <h3>{translations.evolutionOfMyShipments}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -333,7 +333,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
 
         {/* Gráfico de Linha - Status ao Longo do Tempo */}
         <div className="chart-container">
-          <h3>Status dos Meus Envios</h3>
+          <h3>{translations.statusOfMyShipments}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -348,7 +348,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({ shipments, isA
 
         {/* Gráfico de Barras - Portos de Origem */}
         <div className="chart-container">
-          <h3>Portos de Origem</h3>
+          <h3>{translations.originPorts}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={portData}>
               <CartesianGrid strokeDasharray="3 3" />

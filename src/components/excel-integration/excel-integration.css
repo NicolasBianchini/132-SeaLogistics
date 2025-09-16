@@ -1,0 +1,215 @@
+.excel-integration {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  margin-bottom: 24px;
+}
+
+.excel-integration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.excel-integration-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.excel-integration-title .excel-icon {
+  font-size: 24px;
+}
+
+.excel-integration-title h3 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.excel-integration-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.excel-actions-group {
+  display: flex;
+  gap: 8px;
+}
+
+.excel-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.excel-button.primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.excel-button.primary:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.excel-button.secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.excel-button.secondary:hover {
+  background: #e5e7eb;
+}
+
+.excel-button.danger {
+  background: #ef4444;
+  color: white;
+}
+
+.excel-button.danger:hover {
+  background: #dc2626;
+}
+
+.excel-button.large {
+  padding: 14px 24px;
+  font-size: 16px;
+}
+
+.excel-integration-content {
+  margin-top: 20px;
+}
+
+.excel-info {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.excel-info h4 {
+  margin: 0 0 12px 0;
+  color: #0c4a6e;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.excel-info ul {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.excel-info li {
+  margin-bottom: 8px;
+  color: #0c4a6e;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.excel-info li:last-child {
+  margin-bottom: 0;
+}
+
+.excel-integration-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.placeholder-content {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.placeholder-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.placeholder-content h4 {
+  color: #1f2937;
+  margin-bottom: 12px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.placeholder-content p {
+  color: #6b7280;
+  margin-bottom: 24px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.placeholder-features {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.feature-icon {
+  font-size: 20px;
+}
+
+/* Responsividade */
+@media (max-width: 640px) {
+  .excel-integration {
+    padding: 16px;
+  }
+  
+  .excel-integration-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .excel-integration-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .excel-actions-group {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .excel-button {
+    flex: 1;
+    justify-content: center;
+  }
+  
+  .placeholder-features {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .feature-item {
+    justify-content: center;
+  }
+}

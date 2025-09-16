@@ -12,6 +12,8 @@ import { LoginPage as Login } from "../pages/login/login-page";
 import NovoEnvioPage from "../pages/novo-envio/novo-envio";
 import { RegisterPage as Register } from "../pages/register/register-page";
 import { Settings } from "../pages/settings/Settings";
+import ExcelCallback from "../pages/auth/excel-callback";
+import ExcelIntegrationPage from "../pages/excel-integration/excel-integration-page";
 
 export const App = () => {
   return (
@@ -30,6 +32,8 @@ export const App = () => {
                   <Route path="/envios" element={<EnviosPage />} />
                   <Route path="/novo-envio" element={<NovoEnvioPage />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/excel-integration" element={<ExcelIntegrationPage />} />
+                  <Route path="/auth/callback" element={<ExcelCallback />} />
                 </Routes>
                 {/* Footer aparece em todas as páginas autenticadas */}
                 <Footer theme="light" />

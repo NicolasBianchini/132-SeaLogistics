@@ -72,6 +72,13 @@ export const translations = {
     // Chart Titles
     distributionByStatus: "Distribution by Status",
     top10Clients: "Top 10 Clients",
+    evolutionOfMyShipments: "Evolution of My Shipments",
+    statusOfMyShipments: "Status of My Shipments",
+    originPorts: "Origin Ports",
+    totalShipments: "Total Shipments",
+    completed: "Completed",
+    pending: "Pending",
+    inTransit: "In Transit",
 
     // Loading Messages
     loadingCharts: "Loading charts...",
@@ -141,7 +148,6 @@ export const translations = {
     blNumber: "BL Number",
     carrier: "Carrier",
     booking: "Booking",
-    invoice: "Invoice",
 
     // Form Labels
     transportType: "Transport Type",
@@ -208,7 +214,6 @@ export const translations = {
     phone: "Phone",
     role: "Role",
     yourRoleInCompany: "Your role in the company",
-    company: "Company",
     companyName: "Company name",
 
     // Notifications
@@ -234,7 +239,6 @@ export const translations = {
     // Document Types
     documentType: "Document Type",
     billOfLading: "Bill of Lading (BL)",
-    invoice: "Invoice",
     packingList: "Packing List",
     commercialInvoice: "Commercial Invoice",
     certificateOfOrigin: "Certificate of Origin",
@@ -318,6 +322,13 @@ export const translations = {
     // Chart Titles
     distributionByStatus: "Distribuição por Status",
     top10Clients: "Top 10 Clientes",
+    evolutionOfMyShipments: "Evolução dos Meus Envios",
+    statusOfMyShipments: "Status dos Meus Envios",
+    originPorts: "Portos de Origem",
+    totalShipments: "Total de Envios",
+    completed: "Completos",
+    pending: "Pendentes",
+    inTransit: "Em Trânsito",
 
     // Loading Messages
     loadingCharts: "Carregando gráficos...",
@@ -360,8 +371,9 @@ export const translations = {
     searchFilters: "Filtros de Busca",
     more: "Mais",
     less: "Menos",
-    sortBy: "Ordenar:",
-    month: "Todos os meses",
+    sortBy: "Ordenar por:",
+    month: "Mês:",
+    allMonths: "Todos os meses",
 
     // Search Placeholders
     searchPlaceholderAdmin: "Cliente, BL, Booking...",
@@ -370,37 +382,36 @@ export const translations = {
     // Sort Options
     mostRecent: "Mais recentes",
     oldest: "Mais antigos",
-    etdDate: "Data partida (ETD)",
-    etaDate: "Data chegada (ETA)",
+    etdDate: "Data de partida (ETD)",
+    etaDate: "Data de chegada (ETA)",
     clientAZ: "Cliente A-Z",
 
     // Table Headers
     client: "Cliente",
     type: "Tipo",
-    shipper: "Shipper",
+    shipper: "Embarcador",
     pol: "POL",
     pod: "POD",
     etdOrigin: "ETD Origem",
     etaDestination: "ETA Destino",
     quantBox: "Quant Box",
-    blNumber: "N° BL",
+    blNumber: "Número BL",
     carrier: "Armador",
     booking: "Booking",
-    invoice: "Invoice",
 
     // Form Labels
     transportType: "Tipo de Transporte",
-    selectTransportType: "Selecione o tipo de transporte",
+    selectTransportType: "Selecionar tipo de transporte",
     portOfOrigin: "Porto de Origem (POL)",
-    selectPortOfOrigin: "Selecione o porto de origem",
+    selectPortOfOrigin: "Selecionar porto de origem",
     portOfDestination: "Porto de Destino (POD)",
-    selectPortOfDestination: "Selecione o porto de destino",
+    selectPortOfDestination: "Selecionar porto de destino",
     departureDate: "Data de Partida (ETD)",
-    arrivalDate: "Data Prevista Chegada (ETA)",
+    arrivalDate: "Chegada Estimada (ETA)",
     dateFormat: "dd/mm/aaaa",
 
     // Messages
-    accessDenied: "Acesso negado. Apenas administradores podem criar novos shipments.",
+    accessDenied: "Acesso negado. Apenas administradores podem criar novos envios.",
     fillInfoNewShipment: "Preencha as informações para criar um novo envio",
 
     // Shipment Status
@@ -459,7 +470,90 @@ export const translations = {
     // Document Types
     documentType: "Tipo de Documento",
     billOfLading: "Conhecimento de Embarque (BL)",
-    invoice: "Fatura",
+    packingList: "Lista de Empacotamento",
+    commercialInvoice: "Fatura Comercial",
+    certificateOfOrigin: "Certificado de Origem",
+    insuranceCertificate: "Certificado de Seguro",
+    exportLicense: "Licença de Exportação",
+    importLicense: "Licença de Importação",
+    customsDeclaration: "Declaração Aduaneira",
+    transportDocument: "Documento de Transporte",
+    other: "Outro",
+
+    // Excel Integration
+    connectExcel: "Conectar Planilha",
+    excelIntegration: "Integração Excel",
+    useExcelAsDatabase: "Usar Excel como banco de dados",
+    connectToExcel: "Conectar ao Excel Online",
+    excelConnected: "Excel conectado",
+    excelDisconnected: "Excel desconectado",
+    syncWithExcel: "Sincronizar com Excel",
+    excelSyncStatus: "Status da sincronização",
+    lastSync: "Última sincronização",
+    autoSync: "Sincronização automática",
+    manualSync: "Sincronização manual",
+    excelConfiguration: "Configuração do Excel",
+    selectWorkbook: "Selecionar pasta de trabalho",
+    selectWorksheet: "Selecionar planilha",
+    selectTable: "Selecionar tabela",
+    configureMapping: "Configurar mapeamento",
+    saveConfiguration: "Salvar configuração",
+    testConnection: "Testar conexão",
+    excelConnectionError: "Erro na conexão com Excel",
+    excelSyncError: "Erro na sincronização",
+    excelDataLoaded: "Dados do Excel carregados",
+    excelDataUpdated: "Dados do Excel atualizados",
+
+    // Shipments
+    company: "Empresa",
+
+    // Shipment Status
+    statusUnloading: "Descarregamento",
+    statusInDelivery: "Em Entrega",
+    statusCompleted: "Concluído",
+    statusSuspended: "Suspenso",
+
+    // Forms
+    required: "Obrigatório",
+    optional: "Opcional",
+    submit: "Enviar",
+    reset: "Resetar",
+    back: "Voltar",
+    next: "Próximo",
+    previous: "Anterior",
+    finish: "Finalizar",
+    selectClient: "Selecione um cliente",
+    selectOperator: "Selecione um operador",
+    pleaseSelectValidClient: "Por favor, selecione um cliente válido.",
+
+    // Messages
+    success: "Sucesso",
+    warning: "Aviso",
+    info: "Informação",
+    confirmDelete: "Tem certeza que deseja excluir este item?",
+    deleteSuccess: "Item excluído com sucesso",
+    saveSuccess: "Item salvo com sucesso",
+    updateSuccess: "Item atualizado com sucesso",
+    redirecting: "Redirecionando...",
+
+    // Actions
+    manageDocuments: "Gerenciar Documentos",
+    viewDocuments: "Visualizar Documentos",
+
+    // Common
+    yes: "Sim",
+    no: "Não",
+    ok: "OK",
+    noData: "Nenhum dado disponível",
+    refresh: "Atualizar",
+    export: "Exportar",
+    import: "Importar",
+    download: "Baixar",
+    upload: "Enviar",
+
+    // Document Types
+    documentType: "Tipo de Documento",
+    billOfLading: "Conhecimento de Embarque (BL)",
     packingList: "Lista de Empacotamento",
     commercialInvoice: "Fatura Comercial",
     certificateOfOrigin: "Certificado de Origem",
@@ -523,6 +617,9 @@ export const translations = {
     // Dashboard
     administrativeDashboard: "Panel Administrativo",
     welcomeAdmin: "¡Bienvenido, Usuario Admin!",
+    overview: "Resumen",
+    analytics: "Análisis",
+    advancedFilters: "Filtros Avanzados",
     totalShipments: "Total de Envíos",
     inTransit: "En Tránsito",
     delivered: "Entregados",
@@ -531,10 +628,57 @@ export const translations = {
     totalUsers: "Total de Usuarios",
     activeCompanies: "Empresas Activas",
     manageShipments: "Gestionar Envíos",
+    configurePreferences: "Configurar preferencias",
     clickToSeeAllShipments: "Haga clic para ver todos los envíos",
     quickActions: "Acciones Rápidas",
     adminPanel: "Panel Admin",
     configurations: "Configuraciones",
+
+    // Chart Titles
+    distributionByStatus: "Distribución por Estado",
+    top10Clients: "Top 10 Clientes",
+    evolutionOfMyShipments: "Evolución de Mis Envíos",
+    statusOfMyShipments: "Estado de Mis Envíos",
+    originPorts: "Puertos de Origen",
+    totalShipments: "Total de Envíos",
+    completed: "Completados",
+    pending: "Pendientes",
+    inTransit: "En Tránsito",
+
+    // Loading Messages
+    loadingCharts: "Cargando gráficos...",
+    stabilizingData: "Estabilizando datos para visualización.",
+
+    // Welcome Messages
+    welcomeUser: "Bienvenido,",
+
+    // Status Labels
+    statusUpdated: "Estado actualizado",
+
+    // Shipments
+    shipmentsTitle: "Envíos",
+    newShipmentTitle: "Nuevo Envío",
+    editShipment: "Editar Envío",
+    shipmentDetails: "Detalles del Envío",
+    shipmentNumber: "Número de Envío",
+    origin: "Origen",
+    destination: "Destino",
+    status: "Estado",
+    company: "Empresa",
+    date: "Fecha",
+    actions: "Acciones",
+    view: "Ver",
+    edit: "Editar",
+    delete: "Eliminar",
+    save: "Guardar",
+    cancel: "Cancelar",
+    close: "Cerrar",
+    search: "Buscar",
+    filter: "Filtrar",
+    clearFilters: "Limpiar Filtros",
+    noShipments: "No se encontraron envíos",
+    loading: "Cargando...",
+    error: "Error",
 
     // Shipping Table
     shippingTable: "Tabla de Envíos",
@@ -545,6 +689,144 @@ export const translations = {
     sortBy: "Ordenar por:",
     month: "Mes:",
     allMonths: "Todos los meses",
+
+    // Search Placeholders
+    searchPlaceholderAdmin: "Cliente, BL, Booking...",
+    searchPlaceholderClient: "BL, Booking...",
+
+    // Sort Options
+    mostRecent: "Más recientes",
+    oldest: "Más antiguos",
+    etdDate: "Fecha de partida (ETD)",
+    etaDate: "Fecha de llegada (ETA)",
+    clientAZ: "Cliente A-Z",
+
+    // Table Headers
+    client: "Cliente",
+    type: "Tipo",
+    shipper: "Embarcador",
+    pol: "POL",
+    pod: "POD",
+    etdOrigin: "ETD Origen",
+    etaDestination: "ETA Destino",
+    quantBox: "Quant Box",
+    blNumber: "Número BL",
+    carrier: "Armador",
+    booking: "Booking",
+
+    // Form Labels
+    transportType: "Tipo de Transporte",
+    selectTransportType: "Seleccionar tipo de transporte",
+    portOfOrigin: "Puerto de Origen (POL)",
+    selectPortOfOrigin: "Seleccionar puerto de origen",
+    portOfDestination: "Puerto de Destino (POD)",
+    selectPortOfDestination: "Seleccionar puerto de destino",
+    departureDate: "Fecha de Partida (ETD)",
+    arrivalDate: "Llegada Estimada (ETA)",
+    dateFormat: "dd/mm/aaaa",
+
+    // Messages
+    accessDenied: "Acceso denegado. Solo los administradores pueden crear nuevos envíos.",
+    fillInfoNewShipment: "Complete la información para crear un nuevo envío",
+
+    // Shipment Status
+    statusPending: "Pendiente",
+    statusInTransit: "En Tránsito",
+    statusDelivered: "Entregado",
+    statusCancelled: "Cancelado",
+    statusDelayed: "Retrasado",
+    statusDocumentation: "Documentación",
+    statusScheduled: "Programado",
+    statusToShip: "Para Envío",
+    statusShipping: "En Transporte",
+    statusUnloading: "Descargando",
+    statusInDelivery: "En Entrega",
+    statusCompleted: "Completado",
+    statusSuspended: "Suspendido",
+
+    // Forms
+    required: "Requerido",
+    optional: "Opcional",
+    submit: "Enviar",
+    reset: "Restablecer",
+    back: "Atrás",
+    next: "Siguiente",
+    previous: "Anterior",
+    finish: "Finalizar",
+    selectClient: "Seleccione un cliente",
+    selectOperator: "Seleccione un operador",
+    pleaseSelectValidClient: "Por favor, seleccione un cliente válido.",
+
+    // Messages
+    success: "Éxito",
+    warning: "Advertencia",
+    info: "Información",
+    confirmDelete: "¿Está seguro de que desea eliminar este elemento?",
+    deleteSuccess: "Elemento eliminado exitosamente",
+    saveSuccess: "Elemento guardado exitosamente",
+    updateSuccess: "Elemento actualizado exitosamente",
+    redirecting: "Redirigiendo...",
+
+    // Actions
+    manageDocuments: "Gestionar Documentos",
+    viewDocuments: "Ver Documentos",
+
+    // Common
+    yes: "Sí",
+    no: "No",
+    ok: "OK",
+    noData: "No hay datos disponibles",
+    refresh: "Actualizar",
+    export: "Exportar",
+    import: "Importar",
+    download: "Descargar",
+    upload: "Subir",
+
+    // Document Types
+    documentType: "Tipo de Documento",
+    billOfLading: "Conocimiento de Embarque (BL)",
+    packingList: "Lista de Empaque",
+    commercialInvoice: "Factura Comercial",
+    certificateOfOrigin: "Certificado de Origen",
+    insuranceCertificate: "Certificado de Seguro",
+    exportLicense: "Licencia de Exportación",
+    importLicense: "Licencia de Importación",
+    customsDeclaration: "Declaración Aduanera",
+    transportDocument: "Documento de Transporte",
+    other: "Otro",
+
+    // Excel Integration
+    connectExcel: "Conectar Hoja de Cálculo",
+    excelIntegration: "Integración Excel",
+    useExcelAsDatabase: "Usar Excel como base de datos",
+    connectToExcel: "Conectar a Excel Online",
+    excelConnected: "Excel conectado",
+    excelDisconnected: "Excel desconectado",
+    syncWithExcel: "Sincronizar con Excel",
+    excelSyncStatus: "Estado de sincronización",
+    lastSync: "Última sincronización",
+    autoSync: "Sincronización automática",
+    manualSync: "Sincronización manual",
+    excelConfiguration: "Configuración de Excel",
+    selectWorkbook: "Seleccionar libro de trabajo",
+    selectWorksheet: "Seleccionar hoja de cálculo",
+    selectTable: "Seleccionar tabla",
+    configureMapping: "Configurar mapeo",
+    saveConfiguration: "Guardar configuración",
+    testConnection: "Probar conexión",
+    excelConnectionError: "Error en la conexión con Excel",
+    excelSyncError: "Error en la sincronización",
+    excelDataLoaded: "Datos de Excel cargados",
+    excelDataUpdated: "Datos de Excel actualizados",
+
+    // Shipping Table
+    shippingTable: "Tabla de Envíos",
+    exportAll: "Exportar Todos",
+    searchFilters: "Filtros de Búsqueda",
+    more: "Más",
+    less: "Menos",
+    sortBy: "Ordenar por:",
+    month: "Mes:",
 
     // Search Placeholders
     searchPlaceholderAdmin: "Cliente, BL, Booking...",
@@ -580,7 +862,6 @@ export const translations = {
     origin: "Origen",
     destination: "Destino",
     status: "Estado",
-    company: "Empresa",
     date: "Fecha",
     actions: "Acciones",
     view: "Ver",
@@ -652,7 +933,6 @@ export const translations = {
     // Document Types
     documentType: "Tipo de Documento",
     billOfLading: "Conocimiento de Embarque (BL)",
-    invoice: "Factura",
     packingList: "Lista de Empaque",
     commercialInvoice: "Factura Comercial",
     certificateOfOrigin: "Certificado de Origen",

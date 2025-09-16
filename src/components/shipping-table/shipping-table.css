@@ -101,9 +101,10 @@
 .shipping-table td {
   position: relative;
   overflow: visible;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 0;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
 }
 
 /* Sistema de z-index hierárquico para a tabela */
@@ -413,11 +414,10 @@
   padding: 10px 8px !important;
   /* Garantir que o texto não se sobreponha */
   box-sizing: border-box !important;
-  /* Prevenir quebra de linha indesejada */
-  white-space: nowrap !important;
-  /* Garantir que o texto seja cortado se necessário */
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  /* Permitir quebra de linha para textos longos */
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
   /* Garantir que cada coluna tenha seu espaço */
   min-width: 0 !important;
   max-width: none !important;

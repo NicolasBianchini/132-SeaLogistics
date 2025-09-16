@@ -10,7 +10,8 @@ import {
     AlertCircle,
     Plus,
     Settings,
-    Shield
+    Shield,
+    FileSpreadsheet
 } from 'lucide-react';
 import { useAuth } from '../../context/auth-context';
 import { useLanguage } from '../../context/language-context';
@@ -64,7 +65,7 @@ export const AdminDashboard = () => {
         setShowAdminPanel(true);
     };
 
-    
+
 
 
 
@@ -126,9 +127,9 @@ export const AdminDashboard = () => {
             <main className="dashboard-container">
                 <Navbar />
                 <div className="dashboard-content">
-                                    <div className="loading-message">
-                    {translations.loading}
-                </div>
+                    <div className="loading-message">
+                        {translations.loading}
+                    </div>
                 </div>
                 <ChatAssistant />
             </main>
@@ -256,6 +257,13 @@ export const AdminDashboard = () => {
                         >
                             <Settings size={20} />
                             <span>{translations.configurations}</span>
+                        </button>
+
+                        <button
+                            onClick={() => navigate('/excel-integration')}
+                        >
+                            <FileSpreadsheet size={20} />
+                            <span>{translations.connectExcel}</span>
                         </button>
                     </div>
                 </div>
