@@ -21,7 +21,7 @@ export const App = () => {
       <AuthProvider>
         <ShipmentsProvider>
           <NavbarProvider>
-            <Router>
+            <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <div className="app-container">
                 <Routes>
                   <Route path="/" element={<Login />} />

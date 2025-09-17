@@ -1,29 +1,29 @@
 // Configuração do Azure AD para Microsoft Graph API
 export const azureConfig = {
-    // Substitua pelo seu Client ID do Azure AD
-    clientId: process.env.REACT_APP_AZURE_CLIENT_ID || 'YOUR_CLIENT_ID',
+   // Substitua pelo seu Client ID do Azure AD
+   clientId: process.env.REACT_APP_AZURE_CLIENT_ID || 'YOUR_CLIENT_ID',
 
-    // URL de redirecionamento (deve estar registrada no Azure AD)
-    redirectUri: process.env.REACT_APP_AZURE_REDIRECT_URI || `${window.location.origin}/auth/callback`,
+   // URL de redirecionamento (deve estar registrada no Azure AD)
+   redirectUri: process.env.REACT_APP_AZURE_REDIRECT_URI || `${window.location.origin}/auth/callback`,
 
-    // Escopos necessários para acessar Excel
-    scopes: [
-        'https://graph.microsoft.com/Files.ReadWrite',
-        'https://graph.microsoft.com/Sites.ReadWrite.All',
-        'https://graph.microsoft.com/User.Read'
-    ],
+   // Escopos necessários para acessar Excel
+   scopes: [
+      'https://graph.microsoft.com/Files.ReadWrite',
+      'https://graph.microsoft.com/Sites.ReadWrite.All',
+      'https://graph.microsoft.com/User.Read'
+   ],
 
-    // URL base do Microsoft Graph
-    graphApiUrl: 'https://graph.microsoft.com/v1.0',
+   // URL base do Microsoft Graph
+   graphApiUrl: 'https://graph.microsoft.com/v1.0',
 
-    // URL de autorização do Azure AD
-    authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+   // URL de autorização do Azure AD (permitindo contas pessoais e corporativas)
+   authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
 
-    // URL para trocar código por token (deve ser implementada no backend)
-    tokenUrl: '/api/excel/token',
+   // URL para trocar código por token (deve ser implementada no backend)
+   tokenUrl: '/api/excel/token',
 
-    // URL para webhook (deve ser implementada no backend)
-    webhookUrl: '/api/excel/webhook'
+   // URL para webhook (deve ser implementada no backend)
+   webhookUrl: '/api/excel/webhook'
 };
 
 // Instruções para configuração:

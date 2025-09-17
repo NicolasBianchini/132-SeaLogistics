@@ -5,7 +5,12 @@ const ExcelCallback: React.FC = () => {
     const [searchParams] = useSearchParams();
 
     useEffect(() => {
+        let hasProcessed = false;
+        
         const handleAuthCallback = () => {
+            if (hasProcessed) return;
+            hasProcessed = true;
+            
             const code = searchParams.get('code');
             const error = searchParams.get('error');
             const state = searchParams.get('state');
@@ -28,7 +33,7 @@ const ExcelCallback: React.FC = () => {
         const exchangeCodeForToken = async (code: string) => {
             try {
                 // Em produção, isso deve ser feito no backend por segurança
-                const response = await fetch('/api/excel/token', {
+                const response = await fetch('http://localhost:3001/api/excel/token', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'

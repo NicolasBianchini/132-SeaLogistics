@@ -37,6 +37,7 @@ export interface ExcelConfig {
 
 class ExcelService {
     private accessToken: string | null = null;
+    private isAuthenticating: boolean = false;
     private baseUrl = azureConfig.graphApiUrl;
 
     /**
@@ -44,6 +45,11 @@ class ExcelService {
      */
     async initializeAuth(): Promise<boolean> {
         try {
+            // Evita múltiplas autenticações simultâneas
+            if (this.isAuthenticating) {
+                return false;
+            }
+
             // Verifica se já temos um token válido
             const token = localStorage.getItem('excel_access_token');
             if (token && await this.validateToken(token)) {
@@ -52,9 +58,13 @@ class ExcelService {
             }
 
             // Inicia o fluxo de autenticação
-            return await this.startAuthFlow();
+            this.isAuthenticating = true;
+            const result = await this.startAuthFlow();
+            this.isAuthenticating = false;
+            return result;
         } catch (error) {
             console.error('Erro na inicialização da autenticação:', error);
+            this.isAuthenticating = false;
             return false;
         }
     }
@@ -73,10 +83,12 @@ class ExcelService {
             authUrl.searchParams.set('state', 'excel_auth');
 
             // Abre popup para autenticação
-            const popup = window.open(authUrl.toString(), 'excel_auth', 'width=600,height=600');
+            const popup = window.open(authUrl.toString(), 'excel_auth', 'width=600,height=600,scrollbars=yes,resizable=yes');
 
             if (!popup) {
-                console.error('Popup bloqueado pelo navegador');
+                console.error('Popup bloqueado pelo navegador. Tentando redirecionamento direto...');
+                // Fallback: redirecionamento direto
+                window.location.href = authUrl.toString();
                 resolve(false);
                 return;
             }
@@ -118,6 +130,12 @@ class ExcelService {
      */
     private async validateToken(token: string): Promise<boolean> {
         try {
+            // Se é um token mock, considera válido por 1 hora
+            if (token.startsWith('mock_access_token_')) {
+                console.log('Token mock detectado - considerado válido para teste');
+                return true;
+            }
+
             const response = await fetch(`${this.baseUrl}/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -135,6 +153,103 @@ class ExcelService {
     async listExcelFiles(): Promise<ExcelWorkbook[]> {
         if (!this.accessToken) {
             throw new Error('Token de acesso não disponível');
+        }
+
+        // Se é um token mock, retorna dados simulados
+        if (this.accessToken.startsWith('mock_access_token_')) {
+            console.log('Retornando dados simulados para token mock');
+            return [
+                {
+                    id: 'mock_workbook_1',
+                    name: 'Planilha de Envios - Exemplo',
+                    webUrl: 'https://example.com/mock-workbook-1',
+                    worksheets: [
+                        {
+                            id: 'sheet1',
+                            name: 'Envios',
+                            tables: [
+                                {
+                                    id: 'table1',
+                                    name: 'TabelaEnvios',
+                                    address: 'A1:F100',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'Número do Envio', index: 0 },
+                                        { id: 'B', name: 'Cliente', index: 1 },
+                                        { id: 'C', name: 'Origem', index: 2 },
+                                        { id: 'D', name: 'Destino', index: 3 },
+                                        { id: 'E', name: 'Status', index: 4 },
+                                        { id: 'F', name: 'Data', index: 5 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 'sheet2',
+                            name: 'Clientes',
+                            tables: [
+                                {
+                                    id: 'table2',
+                                    name: 'TabelaClientes',
+                                    address: 'A1:D50',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'ID', index: 0 },
+                                        { id: 'B', name: 'Nome', index: 1 },
+                                        { id: 'C', name: 'Email', index: 2 },
+                                        { id: 'D', name: 'Telefone', index: 3 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'mock_workbook_2',
+                    name: 'Relatórios Mensais',
+                    webUrl: 'https://example.com/mock-workbook-2',
+                    worksheets: [
+                        {
+                            id: 'sheet1',
+                            name: 'Janeiro',
+                            tables: [
+                                {
+                                    id: 'table3',
+                                    name: 'TabelaJaneiro',
+                                    address: 'A1:E30',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'Produto', index: 0 },
+                                        { id: 'B', name: 'Quantidade', index: 1 },
+                                        { id: 'C', name: 'Valor', index: 2 },
+                                        { id: 'D', name: 'Cliente', index: 3 },
+                                        { id: 'E', name: 'Data', index: 4 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 'sheet2',
+                            name: 'Fevereiro',
+                            tables: [
+                                {
+                                    id: 'table4',
+                                    name: 'TabelaFevereiro',
+                                    address: 'A1:E30',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'Produto', index: 0 },
+                                        { id: 'B', name: 'Quantidade', index: 1 },
+                                        { id: 'C', name: 'Valor', index: 2 },
+                                        { id: 'D', name: 'Cliente', index: 3 },
+                                        { id: 'E', name: 'Data', index: 4 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ];
         }
 
         try {
@@ -173,6 +288,105 @@ class ExcelService {
     async getWorkbookDetails(workbookId: string): Promise<ExcelWorkbook> {
         if (!this.accessToken) {
             throw new Error('Token de acesso não disponível');
+        }
+
+        // Se é um token mock, retorna dados simulados baseados no ID
+        if (this.accessToken.startsWith('mock_access_token_')) {
+            console.log('Retornando detalhes simulados para workbook:', workbookId);
+
+            if (workbookId === 'mock_workbook_1') {
+                return {
+                    id: 'mock_workbook_1',
+                    name: 'Planilha de Envios - Exemplo',
+                    webUrl: 'https://example.com/mock-workbook-1',
+                    worksheets: [
+                        {
+                            id: 'sheet1',
+                            name: 'Envios',
+                            tables: [
+                                {
+                                    id: 'table1',
+                                    name: 'TabelaEnvios',
+                                    address: 'A1:F100',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'Número do Envio', index: 0 },
+                                        { id: 'B', name: 'Cliente', index: 1 },
+                                        { id: 'C', name: 'Origem', index: 2 },
+                                        { id: 'D', name: 'Destino', index: 3 },
+                                        { id: 'E', name: 'Status', index: 4 },
+                                        { id: 'F', name: 'Data', index: 5 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 'sheet2',
+                            name: 'Clientes',
+                            tables: [
+                                {
+                                    id: 'table2',
+                                    name: 'TabelaClientes',
+                                    address: 'A1:D50',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'ID', index: 0 },
+                                        { id: 'B', name: 'Nome', index: 1 },
+                                        { id: 'C', name: 'Email', index: 2 },
+                                        { id: 'D', name: 'Telefone', index: 3 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                };
+            } else if (workbookId === 'mock_workbook_2') {
+                return {
+                    id: 'mock_workbook_2',
+                    name: 'Relatórios Mensais',
+                    webUrl: 'https://example.com/mock-workbook-2',
+                    worksheets: [
+                        {
+                            id: 'sheet1',
+                            name: 'Janeiro',
+                            tables: [
+                                {
+                                    id: 'table3',
+                                    name: 'TabelaJaneiro',
+                                    address: 'A1:E30',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'Produto', index: 0 },
+                                        { id: 'B', name: 'Quantidade', index: 1 },
+                                        { id: 'C', name: 'Valor', index: 2 },
+                                        { id: 'D', name: 'Cliente', index: 3 },
+                                        { id: 'E', name: 'Data', index: 4 }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            id: 'sheet2',
+                            name: 'Fevereiro',
+                            tables: [
+                                {
+                                    id: 'table4',
+                                    name: 'TabelaFevereiro',
+                                    address: 'A1:E30',
+                                    hasHeaders: true,
+                                    columns: [
+                                        { id: 'A', name: 'Produto', index: 0 },
+                                        { id: 'B', name: 'Quantidade', index: 1 },
+                                        { id: 'C', name: 'Valor', index: 2 },
+                                        { id: 'D', name: 'Cliente', index: 3 },
+                                        { id: 'E', name: 'Data', index: 4 }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                };
+            }
         }
 
         try {

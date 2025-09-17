@@ -1,0 +1,162 @@
+.excel-test-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.excel-test-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    width: 100%;
+    text-align: center;
+}
+
+.excel-test-card h2 {
+    color: #333;
+    margin-bottom: 16px;
+    font-size: 28px;
+}
+
+.excel-test-card p {
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.connection-section {
+    margin: 30px 0;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.status-indicator.offline {
+    color: #e74c3c;
+}
+
+.status-indicator.online {
+    color: #27ae60;
+}
+
+.status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.status-indicator.offline .status-dot {
+    background-color: #e74c3c;
+}
+
+.status-indicator.online .status-dot {
+    background-color: #27ae60;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.connect-btn, .disconnect-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 20px;
+}
+
+.connect-btn:hover, .disconnect-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.connect-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.disconnect-btn {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.info-box, .success-message, .features-list, .next-steps {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: left;
+}
+
+.info-box h4, .features-list h4, .next-steps h4 {
+    color: #333;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.success-message h3 {
+    color: #27ae60;
+    margin-bottom: 8px;
+}
+
+.info-box ul, .features-list ul, .next-steps ol {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.info-box li, .features-list li, .next-steps li {
+    color: #666;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+.features-list li {
+    color: #27ae60;
+}
+
+.next-steps ol {
+    padding-left: 20px;
+}
+
+.next-steps li {
+    color: #333;
+    font-weight: 500;
+}

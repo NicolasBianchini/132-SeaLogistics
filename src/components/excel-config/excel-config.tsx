@@ -131,23 +131,42 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({ onConfigSaved, onClose }
                 const worksheet = workbook?.worksheets.find(w => w.id === selectedWorksheet);
                 const table = worksheet?.tables.find(t => t.id === tableId);
 
-                if (table && table.rows.length > 0) {
-                    // Usa a primeira linha como cabeçalho
-                    const headerRow = table.rows[0];
-                    setHeaders(headerRow.values);
+                if (table) {
+                    // Para dados mock, usa as colunas como headers
+                    if (selectedWorkbook.startsWith('mock_') && table.columns) {
+                        const mockHeaders = table.columns.map(col => col.name);
+                        setHeaders(mockHeaders);
 
-                    // Mapeia automaticamente campos com nomes similares
-                    const autoMapping: Record<string, string> = {};
-                    headerRow.values.forEach((header: string, index: number) => {
-                        const field = availableFields.find(f =>
-                            f.label.toLowerCase().includes(header.toLowerCase()) ||
-                            header.toLowerCase().includes(f.label.toLowerCase())
-                        );
-                        if (field) {
-                            autoMapping[header] = field.key;
-                        }
-                    });
-                    setMapping(autoMapping);
+                        // Mapeia automaticamente campos com nomes similares
+                        const autoMapping: Record<string, string> = {};
+                        mockHeaders.forEach((header: string, index: number) => {
+                            const field = availableFields.find(f =>
+                                f.label.toLowerCase().includes(header.toLowerCase()) ||
+                                header.toLowerCase().includes(f.label.toLowerCase())
+                            );
+                            if (field) {
+                                autoMapping[header] = field.key;
+                            }
+                        });
+                        setMapping(autoMapping);
+                    } else if (table.rows && table.rows.length > 0) {
+                        // Para dados reais, usa a primeira linha como cabeçalho
+                        const headerRow = table.rows[0];
+                        setHeaders(headerRow.values);
+
+                        // Mapeia automaticamente campos com nomes similares
+                        const autoMapping: Record<string, string> = {};
+                        headerRow.values.forEach((header: string, index: number) => {
+                            const field = availableFields.find(f =>
+                                f.label.toLowerCase().includes(header.toLowerCase()) ||
+                                header.toLowerCase().includes(f.label.toLowerCase())
+                            );
+                            if (field) {
+                                autoMapping[header] = field.key;
+                            }
+                        });
+                        setMapping(autoMapping);
+                    }
                 }
             } catch (error) {
                 console.error('Erro ao processar tabela:', error);
@@ -163,8 +182,14 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({ onConfigSaved, onClose }
     };
 
     const handleSave = () => {
-        if (!selectedWorkbook || !selectedWorksheet || !selectedTable || headers.length === 0) {
+        if (!selectedWorkbook || !selectedWorksheet || !selectedTable) {
             setError('Por favor, selecione um workbook, planilha e tabela válidos');
+            return;
+        }
+
+        // Para dados mock, não exige headers
+        if (!selectedWorkbook.startsWith('mock_') && headers.length === 0) {
+            setError('Por favor, aguarde o carregamento dos cabeçalhos da tabela');
             return;
         }
 

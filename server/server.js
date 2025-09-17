@@ -138,6 +138,54 @@ app.get('/api/verify-email', async (req, res) => {
     }
 });
 
+// Rota para trocar código de autorização por token (Excel Integration)
+app.post('/api/excel/token', async (req, res) => {
+    try {
+        console.log('=== TROCANDO CÓDIGO POR TOKEN ===');
+        const { code } = req.body;
+
+        if (!code) {
+            return res.status(400).json({ success: false, error: 'Código de autorização não fornecido' });
+        }
+
+        // Em produção, você deve trocar o código por token usando o client_secret
+        // Por enquanto, vamos simular uma resposta de sucesso
+        const mockToken = {
+            access_token: 'mock_access_token_' + Date.now(),
+            token_type: 'Bearer',
+            expires_in: 3600,
+            scope: 'Files.ReadWrite Sites.ReadWrite.All User.Read',
+            // Adiciona informações extras para simular um token real
+            refresh_token: 'mock_refresh_token_' + Date.now(),
+            id_token: 'mock_id_token_' + Date.now()
+        };
+
+        console.log('=== TOKEN GERADO COM SUCESSO ===');
+        res.json(mockToken);
+    } catch (error) {
+        console.error('=== ERRO AO TROCAR CÓDIGO POR TOKEN ===');
+        console.error('Detalhes do erro:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Rota para webhook do Excel (receber notificações de mudanças)
+app.post('/api/excel/webhook', async (req, res) => {
+    try {
+        console.log('=== WEBHOOK EXCEL RECEBIDO ===');
+        console.log('Dados recebidos:', req.body);
+
+        // Aqui você processaria as mudanças no Excel
+        // Por enquanto, apenas logamos os dados
+
+        res.json({ success: true, message: 'Webhook processado com sucesso' });
+    } catch (error) {
+        console.error('=== ERRO AO PROCESSAR WEBHOOK ===');
+        console.error('Detalhes do erro:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Configuração da porta
 const port = process.env.PORT || 3001;
 
