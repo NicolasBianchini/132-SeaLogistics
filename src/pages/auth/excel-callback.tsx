@@ -6,11 +6,13 @@ const ExcelCallback: React.FC = () => {
 
     useEffect(() => {
         let hasProcessed = false;
-        
-        const handleAuthCallback = () => {
-            if (hasProcessed) return;
+        let isProcessing = false;
+
+        const handleAuthCallback = async () => {
+            if (hasProcessed || isProcessing) return;
+            isProcessing = true;
             hasProcessed = true;
-            
+
             const code = searchParams.get('code');
             const error = searchParams.get('error');
             const state = searchParams.get('state');
@@ -26,26 +28,51 @@ const ExcelCallback: React.FC = () => {
 
             if (code && state === 'excel_auth') {
                 // Troca o código por token
-                exchangeCodeForToken(code);
+                await exchangeCodeForToken(code);
             }
+
+            isProcessing = false;
         };
 
         const exchangeCodeForToken = async (code: string) => {
             try {
+                // Verifica se o código já foi usado
+                const usedCode = sessionStorage.getItem('excel_used_code');
+                if (usedCode === code) {
+                    console.log('Código já foi usado, ignorando...');
+                    return;
+                }
+
+                // Marca o código como usado
+                sessionStorage.setItem('excel_used_code', code);
+
+                // Obtém o code_verifier do sessionStorage
+                const codeVerifier = sessionStorage.getItem('excel_code_verifier');
+
                 // Em produção, isso deve ser feito no backend por segurança
-                const response = await fetch('http://localhost:3001/api/excel/token', {
+                const response = await fetch('http://localhost:3002/api/excel/token', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ code })
+                    body: JSON.stringify({
+                        code,
+                        code_verifier: codeVerifier
+                    })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Erro ao trocar código por token');
+                    const errorData = await response.text();
+                    console.error('Erro na resposta do servidor:', response.status, errorData);
+                    throw new Error(`Erro ${response.status}: ${errorData}`);
                 }
 
                 const data = await response.json();
+                console.log('Token recebido com sucesso:', data);
+
+                // Limpa os dados de autenticação
+                sessionStorage.removeItem('excel_code_verifier');
+                sessionStorage.removeItem('excel_used_code');
 
                 // Envia sucesso para a janela pai
                 window.opener?.postMessage({
@@ -57,12 +84,12 @@ const ExcelCallback: React.FC = () => {
                 console.error('Erro na troca de código:', error);
                 window.opener?.postMessage({
                     type: 'EXCEL_AUTH_ERROR',
-                    error: 'Erro na autenticação'
+                    error: error instanceof Error ? error.message : 'Erro na autenticação'
                 }, window.location.origin);
             }
         };
 
-        handleAuthCallback();
+        handleAuthCallback().catch(console.error);
     }, [searchParams]);
 
     return (

@@ -40,6 +40,34 @@ class ExcelService {
     private isAuthenticating: boolean = false;
     private baseUrl = azureConfig.graphApiUrl;
 
+    // URL da planilha específica do usuário
+    private specificWorkbookUrl = 'https://1drv.ms/x/c/dc64d46ccb357759/EavjQ3OTbP5JtQkQibDsyk4BYb1CbJxHcAPSenLuH8tH-Q?e=519kWi';
+
+    /**
+     * Gera um code_verifier para PKCE
+     */
+    private generateCodeVerifier(): string {
+        const array = new Uint8Array(32);
+        crypto.getRandomValues(array);
+        return btoa(String.fromCharCode.apply(null, Array.from(array)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=/g, '');
+    }
+
+    /**
+     * Gera um code_challenge para PKCE
+     */
+    private async generateCodeChallenge(verifier: string): Promise<string> {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(verifier);
+        const digest = await crypto.subtle.digest('SHA-256', data);
+        return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=/g, '');
+    }
+
     /**
      * Inicializa a autenticação com Microsoft Graph
      */
@@ -49,6 +77,9 @@ class ExcelService {
             if (this.isAuthenticating) {
                 return false;
             }
+
+            // Limpa tokens mock antes de verificar
+            this.clearMockTokens();
 
             // Verifica se já temos um token válido
             const token = localStorage.getItem('excel_access_token');
@@ -70,10 +101,17 @@ class ExcelService {
     }
 
     /**
-     * Inicia o fluxo de autenticação OAuth2
+     * Inicia o fluxo de autenticação OAuth2 com PKCE
      */
     private async startAuthFlow(): Promise<boolean> {
-        return new Promise((resolve) => {
+        return new Promise(async (resolve) => {
+            // Gera PKCE parameters
+            const codeVerifier = this.generateCodeVerifier();
+            const codeChallenge = await this.generateCodeChallenge(codeVerifier);
+
+            // Salva o code_verifier para usar depois
+            sessionStorage.setItem('excel_code_verifier', codeVerifier);
+
             const authUrl = new URL(azureConfig.authUrl);
             authUrl.searchParams.set('client_id', azureConfig.clientId);
             authUrl.searchParams.set('response_type', 'code');
@@ -81,6 +119,8 @@ class ExcelService {
             authUrl.searchParams.set('scope', azureConfig.scopes.join(' '));
             authUrl.searchParams.set('response_mode', 'query');
             authUrl.searchParams.set('state', 'excel_auth');
+            authUrl.searchParams.set('code_challenge', codeChallenge);
+            authUrl.searchParams.set('code_challenge_method', 'S256');
 
             // Abre popup para autenticação
             const popup = window.open(authUrl.toString(), 'excel_auth', 'width=600,height=600,scrollbars=yes,resizable=yes');
@@ -93,30 +133,62 @@ class ExcelService {
                 return;
             }
 
-            // Monitora o popup
+            // Monitora o popup usando apenas mensagens e timeout (sem usar popup.closed)
+            let popupClosed = false;
+            let messageReceived = false;
+
+            // Timeout para detectar se o popup não respondeu
             const checkClosed = setInterval(() => {
-                if (popup.closed) {
+                // Se não recebeu mensagem em 30 segundos, assume que o popup foi fechado
+                if (!messageReceived && !popupClosed) {
+                    popupClosed = true;
                     clearInterval(checkClosed);
                     resolve(false);
                 }
-            }, 1000);
+            }, 30000); // 30 segundos
+
+            // Timeout de 5 minutos para evitar popup indefinido
+            const timeout = setTimeout(() => {
+                clearInterval(checkClosed);
+                window.removeEventListener('message', messageHandler);
+                try {
+                    popup.close();
+                } catch (error) {
+                    console.warn('Não foi possível fechar o popup');
+                }
+                resolve(false);
+            }, 5 * 60 * 1000); // 5 minutos
 
             // Monitora mensagens do popup
             const messageHandler = (event: MessageEvent) => {
                 if (event.origin !== window.location.origin) return;
 
+                messageReceived = true; // Marca que recebeu uma mensagem
+
                 if (event.data.type === 'EXCEL_AUTH_SUCCESS') {
+                    popupClosed = true;
                     this.accessToken = event.data.token;
                     localStorage.setItem('excel_access_token', event.data.token);
                     clearInterval(checkClosed);
+                    clearTimeout(timeout);
                     window.removeEventListener('message', messageHandler);
-                    popup.close();
+                    try {
+                        popup.close();
+                    } catch (error) {
+                        console.warn('Não foi possível fechar o popup');
+                    }
                     resolve(true);
                 } else if (event.data.type === 'EXCEL_AUTH_ERROR') {
+                    popupClosed = true;
                     console.error('Erro na autenticação:', event.data.error);
                     clearInterval(checkClosed);
+                    clearTimeout(timeout);
                     window.removeEventListener('message', messageHandler);
-                    popup.close();
+                    try {
+                        popup.close();
+                    } catch (error) {
+                        console.warn('Não foi possível fechar o popup');
+                    }
                     resolve(false);
                 }
             };
@@ -130,12 +202,6 @@ class ExcelService {
      */
     private async validateToken(token: string): Promise<boolean> {
         try {
-            // Se é um token mock, considera válido por 1 hora
-            if (token.startsWith('mock_access_token_')) {
-                console.log('Token mock detectado - considerado válido para teste');
-                return true;
-            }
-
             const response = await fetch(`${this.baseUrl}/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -153,103 +219,6 @@ class ExcelService {
     async listExcelFiles(): Promise<ExcelWorkbook[]> {
         if (!this.accessToken) {
             throw new Error('Token de acesso não disponível');
-        }
-
-        // Se é um token mock, retorna dados simulados
-        if (this.accessToken.startsWith('mock_access_token_')) {
-            console.log('Retornando dados simulados para token mock');
-            return [
-                {
-                    id: 'mock_workbook_1',
-                    name: 'Planilha de Envios - Exemplo',
-                    webUrl: 'https://example.com/mock-workbook-1',
-                    worksheets: [
-                        {
-                            id: 'sheet1',
-                            name: 'Envios',
-                            tables: [
-                                {
-                                    id: 'table1',
-                                    name: 'TabelaEnvios',
-                                    address: 'A1:F100',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'Número do Envio', index: 0 },
-                                        { id: 'B', name: 'Cliente', index: 1 },
-                                        { id: 'C', name: 'Origem', index: 2 },
-                                        { id: 'D', name: 'Destino', index: 3 },
-                                        { id: 'E', name: 'Status', index: 4 },
-                                        { id: 'F', name: 'Data', index: 5 }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            id: 'sheet2',
-                            name: 'Clientes',
-                            tables: [
-                                {
-                                    id: 'table2',
-                                    name: 'TabelaClientes',
-                                    address: 'A1:D50',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'ID', index: 0 },
-                                        { id: 'B', name: 'Nome', index: 1 },
-                                        { id: 'C', name: 'Email', index: 2 },
-                                        { id: 'D', name: 'Telefone', index: 3 }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    id: 'mock_workbook_2',
-                    name: 'Relatórios Mensais',
-                    webUrl: 'https://example.com/mock-workbook-2',
-                    worksheets: [
-                        {
-                            id: 'sheet1',
-                            name: 'Janeiro',
-                            tables: [
-                                {
-                                    id: 'table3',
-                                    name: 'TabelaJaneiro',
-                                    address: 'A1:E30',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'Produto', index: 0 },
-                                        { id: 'B', name: 'Quantidade', index: 1 },
-                                        { id: 'C', name: 'Valor', index: 2 },
-                                        { id: 'D', name: 'Cliente', index: 3 },
-                                        { id: 'E', name: 'Data', index: 4 }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            id: 'sheet2',
-                            name: 'Fevereiro',
-                            tables: [
-                                {
-                                    id: 'table4',
-                                    name: 'TabelaFevereiro',
-                                    address: 'A1:E30',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'Produto', index: 0 },
-                                        { id: 'B', name: 'Quantidade', index: 1 },
-                                        { id: 'C', name: 'Valor', index: 2 },
-                                        { id: 'D', name: 'Cliente', index: 3 },
-                                        { id: 'E', name: 'Data', index: 4 }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ];
         }
 
         try {
@@ -288,105 +257,6 @@ class ExcelService {
     async getWorkbookDetails(workbookId: string): Promise<ExcelWorkbook> {
         if (!this.accessToken) {
             throw new Error('Token de acesso não disponível');
-        }
-
-        // Se é um token mock, retorna dados simulados baseados no ID
-        if (this.accessToken.startsWith('mock_access_token_')) {
-            console.log('Retornando detalhes simulados para workbook:', workbookId);
-
-            if (workbookId === 'mock_workbook_1') {
-                return {
-                    id: 'mock_workbook_1',
-                    name: 'Planilha de Envios - Exemplo',
-                    webUrl: 'https://example.com/mock-workbook-1',
-                    worksheets: [
-                        {
-                            id: 'sheet1',
-                            name: 'Envios',
-                            tables: [
-                                {
-                                    id: 'table1',
-                                    name: 'TabelaEnvios',
-                                    address: 'A1:F100',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'Número do Envio', index: 0 },
-                                        { id: 'B', name: 'Cliente', index: 1 },
-                                        { id: 'C', name: 'Origem', index: 2 },
-                                        { id: 'D', name: 'Destino', index: 3 },
-                                        { id: 'E', name: 'Status', index: 4 },
-                                        { id: 'F', name: 'Data', index: 5 }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            id: 'sheet2',
-                            name: 'Clientes',
-                            tables: [
-                                {
-                                    id: 'table2',
-                                    name: 'TabelaClientes',
-                                    address: 'A1:D50',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'ID', index: 0 },
-                                        { id: 'B', name: 'Nome', index: 1 },
-                                        { id: 'C', name: 'Email', index: 2 },
-                                        { id: 'D', name: 'Telefone', index: 3 }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                };
-            } else if (workbookId === 'mock_workbook_2') {
-                return {
-                    id: 'mock_workbook_2',
-                    name: 'Relatórios Mensais',
-                    webUrl: 'https://example.com/mock-workbook-2',
-                    worksheets: [
-                        {
-                            id: 'sheet1',
-                            name: 'Janeiro',
-                            tables: [
-                                {
-                                    id: 'table3',
-                                    name: 'TabelaJaneiro',
-                                    address: 'A1:E30',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'Produto', index: 0 },
-                                        { id: 'B', name: 'Quantidade', index: 1 },
-                                        { id: 'C', name: 'Valor', index: 2 },
-                                        { id: 'D', name: 'Cliente', index: 3 },
-                                        { id: 'E', name: 'Data', index: 4 }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            id: 'sheet2',
-                            name: 'Fevereiro',
-                            tables: [
-                                {
-                                    id: 'table4',
-                                    name: 'TabelaFevereiro',
-                                    address: 'A1:E30',
-                                    hasHeaders: true,
-                                    columns: [
-                                        { id: 'A', name: 'Produto', index: 0 },
-                                        { id: 'B', name: 'Quantidade', index: 1 },
-                                        { id: 'C', name: 'Valor', index: 2 },
-                                        { id: 'D', name: 'Cliente', index: 3 },
-                                        { id: 'E', name: 'Data', index: 4 }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                };
-            }
         }
 
         try {
@@ -738,6 +608,61 @@ class ExcelService {
         this.accessToken = null;
         localStorage.removeItem('excel_access_token');
         localStorage.removeItem('excel_webhook_id');
+    }
+
+    /**
+     * Limpa tokens mock do localStorage
+     */
+    clearMockTokens(): void {
+        const token = localStorage.getItem('excel_access_token');
+        if (token && token.startsWith('mock_access_token_')) {
+            console.log('Removendo token mock do localStorage');
+            localStorage.removeItem('excel_access_token');
+            this.accessToken = null;
+        }
+    }
+
+    /**
+     * Converte URL do OneDrive para formato correto da API
+     */
+    private async getFileFromOneDriveUrl(url: string): Promise<string> {
+        // Para URLs do OneDrive compartilhado, precisamos usar um approach diferente
+        // Vamos tentar listar todos os arquivos Excel e encontrar o correto
+        try {
+            console.log('Listando arquivos Excel para encontrar a planilha específica...');
+            const workbooks = await this.listExcelFiles();
+
+            // Se encontrarmos algum arquivo, vamos usar o primeiro como exemplo
+            if (workbooks.length > 0) {
+                console.log('Arquivos Excel encontrados:', workbooks.map(w => w.name));
+                return workbooks[0].id;
+            } else {
+                throw new Error('Nenhum arquivo Excel encontrado na conta');
+            }
+        } catch (error) {
+            console.error('Erro ao listar arquivos Excel:', error);
+            throw new Error('Não foi possível acessar arquivos Excel');
+        }
+    }
+
+    /**
+     * Obtém a planilha específica do usuário
+     */
+    async getSpecificWorkbook(): Promise<ExcelWorkbook> {
+        if (!this.accessToken) {
+            throw new Error('Token de acesso não disponível');
+        }
+
+        try {
+            console.log('Buscando planilha específica...');
+            const fileId = await this.getFileFromOneDriveUrl(this.specificWorkbookUrl);
+            console.log('ID do arquivo encontrado:', fileId);
+
+            return await this.getWorkbookDetails(fileId);
+        } catch (error) {
+            console.error('Erro ao obter planilha específica:', error);
+            throw error;
+        }
     }
 }
 

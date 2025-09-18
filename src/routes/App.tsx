@@ -14,6 +14,7 @@ import { RegisterPage as Register } from "../pages/register/register-page";
 import { Settings } from "../pages/settings/Settings";
 import ExcelCallback from "../pages/auth/excel-callback";
 import ExcelIntegrationPage from "../pages/excel-integration/excel-integration-page";
+import ExcelSpecificTest from "../components/excel-specific-test/excel-specific-test";
 
 export const App = () => {
   return (
@@ -33,6 +34,7 @@ export const App = () => {
                   <Route path="/novo-envio" element={<NovoEnvioPage />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/excel-integration" element={<ExcelIntegrationPage />} />
+                  <Route path="/excel-test" element={<ExcelSpecificTest />} />
                   <Route path="/auth/callback" element={<ExcelCallback />} />
                 </Routes>
                 {/* Footer aparece em todas as páginas autenticadas */}

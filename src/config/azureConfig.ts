@@ -20,7 +20,7 @@ export const azureConfig = {
    authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
 
    // URL para trocar código por token (deve ser implementada no backend)
-   tokenUrl: '/api/excel/token',
+   tokenUrl: 'http://localhost:3002/api/excel/token',
 
    // URL para webhook (deve ser implementada no backend)
    webhookUrl: '/api/excel/webhook'
