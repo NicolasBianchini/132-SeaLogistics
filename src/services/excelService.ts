@@ -83,12 +83,14 @@ class ExcelService {
 
             // Verifica se já temos um token válido
             const token = localStorage.getItem('excel_access_token');
-            if (token && await this.validateToken(token)) {
+            if (token && !token.startsWith('mock_access_token_') && await this.validateToken(token)) {
                 this.accessToken = token;
+                console.log('Token válido encontrado, autenticação bem-sucedida');
                 return true;
             }
 
-            // Inicia o fluxo de autenticação
+            // Se não há token válido, inicia o fluxo de autenticação
+            console.log('Nenhum token válido encontrado, iniciando fluxo de autenticação...');
             this.isAuthenticating = true;
             const result = await this.startAuthFlow();
             this.isAuthenticating = false;
@@ -111,6 +113,12 @@ class ExcelService {
 
             // Salva o code_verifier para usar depois
             sessionStorage.setItem('excel_code_verifier', codeVerifier);
+
+            // Debug: Log das configurações do frontend
+            console.log('=== DEBUG FRONTEND CONFIG ===');
+            console.log('Client ID no frontend:', azureConfig.clientId);
+            console.log('Redirect URI no frontend:', azureConfig.redirectUri);
+            console.log('Token URL:', azureConfig.tokenUrl);
 
             const authUrl = new URL(azureConfig.authUrl);
             authUrl.searchParams.set('client_id', azureConfig.clientId);
@@ -169,6 +177,7 @@ class ExcelService {
                     popupClosed = true;
                     this.accessToken = event.data.token;
                     localStorage.setItem('excel_access_token', event.data.token);
+                    console.log('Token salvo com sucesso:', event.data.token.substring(0, 20) + '...');
                     clearInterval(checkClosed);
                     clearTimeout(timeout);
                     window.removeEventListener('message', messageHandler);
@@ -200,7 +209,7 @@ class ExcelService {
     /**
      * Valida se o token ainda é válido
      */
-    private async validateToken(token: string): Promise<boolean> {
+    async validateToken(token: string): Promise<boolean> {
         try {
             const response = await fetch(`${this.baseUrl}/me`, {
                 headers: {
@@ -214,25 +223,124 @@ class ExcelService {
     }
 
     /**
+     * Garante que temos um token válido antes de fazer requisições
+     */
+    private async ensureValidToken(): Promise<void> {
+        if (!this.accessToken) {
+            const token = localStorage.getItem('excel_access_token');
+            if (token && !token.startsWith('mock_access_token_')) {
+                this.accessToken = token;
+                console.log('Token carregado do localStorage');
+            } else {
+                throw new Error('Token de acesso não disponível. Faça login primeiro.');
+            }
+        }
+    }
+
+    /**
      * Lista todos os arquivos Excel do usuário
      */
     async listExcelFiles(): Promise<ExcelWorkbook[]> {
-        if (!this.accessToken) {
-            throw new Error('Token de acesso não disponível');
-        }
+        await this.ensureValidToken();
 
         try {
-            const response = await fetch(`${this.baseUrl}/me/drive/root/children?$filter=file/mimeType eq 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'`, {
+            // Primeiro, vamos tentar uma query mais simples para testar a conectividade
+            console.log('Testando conectividade com Microsoft Graph...');
+            const testResponse = await fetch(`${this.baseUrl}/me`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            });
+
+            if (!testResponse.ok) {
+                console.error('Erro no teste de conectividade:', testResponse.status, await testResponse.text());
+                throw new Error(`Erro de conectividade: ${testResponse.statusText}`);
+            }
+
+            console.log('Conectividade OK, listando arquivos...');
+
+            // Primeiro, vamos listar TODOS os arquivos para ver o que está disponível
+            const allFilesResponse = await fetch(`${this.baseUrl}/me/drive/root/children`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            });
+
+            if (allFilesResponse.ok) {
+                const allFiles = await allFilesResponse.json();
+                console.log('Todos os arquivos no OneDrive:', allFiles);
+                console.log('Total de arquivos encontrados:', allFiles.value?.length || 0);
+
+                // Filtra apenas arquivos Excel
+                const excelFiles = allFiles.value?.filter((file: any) =>
+                    file.name?.endsWith('.xlsx') ||
+                    file.name?.endsWith('.xls') ||
+                    file.file?.mimeType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                ) || [];
+
+                console.log('Arquivos Excel encontrados:', excelFiles);
+
+                // Se não encontrou arquivos Excel, vamos tentar uma abordagem diferente
+                if (excelFiles.length === 0) {
+                    console.log('Nenhum arquivo Excel encontrado na raiz. Tentando buscar em toda a conta...');
+
+                    // Busca por arquivos Excel em toda a conta
+                    const searchResponse = await fetch(`${this.baseUrl}/me/drive/root/search(q='.xlsx')`, {
+                        headers: {
+                            'Authorization': `Bearer ${this.accessToken}`
+                        }
+                    });
+
+                    if (searchResponse.ok) {
+                        const searchResults = await searchResponse.json();
+                        console.log('Resultados da busca por .xlsx:', searchResults);
+                        const data = searchResults;
+                        const workbooks: ExcelWorkbook[] = [];
+
+                        for (const file of data.value || []) {
+                            try {
+                                const workbook = await this.getWorkbookDetails(file.id);
+                                workbooks.push(workbook);
+                            } catch (error) {
+                                console.warn(`Erro ao obter detalhes do arquivo ${file.name}:`, error);
+                            }
+                        }
+
+                        return workbooks;
+                    }
+                } else {
+                    // Se encontrou arquivos Excel na raiz, processa eles
+                    const data = { value: excelFiles };
+                    const workbooks: ExcelWorkbook[] = [];
+
+                    for (const file of data.value) {
+                        try {
+                            const workbook = await this.getWorkbookDetails(file.id);
+                            workbooks.push(workbook);
+                        } catch (error) {
+                            console.warn(`Erro ao obter detalhes do arquivo ${file.name}:`, error);
+                        }
+                    }
+
+                    return workbooks;
+                }
+            }
+
+            // Fallback: tenta a query original
+            const response = await fetch(`${this.baseUrl}/me/drive/root/children?$filter=endsWith(name,'.xlsx') or endsWith(name,'.xls')`, {
                 headers: {
                     'Authorization': `Bearer ${this.accessToken}`
                 }
             });
 
             if (!response.ok) {
-                throw new Error(`Erro ao listar arquivos: ${response.statusText}`);
+                const errorText = await response.text();
+                console.error('Erro ao listar arquivos Excel:', response.status, errorText);
+                throw new Error(`Erro ao listar arquivos: ${response.status} - ${errorText}`);
             }
 
             const data = await response.json();
+            console.log('Dados recebidos do Microsoft Graph:', data);
             const workbooks: ExcelWorkbook[] = [];
 
             for (const file of data.value) {
@@ -255,9 +363,7 @@ class ExcelService {
      * Obtém detalhes de um workbook específico
      */
     async getWorkbookDetails(workbookId: string): Promise<ExcelWorkbook> {
-        if (!this.accessToken) {
-            throw new Error('Token de acesso não disponível');
-        }
+        await this.ensureValidToken();
 
         try {
             // Obtém informações básicas do arquivo
@@ -649,9 +755,7 @@ class ExcelService {
      * Obtém a planilha específica do usuário
      */
     async getSpecificWorkbook(): Promise<ExcelWorkbook> {
-        if (!this.accessToken) {
-            throw new Error('Token de acesso não disponível');
-        }
+        await this.ensureValidToken();
 
         try {
             console.log('Buscando planilha específica...');

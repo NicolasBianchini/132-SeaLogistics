@@ -1,11 +1,10 @@
 {
     "name": "sealogistics-email-server",
     "version": "1.0.0",
-    "type": "module",
     "main": "server.js",
     "scripts": {
-        "start": "node server.js",
-        "dev": "nodemon server.js",
+        "start": "node test-server.js",
+        "dev": "nodemon test-server.js",
         "build": "echo 'No build step needed'"
     },
     "dependencies": {

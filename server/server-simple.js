@@ -1,10 +1,7 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
-const dotenv = require('dotenv');
-
-// Configurar dotenv - carrega o .env da pasta pai
-dotenv.config({ path: '../.env' });
+const path = require('path');
 
 // Criar app Express
 const app = express();
@@ -21,8 +18,7 @@ app.use((req, res, next) => {
 // Lista de origens permitidas
 const allowedOrigins = [
     'https://132-sealogistics.netlify.app',
-    'http://localhost:3000',
-    'http://localhost:3001'
+    'http://localhost:3000'
 ];
 
 // Configurar CORS
@@ -55,17 +51,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// Configuração otimizada do transporter do Nodemailer
-const transporter = nodemailer.createTransport({
-    pool: true,
-    maxConnections: 1,
-    maxMessages: 3,
-    rateDelta: 1000,
-    rateLimit: 3,
+// Configuração do transporter do Nodemailer (simplificada)
+const transporter = nodemailer.createTransporter({
     service: 'gmail',
     auth: {
-        user: process.env.VITE_EMAIL_USER,
-        pass: process.env.VITE_EMAIL_APP_PASSWORD
+        user: process.env.VITE_EMAIL_USER || 'your-email@gmail.com',
+        pass: process.env.VITE_EMAIL_APP_PASSWORD || 'your-app-password'
     }
 });
 
@@ -100,7 +91,7 @@ app.post('/send-email', async (req, res) => {
         const mailOptions = {
             from: {
                 name: 'Sea Logistics',
-                address: process.env.VITE_EMAIL_USER
+                address: process.env.VITE_EMAIL_USER || 'your-email@gmail.com'
             },
             to,
             subject,
@@ -163,13 +154,6 @@ app.post('/api/excel/token', async (req, res) => {
         const clientSecret = process.env.AZURE_CLIENT_SECRET || 'TEMPORARY_SECRET_FOR_TESTING';
         const redirectUri = process.env.REACT_APP_AZURE_REDIRECT_URI || 'http://localhost:3000/auth/callback';
 
-        // Debug: Log das configurações
-        console.log('=== DEBUG REDIRECT URI ===');
-        console.log('Client ID:', clientId);
-        console.log('Redirect URI no backend:', redirectUri);
-        console.log('Código recebido:', code ? 'SIM' : 'NÃO');
-        console.log('Code verifier recebido:', code_verifier ? 'SIM' : 'NÃO');
-
         const tokenData = {
             client_id: clientId,
             client_secret: clientSecret,
@@ -229,7 +213,7 @@ app.post('/api/excel/webhook', async (req, res) => {
 });
 
 // Configuração da porta
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3002;
 
 // Iniciar o servidor
 app.listen(port, '0.0.0.0', () => {
@@ -237,4 +221,4 @@ app.listen(port, '0.0.0.0', () => {
     console.log(`Servidor rodando na porta ${port}`);
     console.log('Origens permitidas:', allowedOrigins);
     console.log('==================================');
-}); 
+});

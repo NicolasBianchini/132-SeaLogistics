@@ -1,10 +1,10 @@
 // Configuração do Azure AD para Microsoft Graph API
 export const azureConfig = {
    // Substitua pelo seu Client ID do Azure AD
-   clientId: process.env.REACT_APP_AZURE_CLIENT_ID || 'YOUR_CLIENT_ID',
+   clientId: import.meta.env.VITE_AZURE_CLIENT_ID || process.env.REACT_APP_AZURE_CLIENT_ID || '21f52d49-5e17-4d39-b05c-8a3f355ecbc9',
 
    // URL de redirecionamento (deve estar registrada no Azure AD)
-   redirectUri: process.env.REACT_APP_AZURE_REDIRECT_URI || `${window.location.origin}/auth/callback`,
+   redirectUri: import.meta.env.VITE_AZURE_REDIRECT_URI || process.env.REACT_APP_AZURE_REDIRECT_URI || 'http://localhost:3000/auth/callback',
 
    // Escopos necessários para acessar Excel
    scopes: [
@@ -20,7 +20,7 @@ export const azureConfig = {
    authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
 
    // URL para trocar código por token (deve ser implementada no backend)
-   tokenUrl: 'http://localhost:3002/api/excel/token',
+   tokenUrl: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/excel/token` : 'http://localhost:3002/api/excel/token',
 
    // URL para webhook (deve ser implementada no backend)
    webhookUrl: '/api/excel/webhook'

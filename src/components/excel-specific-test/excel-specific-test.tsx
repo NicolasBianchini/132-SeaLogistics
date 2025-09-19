@@ -17,10 +17,20 @@ const ExcelSpecificTest: React.FC = () => {
         try {
             const token = localStorage.getItem('excel_access_token');
             if (token && !token.startsWith('mock_access_token_')) {
-                setIsConnected(true);
+                // Verifica se o token ainda é válido
+                const isValid = await excelService.validateToken(token);
+                if (isValid) {
+                    setIsConnected(true);
+                    console.log('Conexão válida encontrada');
+                } else {
+                    console.log('Token expirado, removendo...');
+                    localStorage.removeItem('excel_access_token');
+                    setIsConnected(false);
+                }
             }
         } catch (error) {
             console.error('Erro ao verificar conexão:', error);
+            setIsConnected(false);
         }
     };
 
