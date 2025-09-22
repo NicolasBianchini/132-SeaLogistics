@@ -84,10 +84,20 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({ onConfigSaved, onClose }
             try {
                 const workbook = workbooks.find(w => w.id === workbookId);
                 if (workbook) {
-                    // Se há apenas uma planilha, seleciona automaticamente
-                    if (workbook.worksheets.length === 1) {
-                        setSelectedWorksheet(workbook.worksheets[0].id);
-                        await handleWorksheetChange(workbook.worksheets[0].id);
+                    // Auto-seleciona a primeira planilha
+                    if (workbook.worksheets.length > 0) {
+                        const firstWorksheet = workbook.worksheets[0];
+                        setSelectedWorksheet(firstWorksheet.id);
+
+                        // Auto-seleciona a primeira tabela da planilha
+                        if (firstWorksheet.tables.length > 0) {
+                            const firstTable = firstWorksheet.tables[0];
+                            setSelectedTable(firstTable.id);
+                            await handleTableChange(firstTable.id);
+                        } else {
+                            // Se não há tabelas, cria uma estrutura padrão
+                            await createDefaultStructure(workbookId, firstWorksheet.id);
+                        }
                     }
                 }
             } catch (error) {
@@ -181,6 +191,38 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({ onConfigSaved, onClose }
         }));
     };
 
+    const createDefaultStructure = async (workbookId: string, worksheetId: string) => {
+        try {
+            // Cria uma estrutura padrão baseada nas colunas esperadas
+            const defaultHeaders = [
+                'Cliente', 'Tipo', 'Shipper', 'POL', 'POD',
+                'ETD Origem', 'ETA Destino', 'Quant Box',
+                'N° BL', 'Armador', 'Booking'
+            ];
+
+            setHeaders(defaultHeaders);
+
+            // Mapeia automaticamente os campos
+            const autoMapping: Record<string, string> = {};
+            defaultHeaders.forEach(header => {
+                const field = availableFields.find(f =>
+                    f.label.toLowerCase().includes(header.toLowerCase()) ||
+                    header.toLowerCase().includes(f.label.toLowerCase())
+                );
+                if (field) {
+                    autoMapping[header] = field.key;
+                }
+            });
+            setMapping(autoMapping);
+
+            // Define uma tabela padrão
+            setSelectedTable('default_table');
+
+        } catch (error) {
+            console.error('Erro ao criar estrutura padrão:', error);
+        }
+    };
+
     const handleSave = () => {
         if (!selectedWorkbook || !selectedWorksheet || !selectedTable) {
             setError('Por favor, selecione um workbook, planilha e tabela válidos');
@@ -259,66 +301,58 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({ onConfigSaved, onClose }
                     ) : (
                         <div className="config-section">
                             <div className="config-step">
-                                <h3>1. Selecione o Arquivo Excel</h3>
+                                <h3>📊 Selecione sua Planilha de Envios</h3>
+                                <p className="config-description">
+                                    Escolha o arquivo Excel que contém seus dados de envios.
+                                    O sistema detectará automaticamente a estrutura da planilha.
+                                </p>
                                 <select
                                     value={selectedWorkbook}
                                     onChange={(e) => handleWorkbookChange(e.target.value)}
-                                    className="config-select"
+                                    className="config-select large"
                                 >
-                                    <option value="">Selecione um arquivo...</option>
+                                    <option value="">Selecione sua planilha...</option>
                                     {workbooks.map(workbook => (
                                         <option key={workbook.id} value={workbook.id}>
-                                            {workbook.name}
+                                            📄 {workbook.name}
                                         </option>
                                     ))}
                                 </select>
                             </div>
 
                             {selectedWorkbook && (
-                                <div className="config-step">
-                                    <h3>2. Selecione a Planilha</h3>
-                                    <select
-                                        value={selectedWorksheet}
-                                        onChange={(e) => handleWorksheetChange(e.target.value)}
-                                        className="config-select"
-                                    >
-                                        <option value="">Selecione uma planilha...</option>
-                                        {workbooks
-                                            .find(w => w.id === selectedWorkbook)
-                                            ?.worksheets.map(worksheet => (
-                                                <option key={worksheet.id} value={worksheet.id}>
-                                                    {worksheet.name}
-                                                </option>
-                                            ))}
-                                    </select>
-                                </div>
-                            )}
-
-                            {selectedWorksheet && (
-                                <div className="config-step">
-                                    <h3>3. Selecione a Tabela</h3>
-                                    <select
-                                        value={selectedTable}
-                                        onChange={(e) => handleTableChange(e.target.value)}
-                                        className="config-select"
-                                    >
-                                        <option value="">Selecione uma tabela...</option>
-                                        {workbooks
-                                            .find(w => w.id === selectedWorkbook)
-                                            ?.worksheets.find(w => w.id === selectedWorksheet)
-                                            ?.tables.map(table => (
-                                                <option key={table.id} value={table.id}>
-                                                    {table.name} ({table.address})
-                                                </option>
-                                            ))}
-                                    </select>
+                                <div className="config-info">
+                                    <div className="info-item">
+                                        <span className="info-label">📁 Arquivo:</span>
+                                        <span className="info-value">
+                                            {workbooks.find(w => w.id === selectedWorkbook)?.name}
+                                        </span>
+                                    </div>
+                                    {selectedWorksheet && (
+                                        <div className="info-item">
+                                            <span className="info-label">📋 Planilha:</span>
+                                            <span className="info-value">
+                                                {workbooks
+                                                    .find(w => w.id === selectedWorkbook)
+                                                    ?.worksheets.find(w => w.id === selectedWorksheet)?.name || 'Detectada automaticamente'}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {selectedTable && (
+                                        <div className="info-item">
+                                            <span className="info-label">📊 Tabela:</span>
+                                            <span className="info-value">
+                                                {selectedTable === 'default_table' ? 'Estrutura padrão' : 'Detectada automaticamente'}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
                             {headers.length > 0 && (
                                 <div className="config-step">
-                                    <h3>4. Mapeamento de Campos</h3>
-                                    <p>Mapeie as colunas do Excel com os campos do sistema:</p>
+                                    <h3>🔗 Mapeamento de Campos</h3>
+                                    <p>Os campos foram mapeados automaticamente. Você pode ajustar se necessário:</p>
                                     <div className="mapping-container">
                                         {headers.map((header, index) => (
                                             <div key={index} className="mapping-row">

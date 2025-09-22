@@ -215,14 +215,78 @@ app.post('/api/excel/token', async (req, res) => {
 app.post('/api/excel/webhook', async (req, res) => {
     try {
         console.log('=== WEBHOOK EXCEL RECEBIDO ===');
-        console.log('Dados recebidos:', req.body);
+        console.log('Timestamp:', new Date().toISOString());
+        console.log('Headers:', req.headers);
+        console.log('Body:', req.body);
 
-        // Aqui você processaria as mudanças no Excel
-        // Por enquanto, apenas logamos os dados
+        // Validação básica do webhook
+        const { validationToken, resource, changeType } = req.body;
 
-        res.json({ success: true, message: 'Webhook processado com sucesso' });
+        // Se for uma validação de webhook, retorna o token
+        if (validationToken) {
+            console.log('Validação de webhook recebida');
+            return res.status(200).send(validationToken);
+        }
+
+        // Processa notificação de mudança
+        if (resource && changeType === 'updated') {
+            console.log('Mudança detectada no Excel:', resource);
+
+            // Aqui você pode implementar lógica para:
+            // 1. Notificar clientes conectados via WebSocket
+            // 2. Atualizar cache de dados
+            // 3. Disparar sincronização automática
+
+            // Por enquanto, apenas logamos
+            console.log('Excel foi atualizado - sincronização necessária');
+        }
+
+        res.json({
+            success: true,
+            message: 'Webhook processado com sucesso',
+            timestamp: new Date().toISOString()
+        });
     } catch (error) {
         console.error('=== ERRO AO PROCESSAR WEBHOOK ===');
+        console.error('Detalhes do erro:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Rota para obter dados atualizados do Excel
+app.get('/api/excel/data/:workbookId/:worksheetId/:tableId', async (req, res) => {
+    try {
+        console.log('=== SOLICITAÇÃO DE DADOS DO EXCEL ===');
+        const { workbookId, worksheetId, tableId } = req.params;
+
+        console.log('Parâmetros:', { workbookId, worksheetId, tableId });
+
+        // Aqui você implementaria a lógica para buscar dados do Excel
+        // Por enquanto, retorna dados mock
+        const mockData = [
+            {
+                id: '1',
+                cliente: 'Nova Empresa',
+                tipo: 'AÉREO',
+                shipper: 'teste',
+                pol: 'Guarulhos (GRU), Brasil',
+                pod: 'JFK (JFK), Nova York, EUA',
+                etdOrigem: '2025-08-14',
+                etaDestino: '2025-08-29',
+                quantBox: '1',
+                numeroBl: 'BL12345',
+                armador: 'Maersk',
+                booking: 'BK1234 INV1234'
+            }
+        ];
+
+        res.json({
+            success: true,
+            data: mockData,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        console.error('=== ERRO AO OBTER DADOS DO EXCEL ===');
         console.error('Detalhes do erro:', error);
         res.status(500).json({ success: false, error: error.message });
     }

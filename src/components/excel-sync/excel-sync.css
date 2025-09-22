@@ -190,6 +190,15 @@
   background: #059669;
 }
 
+.sync-button.danger {
+  background: #ef4444;
+  color: white;
+}
+
+.sync-button.danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
 .loading-spinner {
   width: 16px;
   height: 16px;

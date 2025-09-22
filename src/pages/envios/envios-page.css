@@ -111,6 +111,51 @@
   margin-bottom: 2rem;
 }
 
+/* Controles do Excel */
+.excel-controls {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.excel-controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.excel-controls-header h3 {
+  color: var(--secondary-color, #305951);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.excel-toggle-btn {
+  background: var(--primary-color, #789170);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.excel-toggle-btn:hover {
+  background: var(--secondary-color, #305951);
+  transform: translateY(-1px);
+}
+
+.excel-toggle-btn.active {
+  background: var(--secondary-color, #305951);
+}
+
 /* Melhorar a tabela */
 .envios-content .shipping-table th {
   background-color: var(--primary-color);

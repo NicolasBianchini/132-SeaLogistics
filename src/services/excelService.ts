@@ -482,7 +482,10 @@ class ExcelService {
             });
 
             if (!response.ok) {
-                throw new Error(`Erro ao obter linhas: ${response.statusText}`);
+                if (response.status === 404) {
+                    throw new Error(`Arquivo Excel não encontrado. Verifique se o arquivo existe e se você tem permissão de acesso.`);
+                }
+                throw new Error(`Erro ao obter linhas: ${response.status} - ${response.statusText}`);
             }
 
             const data = await response.json();
@@ -629,14 +632,23 @@ class ExcelService {
         }
 
         try {
-            const rows = await this.getTableRows(config.workbookId, config.worksheetName, config.tableName);
+            let rows: ExcelRow[];
+
+            // Se é uma tabela padrão, busca dados diretamente da planilha
+            if (config.tableName === 'default_table') {
+                rows = await this.getWorksheetDataDirect(config.workbookId, config.worksheetName);
+            } else {
+                rows = await this.getTableRows(config.workbookId, config.worksheetName, config.tableName);
+            }
 
             // Converte dados do Excel para formato do sistema
-            const shipments = rows.slice(1).map(row => { // Pula cabeçalho
-                const shipment: any = {};
-                config.headers.forEach((header, index) => {
+            const shipments = rows.slice(1).map((row, index) => { // Pula cabeçalho
+                const shipment: any = { id: `excel_${index + 1}` };
+                config.headers.forEach((header, headerIndex) => {
                     const mappedField = config.mapping[header];
-                    shipment[mappedField] = row.values[index] || '';
+                    if (mappedField) {
+                        shipment[mappedField] = row.values[headerIndex] || '';
+                    }
                 });
                 return shipment;
             });
@@ -644,6 +656,62 @@ class ExcelService {
             return shipments;
         } catch (error) {
             console.error('Erro ao obter dados do Excel:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtém dados diretamente da planilha (sem tabela estruturada)
+     */
+    async getWorksheetDataDirect(workbookId: string, worksheetId: string): Promise<ExcelRow[]> {
+        if (!this.accessToken) {
+            throw new Error('Token de acesso não disponível');
+        }
+
+        try {
+            // Primeiro verifica se o arquivo existe
+            const fileResponse = await fetch(`${this.baseUrl}/me/drive/items/${workbookId}`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            });
+
+            if (!fileResponse.ok) {
+                if (fileResponse.status === 404) {
+                    throw new Error(`Arquivo Excel não encontrado. Verifique se o arquivo existe e se você tem permissão de acesso.`);
+                }
+                throw new Error(`Erro ao acessar arquivo: ${fileResponse.status} - ${fileResponse.statusText}`);
+            }
+
+            // Busca dados de uma faixa específica da planilha (ex: A1:K100)
+            const response = await fetch(`${this.baseUrl}/me/drive/items/${workbookId}/workbook/worksheets/${worksheetId}/range(address='A1:K100')`, {
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error(`Planilha não encontrada. Verifique se a planilha "${worksheetId}" existe no arquivo.`);
+                }
+                throw new Error(`Erro ao obter dados da planilha: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            const rows: ExcelRow[] = [];
+
+            if (data.values && Array.isArray(data.values)) {
+                data.values.forEach((rowValues: any[], index: number) => {
+                    rows.push({
+                        id: `row_${index}`,
+                        values: rowValues || []
+                    });
+                });
+            }
+
+            return rows;
+        } catch (error) {
+            console.error('Erro ao obter dados diretos da planilha:', error);
             throw error;
         }
     }

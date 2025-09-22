@@ -32,13 +32,17 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
 
         try {
             // Verifica se consegue acessar a tabela
-            await excelService.getTableRows(config.workbookId, config.worksheetName, config.tableName);
+            if (config.tableName === 'default_table') {
+                await excelService.getWorksheetDataDirect(config.workbookId, config.worksheetName);
+            } else {
+                await excelService.getTableRows(config.workbookId, config.worksheetName, config.tableName);
+            }
             setIsConnected(true);
             setError('');
         } catch (error) {
             console.error('Erro na verificação de conexão:', error);
             setIsConnected(false);
-            setError('Erro na conexão com Excel');
+            setError('Erro na conexão com Excel - arquivo não encontrado ou sem permissão');
         }
     };
 
@@ -126,6 +130,25 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
         }
     };
 
+    // Função para buscar dados do servidor
+    const fetchDataFromServer = async () => {
+        if (!config) return;
+
+        try {
+            const response = await fetch(`/api/excel/data/${config.workbookId}/${config.worksheetName}/${config.tableName}`);
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.data) {
+                    onDataUpdate(result.data);
+                    setLastSync(new Date());
+                    setSyncStatus(`Dados atualizados do servidor - ${result.data.length} registros`);
+                }
+            }
+        } catch (error) {
+            console.error('Erro ao buscar dados do servidor:', error);
+        }
+    };
+
     const removeWebhook = async () => {
         try {
             await excelService.removeWebhook();
@@ -133,6 +156,13 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
         } catch (error) {
             console.error('Erro ao remover webhook:', error);
         }
+    };
+
+    const clearInvalidConfig = () => {
+        localStorage.removeItem('excel_config');
+        setSyncStatus('Configuração inválida removida. Reconecte-se ao Excel.');
+        setError('');
+        setIsConnected(false);
     };
 
     if (!config) {
@@ -225,6 +255,26 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
                     <span>🔍</span>
                     Verificar Conexão
                 </button>
+
+                <button
+                    className="sync-button secondary"
+                    onClick={fetchDataFromServer}
+                    disabled={isSyncing}
+                >
+                    <span>📡</span>
+                    Buscar do Servidor
+                </button>
+
+                {error && error.includes('não encontrado') && (
+                    <button
+                        className="sync-button danger"
+                        onClick={clearInvalidConfig}
+                        disabled={isSyncing}
+                    >
+                        <span>🔄</span>
+                        Reconectar Excel
+                    </button>
+                )}
             </div>
 
             <div className="excel-sync-advanced">

@@ -22,11 +22,33 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({ shipments, onShipme
                 const config = JSON.parse(savedConfig);
                 setExcelConfig(config);
                 setIsExcelEnabled(true);
+
+                // Valida a configuração em background
+                validateConfig(config);
             } catch (error) {
                 console.error('Erro ao carregar configuração do Excel:', error);
+                localStorage.removeItem('excel_config');
             }
         }
     }, []);
+
+    const validateConfig = async (config: ExcelConfig) => {
+        try {
+            // Testa se consegue acessar o arquivo
+            if (config.tableName === 'default_table') {
+                await excelService.getWorksheetDataDirect(config.workbookId, config.worksheetName);
+            } else {
+                await excelService.getTableRows(config.workbookId, config.worksheetName, config.tableName);
+            }
+            console.log('Configuração Excel válida');
+        } catch (error) {
+            console.warn('Configuração Excel inválida detectada:', error);
+            // Remove configuração inválida
+            localStorage.removeItem('excel_config');
+            setExcelConfig(null);
+            setIsExcelEnabled(false);
+        }
+    };
 
     const handleConfigSaved = (config: ExcelConfig) => {
         setExcelConfig(config);

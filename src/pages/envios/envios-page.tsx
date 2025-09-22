@@ -8,6 +8,7 @@ import { NavbarContext } from "../../components/navbar/navbar-context";
 import ShippingTable, {
   type Shipment,
 } from "../../components/shipping-table/shipping-table";
+import ExcelIntegration from "../../components/excel-integration/excel-integration";
 import "./envios-page.css";
 
 export const EnviosPage = () => {
@@ -17,6 +18,8 @@ export const EnviosPage = () => {
     status: "",
     filter: ""
   });
+  const [shipments, setShipments] = useState<Shipment[]>([]);
+  const [showExcelIntegration, setShowExcelIntegration] = useState(false);
 
   useEffect(() => {
     // Processar parâmetros da URL para aplicar filtros
@@ -28,6 +31,17 @@ export const EnviosPage = () => {
 
   const handleShipmentUpdate = (updatedShipment: Shipment) => {
     console.log("Envio atualizado na página de envios:", updatedShipment);
+    // Atualizar o shipment na lista local
+    setShipments(prev =>
+      prev.map(shipment =>
+        shipment.id === updatedShipment.id ? updatedShipment : shipment
+      )
+    );
+  };
+
+  const handleShipmentsUpdate = (updatedShipments: any[]) => {
+    console.log("Lista de envios atualizada via Excel:", updatedShipments);
+    setShipments(updatedShipments);
   };
 
   return (
@@ -36,6 +50,26 @@ export const EnviosPage = () => {
       <div
         className={`envios-content ${isCollapsed ? "navbar-collapsed" : ""}`}
       >
+        {/* Controles de Excel */}
+        <div className="excel-controls">
+          <div className="excel-controls-header">
+            <h3>📊 Integração com Excel</h3>
+            <button
+              className={`excel-toggle-btn ${showExcelIntegration ? 'active' : ''}`}
+              onClick={() => setShowExcelIntegration(!showExcelIntegration)}
+            >
+              {showExcelIntegration ? 'Ocultar Excel' : 'Mostrar Excel'}
+            </button>
+          </div>
+
+          {showExcelIntegration && (
+            <ExcelIntegration
+              shipments={shipments}
+              onShipmentsUpdate={handleShipmentsUpdate}
+            />
+          )}
+        </div>
+
         {/* Mostrar filtros ativos se houver */}
         {(activeFilters.status || activeFilters.filter) && (
           <div className="active-filters">
@@ -60,6 +94,7 @@ export const EnviosPage = () => {
         <ShippingTable
           onShipmentUpdate={handleShipmentUpdate}
           initialFilters={activeFilters}
+          shipments={shipments}
         />
       </div>
       <ChatAssistant />
