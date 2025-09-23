@@ -4,7 +4,11 @@ export const azureConfig = {
    clientId: import.meta.env.VITE_AZURE_CLIENT_ID || process.env.REACT_APP_AZURE_CLIENT_ID || '21f52d49-5e17-4d39-b05c-8a3f355ecbc9',
 
    // URL de redirecionamento (deve estar registrada no Azure AD)
-   redirectUri: import.meta.env.VITE_AZURE_REDIRECT_URI || process.env.REACT_APP_AZURE_REDIRECT_URI || 'http://localhost:3000/auth/callback',
+   redirectUri: import.meta.env.VITE_AZURE_REDIRECT_URI ||
+      process.env.REACT_APP_AZURE_REDIRECT_URI ||
+      (typeof window !== 'undefined' && window.location.origin
+         ? `${window.location.origin}/auth/callback`
+         : 'http://localhost:3000/auth/callback'),
 
    // Escopos necessários para acessar Excel
    scopes: [
@@ -20,7 +24,11 @@ export const azureConfig = {
    authUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
 
    // URL para trocar código por token (deve ser implementada no backend)
-   tokenUrl: import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api/excel/token` : 'http://localhost:3002/api/excel/token',
+   tokenUrl: import.meta.env.VITE_BACKEND_URL
+      ? `${import.meta.env.VITE_BACKEND_URL}/api/excel/token`
+      : (typeof window !== 'undefined' && !window.location.href.includes('localhost')
+         ? `${window.location.protocol}//${window.location.host}/api/excel/token`
+         : 'http://localhost:3002/api/excel/token'),
 
    // URL para webhook (deve ser implementada no backend)
    webhookUrl: '/api/excel/webhook'
@@ -34,7 +42,7 @@ export const azureConfig = {
 4. Configure:
    - Name: "Sea Logistics Excel Integration"
    - Supported account types: "Accounts in any organizational directory and personal Microsoft accounts"
-   - Redirect URI: Web - http://localhost:3000/auth/callback (para desenvolvimento)
+   - Redirect URI: Web - http://localhost:3000/auth/excel-callback (para desenvolvimento)
 5. Após criar, anote o "Application (client) ID"
 6. Vá para "API permissions" e adicione:
    - Microsoft Graph > Delegated permissions:
@@ -44,5 +52,5 @@ export const azureConfig = {
 7. Vá para "Certificates & secrets" e crie um "Client secret" se necessário
 8. Configure as variáveis de ambiente:
    REACT_APP_AZURE_CLIENT_ID=seu_client_id_aqui
-   REACT_APP_AZURE_REDIRECT_URI=http://localhost:3000/auth/callback
+   REACT_APP_AZURE_REDIRECT_URI=http://localhost:3000/auth/excel-callback
 */

@@ -46,8 +46,19 @@ const ExcelCallback: React.FC = () => {
                 // Marca o código como usado
                 sessionStorage.setItem('excel_used_code', code);
 
-                // Obtém o code_verifier do sessionStorage
-                const codeVerifier = sessionStorage.getItem('excel_code_verifier');
+                // Obtém o code_verifier do sessionStorage (com fallback para localStorage)
+                let codeVerifier = sessionStorage.getItem('excel_code_verifier');
+                if (!codeVerifier) {
+                    codeVerifier = localStorage.getItem('excel_code_verifier_backup');
+                    console.log('Code verifier recuperado do localStorage backup');
+                }
+
+                if (!codeVerifier) {
+                    console.error('Code verifier não encontrado em sessionStorage nem localStorage');
+                    throw new Error('Code verifier não encontrado');
+                }
+
+                console.log('Code verifier encontrado:', codeVerifier.substring(0, 10) + '...');
 
                 // Em produção, isso deve ser feito no backend por segurança
                 const response = await fetch('http://localhost:3002/api/excel/token', {
@@ -73,6 +84,7 @@ const ExcelCallback: React.FC = () => {
                 // Limpa os dados de autenticação
                 sessionStorage.removeItem('excel_code_verifier');
                 sessionStorage.removeItem('excel_used_code');
+                localStorage.removeItem('excel_code_verifier_backup');
 
                 // Envia sucesso para a janela pai
                 window.opener?.postMessage({

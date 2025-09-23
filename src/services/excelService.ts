@@ -44,25 +44,27 @@ class ExcelService {
     private specificWorkbookUrl = 'https://1drv.ms/x/c/dc64d46ccb357759/EavjQ3OTbP5JtQkQibDsyk4BYb1CbJxHcAPSenLuH8tH-Q?e=519kWi';
 
     /**
-     * Gera um code_verifier para PKCE
+     * Gera um code_verifier para PKCE (43-128 caracteres, URL-safe)
      */
     private generateCodeVerifier(): string {
         const array = new Uint8Array(32);
         crypto.getRandomValues(array);
-        return btoa(String.fromCharCode.apply(null, Array.from(array)))
+        const base64 = btoa(String.fromCharCode.apply(null, Array.from(array)));
+        return base64
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=/g, '');
     }
 
     /**
-     * Gera um code_challenge para PKCE
+     * Gera um code_challenge para PKCE usando SHA256
      */
     private async generateCodeChallenge(verifier: string): Promise<string> {
         const encoder = new TextEncoder();
         const data = encoder.encode(verifier);
         const digest = await crypto.subtle.digest('SHA-256', data);
-        return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
+        const base64 = btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))));
+        return base64
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=/g, '');
@@ -78,8 +80,9 @@ class ExcelService {
                 return false;
             }
 
-            // Limpa tokens mock antes de verificar
+            // Limpa tokens mock e dados de autenticação anteriores antes de verificar
             this.clearMockTokens();
+            this.clearAuthState();
 
             // Verifica se já temos um token válido
             const token = localStorage.getItem('excel_access_token');
@@ -103,16 +106,23 @@ class ExcelService {
     }
 
     /**
-     * Inicia o fluxo de autenticação OAuth2 com PKCE
+     * Inicia o fluxo de autenticação OAuth2 com Authorization Code Flow e PKCE
      */
     private async startAuthFlow(): Promise<boolean> {
         return new Promise(async (resolve) => {
-            // Gera PKCE parameters
+            // Gera PKCE parameters corretamente
             const codeVerifier = this.generateCodeVerifier();
             const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
             // Salva o code_verifier para usar depois
             sessionStorage.setItem('excel_code_verifier', codeVerifier);
+
+            // Debug: Log dos parâmetros PKCE
+            console.log('=== AUTHORIZATION CODE FLOW WITH PKCE ===');
+            console.log('Code Verifier:', codeVerifier);
+            console.log('Code Challenge:', codeChallenge);
+            console.log('Code Verifier Length:', codeVerifier.length);
+            console.log('Code Challenge Length:', codeChallenge.length);
 
             // Debug: Log das configurações do frontend
             console.log('=== DEBUG FRONTEND CONFIG ===');
@@ -120,6 +130,7 @@ class ExcelService {
             console.log('Redirect URI no frontend:', azureConfig.redirectUri);
             console.log('Token URL:', azureConfig.tokenUrl);
 
+            // Usando Authorization Code Flow com PKCE
             const authUrl = new URL(azureConfig.authUrl);
             authUrl.searchParams.set('client_id', azureConfig.clientId);
             authUrl.searchParams.set('response_type', 'code');
@@ -145,8 +156,12 @@ class ExcelService {
             let popupClosed = false;
             let messageReceived = false;
 
+            // Declara variáveis para os intervalos
+            let checkClosed: NodeJS.Timeout;
+            let timeout: NodeJS.Timeout;
+
             // Timeout para detectar se o popup não respondeu
-            const checkClosed = setInterval(() => {
+            checkClosed = setInterval(() => {
                 // Se não recebeu mensagem em 30 segundos, assume que o popup foi fechado
                 if (!messageReceived && !popupClosed) {
                     popupClosed = true;
@@ -156,7 +171,7 @@ class ExcelService {
             }, 30000); // 30 segundos
 
             // Timeout de 5 minutos para evitar popup indefinido
-            const timeout = setTimeout(() => {
+            timeout = setTimeout(() => {
                 clearInterval(checkClosed);
                 window.removeEventListener('message', messageHandler);
                 try {
@@ -794,6 +809,16 @@ class ExcelService {
             localStorage.removeItem('excel_access_token');
             this.accessToken = null;
         }
+    }
+
+    /**
+     * Limpa estado de autenticação anterior
+     */
+    clearAuthState(): void {
+        sessionStorage.removeItem('excel_code_verifier');
+        sessionStorage.removeItem('excel_used_code');
+        localStorage.removeItem('excel_code_verifier_backup');
+        console.log('Estado de autenticação anterior limpo');
     }
 
     /**
