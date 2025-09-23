@@ -46,22 +46,54 @@ const ExcelCallback: React.FC = () => {
                 // Marca o código como usado
                 sessionStorage.setItem('excel_used_code', code);
 
-                // Obtém o code_verifier do sessionStorage (com fallback para localStorage)
+                // Obtém o code_verifier com múltiplas estratégias
                 let codeVerifier = sessionStorage.getItem('excel_code_verifier');
+                let pkceData = null;
+
+                // Fallback 1: localStorage backup
                 if (!codeVerifier) {
                     codeVerifier = localStorage.getItem('excel_code_verifier_backup');
                     console.log('Code verifier recuperado do localStorage backup');
                 }
 
+                // Fallback 2: dados completos do PKCE
                 if (!codeVerifier) {
-                    console.error('Code verifier não encontrado em sessionStorage nem localStorage');
+                    const pkceDataStr = localStorage.getItem('excel_pkce_data');
+                    if (pkceDataStr) {
+                        try {
+                            pkceData = JSON.parse(pkceDataStr);
+                            codeVerifier = pkceData.verifier;
+                            console.log('Code verifier recuperado dos dados PKCE completos');
+                            console.log('PKCE Data:', {
+                                timestamp: new Date(pkceData.timestamp).toISOString(),
+                                origin: pkceData.origin,
+                                challenge: pkceData.challenge?.substring(0, 10) + '...'
+                            });
+                        } catch (e) {
+                            console.error('Erro ao parsear dados PKCE:', e);
+                        }
+                    }
+                }
+
+                if (!codeVerifier) {
+                    console.error('Code verifier não encontrado em nenhum local de armazenamento');
+                    console.log('SessionStorage keys:', Object.keys(sessionStorage));
+                    console.log('LocalStorage keys:', Object.keys(localStorage).filter(k => k.includes('excel')));
                     throw new Error('Code verifier não encontrado');
                 }
 
+                console.log('=== PKCE DEBUG ===');
                 console.log('Code verifier encontrado:', codeVerifier.substring(0, 10) + '...');
+                console.log('Code verifier length:', codeVerifier.length);
+                console.log('Código recebido:', code.substring(0, 10) + '...');
 
                 // Em produção, isso deve ser feito no backend por segurança
-                const response = await fetch('http://localhost:3002/api/excel/token', {
+                const tokenUrl = window.location.hostname === 'localhost'
+                    ? 'http://localhost:3002/api/excel/token'
+                    : '/api/excel/token'; // Netlify fará proxy para o Render
+
+                console.log('Fazendo requisição para:', tokenUrl);
+                const response = await fetch(tokenUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -85,6 +117,7 @@ const ExcelCallback: React.FC = () => {
                 sessionStorage.removeItem('excel_code_verifier');
                 sessionStorage.removeItem('excel_used_code');
                 localStorage.removeItem('excel_code_verifier_backup');
+                localStorage.removeItem('excel_pkce_data');
 
                 // Envia sucesso para a janela pai
                 window.opener?.postMessage({

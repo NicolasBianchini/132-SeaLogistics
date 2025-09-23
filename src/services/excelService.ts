@@ -114,8 +114,18 @@ class ExcelService {
             const codeVerifier = this.generateCodeVerifier();
             const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
-            // Salva o code_verifier para usar depois
+            // Salva o code_verifier para usar depois (múltiplas estratégias)
             sessionStorage.setItem('excel_code_verifier', codeVerifier);
+            localStorage.setItem('excel_code_verifier_backup', codeVerifier);
+
+            // Também salva com timestamp para debug
+            const verifierData = {
+                verifier: codeVerifier,
+                challenge: codeChallenge,
+                timestamp: Date.now(),
+                origin: window.location.origin
+            };
+            localStorage.setItem('excel_pkce_data', JSON.stringify(verifierData));
 
             // Debug: Log dos parâmetros PKCE
             console.log('=== AUTHORIZATION CODE FLOW WITH PKCE ===');
