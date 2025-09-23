@@ -161,7 +161,9 @@ app.post('/api/excel/token', async (req, res) => {
         const tokenUrl = 'https://login.microsoftonline.com/common/oauth2/v2.0/token';
         const clientId = process.env.REACT_APP_AZURE_CLIENT_ID || '21f52d49-5e17-4d39-b05c-8a3f355ecbc9';
         const clientSecret = process.env.AZURE_CLIENT_SECRET || 'TEMPORARY_SECRET_FOR_TESTING';
-        const redirectUri = 'http://localhost:3000/auth/callback';
+        const redirectUri = process.env.NODE_ENV === 'production'
+            ? 'https://132-sealogistics.netlify.app/auth/callback'
+            : 'http://localhost:3000/auth/callback';
         // Debug: Log das configurações
         console.log('=== DEBUG REDIRECT URI ===');
         console.log('Client ID:', clientId);
@@ -169,6 +171,8 @@ app.post('/api/excel/token', async (req, res) => {
         console.log('Código recebido:', code ? 'SIM' : 'NÃO');
         console.log('Code verifier recebido:', code_verifier ? 'SIM' : 'NÃO');
         console.log('Code verifier (primeiros 10 chars):', code_verifier ? code_verifier.substring(0, 10) + '...' : 'N/A');
+        console.log('Client Secret configurado:', process.env.AZURE_CLIENT_SECRET ? 'SIM' : 'NÃO (usando fallback)');
+        console.log('Environment:', process.env.NODE_ENV || 'development');
 
         const tokenData = {
             client_id: clientId,
