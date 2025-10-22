@@ -209,8 +209,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .excel-sync-advanced {
@@ -329,32 +333,126 @@
   .excel-sync-container {
     padding: 16px;
   }
-  
+
   .excel-sync-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  
+
   .excel-sync-actions {
     flex-direction: column;
   }
-  
+
   .sync-button {
     width: 100%;
     min-width: auto;
   }
-  
+
   .advanced-actions {
     flex-direction: column;
   }
-  
+
   .webhook-button {
     width: 100%;
     justify-content: center;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Added styles for Excel data display table */
+.excel-data-display {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.excel-data-display h4 {
+  margin: 0 0 16px 0;
+  color: #374151;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.excel-data-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+.excel-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.excel-data-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.excel-data-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.excel-data-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.excel-data-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.excel-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.status-badge.status-pendente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.status-em-transito {
+  background: #dbeafe;
+  color: #0c4a6e;
+}
+
+.status-badge.status-concluido {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.status-documentacao {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+@media (max-width: 768px) {
+  .excel-data-table {
+    font-size: 12px;
+  }
+
+  .excel-data-table th,
+  .excel-data-table td {
+    padding: 8px;
   }
 }
