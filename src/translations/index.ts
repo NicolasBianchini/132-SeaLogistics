@@ -26,7 +26,8 @@ export const translations = {
     registerButton: "Register",
     alreadyHaveAccount: "Already have an account?",
     loginLink: "Login",
-    registerText: "Connecting the world through the oceans. Register to access our platform.",
+    registerText:
+      "Connecting the world through the oceans. Register to access our platform.",
 
     // Navigation
     home: "Home",
@@ -75,10 +76,7 @@ export const translations = {
     evolutionOfMyShipments: "Evolution of My Shipments",
     statusOfMyShipments: "Status of My Shipments",
     originPorts: "Origin Ports",
-    totalShipments: "Total Shipments",
     completed: "Completed",
-    pending: "Pending",
-    inTransit: "In Transit",
 
     // Loading Messages
     loadingCharts: "Loading charts...",
@@ -161,7 +159,8 @@ export const translations = {
     dateFormat: "dd/mm/yyyy",
 
     // Messages
-    accessDenied: "Access denied. Only administrators can create new shipments.",
+    accessDenied:
+      "Access denied. Only administrators can create new shipments.",
     fillInfoNewShipment: "Fill in the information to create a new shipment",
 
     // Shipment Status
@@ -221,9 +220,11 @@ export const translations = {
     emailNotifications: "Email Notifications",
     receiveImportantUpdates: "Receive important updates by email",
     pushNotifications: "Push Notifications",
-    receiveRealTimeNotifications: "Receive real-time notifications in the browser",
+    receiveRealTimeNotifications:
+      "Receive real-time notifications in the browser",
     statusUpdates: "Status Updates",
-    notifiedWhenStatusChanges: "Be notified when the status of shipments changes",
+    notifiedWhenStatusChanges:
+      "Be notified when the status of shipments changes",
 
     // Common
     yes: "Yes",
@@ -276,7 +277,8 @@ export const translations = {
     registerButton: "Registrar",
     alreadyHaveAccount: "Já tem uma conta?",
     loginLink: "Entrar",
-    registerText: "Conectando o mundo através dos oceanos. Registre-se para acessar nossa plataforma.",
+    registerText:
+      "Conectando o mundo através dos oceanos. Registre-se para acessar nossa plataforma.",
 
     // Navigation
     home: "Início",
@@ -325,10 +327,7 @@ export const translations = {
     evolutionOfMyShipments: "Evolução dos Meus Envios",
     statusOfMyShipments: "Status dos Meus Envios",
     originPorts: "Portos de Origem",
-    totalShipments: "Total de Envios",
     completed: "Completos",
-    pending: "Pendentes",
-    inTransit: "Em Trânsito",
 
     // Loading Messages
     loadingCharts: "Carregando gráficos...",
@@ -411,7 +410,8 @@ export const translations = {
     dateFormat: "dd/mm/aaaa",
 
     // Messages
-    accessDenied: "Acesso negado. Apenas administradores podem criar novos envios.",
+    accessDenied:
+      "Acesso negado. Apenas administradores podem criar novos envios.",
     fillInfoNewShipment: "Preencha as informações para criar um novo envio",
 
     // Shipment Status
@@ -505,64 +505,6 @@ export const translations = {
     excelDataUpdated: "Dados do Excel atualizados",
 
     // Shipments
-    company: "Empresa",
-
-    // Shipment Status
-    statusUnloading: "Descarregamento",
-    statusInDelivery: "Em Entrega",
-    statusCompleted: "Concluído",
-    statusSuspended: "Suspenso",
-
-    // Forms
-    required: "Obrigatório",
-    optional: "Opcional",
-    submit: "Enviar",
-    reset: "Resetar",
-    back: "Voltar",
-    next: "Próximo",
-    previous: "Anterior",
-    finish: "Finalizar",
-    selectClient: "Selecione um cliente",
-    selectOperator: "Selecione um operador",
-    pleaseSelectValidClient: "Por favor, selecione um cliente válido.",
-
-    // Messages
-    success: "Sucesso",
-    warning: "Aviso",
-    info: "Informação",
-    confirmDelete: "Tem certeza que deseja excluir este item?",
-    deleteSuccess: "Item excluído com sucesso",
-    saveSuccess: "Item salvo com sucesso",
-    updateSuccess: "Item atualizado com sucesso",
-    redirecting: "Redirecionando...",
-
-    // Actions
-    manageDocuments: "Gerenciar Documentos",
-    viewDocuments: "Visualizar Documentos",
-
-    // Common
-    yes: "Sim",
-    no: "Não",
-    ok: "OK",
-    noData: "Nenhum dado disponível",
-    refresh: "Atualizar",
-    export: "Exportar",
-    import: "Importar",
-    download: "Baixar",
-    upload: "Enviar",
-
-    // Document Types
-    documentType: "Tipo de Documento",
-    billOfLading: "Conhecimento de Embarque (BL)",
-    packingList: "Lista de Empacotamento",
-    commercialInvoice: "Fatura Comercial",
-    certificateOfOrigin: "Certificado de Origem",
-    insuranceCertificate: "Certificado de Seguro",
-    exportLicense: "Licença de Exportação",
-    importLicense: "Licença de Importação",
-    customsDeclaration: "Declaração Aduaneira",
-    transportDocument: "Documento de Transporte",
-    other: "Outro",
   },
   es: {
     // Login & Register
@@ -591,7 +533,8 @@ export const translations = {
     registerButton: "Registrarse",
     alreadyHaveAccount: "¿Ya tiene una cuenta?",
     loginLink: "Iniciar sesión",
-    registerText: "Conectando el mundo a través de los océanos. Regístrate para acceder a nuestra plataforma.",
+    registerText:
+      "Conectando el mundo a través de los océanos. Regístrate para acceder a nuestra plataforma.",
 
     // Navigation
     home: "Inicio",
@@ -640,10 +583,7 @@ export const translations = {
     evolutionOfMyShipments: "Evolución de Mis Envíos",
     statusOfMyShipments: "Estado de Mis Envíos",
     originPorts: "Puertos de Origen",
-    totalShipments: "Total de Envíos",
     completed: "Completados",
-    pending: "Pendientes",
-    inTransit: "En Tránsito",
 
     // Loading Messages
     loadingCharts: "Cargando gráficos...",
@@ -726,7 +666,8 @@ export const translations = {
     dateFormat: "dd/mm/aaaa",
 
     // Messages
-    accessDenied: "Acceso denegado. Solo los administradores pueden crear nuevos envíos.",
+    accessDenied:
+      "Acceso denegado. Solo los administradores pueden crear nuevos envíos.",
     fillInfoNewShipment: "Complete la información para crear un nuevo envío",
 
     // Shipment Status
@@ -818,129 +759,5 @@ export const translations = {
     excelSyncError: "Error en la sincronización",
     excelDataLoaded: "Datos de Excel cargados",
     excelDataUpdated: "Datos de Excel actualizados",
-
-    // Shipping Table
-    shippingTable: "Tabla de Envíos",
-    exportAll: "Exportar Todos",
-    searchFilters: "Filtros de Búsqueda",
-    more: "Más",
-    less: "Menos",
-    sortBy: "Ordenar por:",
-    month: "Mes:",
-
-    // Search Placeholders
-    searchPlaceholderAdmin: "Cliente, BL, Booking...",
-    searchPlaceholderClient: "BL, Booking...",
-
-    // Sort Options
-    mostRecent: "Más recientes",
-    oldest: "Más antiguos",
-    etdDate: "Fecha de partida (ETD)",
-    etaDate: "Fecha de llegada (ETA)",
-    clientAZ: "Cliente A-Z",
-
-    // Chart Titles
-    distributionByStatus: "Distribución por Estado",
-    top10Clients: "Top 10 Clientes",
-
-    // Loading Messages
-    loadingCharts: "Cargando gráficos...",
-    stabilizingData: "Estabilizando datos para visualización.",
-
-    // Welcome Messages
-    welcomeUser: "Bienvenido,",
-
-    // Status Labels
-    statusUpdated: "Estado actualizado",
-
-    // Shipments
-    shipmentsTitle: "Envíos",
-    newShipmentTitle: "Nuevo Envío",
-    editShipment: "Editar Envío",
-    shipmentDetails: "Detalles del Envío",
-    shipmentNumber: "Número de Envío",
-    origin: "Origen",
-    destination: "Destino",
-    status: "Estado",
-    date: "Fecha",
-    actions: "Acciones",
-    view: "Ver",
-    edit: "Editar",
-    delete: "Eliminar",
-    save: "Guardar",
-    cancel: "Cancelar",
-    close: "Cerrar",
-    search: "Buscar",
-    filter: "Filtrar",
-    clearFilters: "Limpiar Filtros",
-    noShipments: "No se encontraron envíos",
-    loading: "Cargando...",
-    error: "Error",
-
-    // Shipment Status
-    statusPending: "Pendiente",
-    statusInTransit: "En Tránsito",
-    statusDelivered: "Entregado",
-    statusCancelled: "Cancelado",
-    statusDelayed: "Retrasado",
-    statusDocumentation: "Documentación",
-    statusScheduled: "Programado",
-    statusToShip: "Para Envío",
-    statusShipping: "En Transporte",
-    statusUnloading: "Descargando",
-    statusInDelivery: "En Entrega",
-    statusCompleted: "Completado",
-    statusSuspended: "Suspendido",
-
-    // Forms
-    required: "Requerido",
-    optional: "Opcional",
-    submit: "Enviar",
-    reset: "Restablecer",
-    back: "Atrás",
-    next: "Siguiente",
-    previous: "Anterior",
-    finish: "Finalizar",
-    selectClient: "Seleccione un cliente",
-    selectOperator: "Seleccione un operador",
-    pleaseSelectValidClient: "Por favor, seleccione un cliente válido.",
-
-    // Messages
-    success: "Éxito",
-    warning: "Advertencia",
-    info: "Información",
-    confirmDelete: "¿Está seguro de que desea eliminar este elemento?",
-    deleteSuccess: "Elemento eliminado exitosamente",
-    saveSuccess: "Elemento guardado exitosamente",
-    updateSuccess: "Elemento actualizado exitosamente",
-    redirecting: "Redirigiendo...",
-
-    // Actions
-    manageDocuments: "Gestionar Documentos",
-    viewDocuments: "Ver Documentos",
-
-    // Common
-    yes: "Sí",
-    no: "No",
-    ok: "OK",
-    noData: "No hay datos disponibles",
-    refresh: "Actualizar",
-    export: "Exportar",
-    import: "Importar",
-    download: "Descargar",
-    upload: "Subir",
-
-    // Document Types
-    documentType: "Tipo de Documento",
-    billOfLading: "Conocimiento de Embarque (BL)",
-    packingList: "Lista de Empaque",
-    commercialInvoice: "Factura Comercial",
-    certificateOfOrigin: "Certificado de Origen",
-    insuranceCertificate: "Certificado de Seguro",
-    exportLicense: "Licencia de Exportación",
-    importLicense: "Licencia de Importación",
-    customsDeclaration: "Declaración Aduanera",
-    transportDocument: "Documento de Transporte",
-    other: "Otro",
   },
 };

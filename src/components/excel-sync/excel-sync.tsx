@@ -72,6 +72,7 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
     try {
       // Obtém dados do Excel
       const excelDataResult = await excelService.getShipmentsFromExcel(config);
+      console.log("Dados obtidos do Excel:", excelDataResult);
 
       setExcelData(excelDataResult);
 
