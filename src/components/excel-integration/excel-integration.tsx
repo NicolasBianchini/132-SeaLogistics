@@ -92,7 +92,7 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
               onClick={() => setShowConfigModal(true)}
             >
               <span>🔗</span>
-              Conectar Excel
+              Conectar Excell
             </button>
           ) : (
             <div className="excel-actions-group">
