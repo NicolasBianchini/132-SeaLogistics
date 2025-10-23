@@ -1,21 +1,18 @@
 "use client";
 
-import { saveAs } from "file-saver";
 import { doc, getDoc } from "firebase/firestore";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
-import autoTable from "jspdf-autotable";
-import { Check, Edit, FileText, FolderOpen, Truck, Eye } from "lucide-react";
-import { useMemo, useState, useEffect } from "react";
-import * as XLSX from "xlsx";
+import { Check, Edit, Eye, FileText, FolderOpen } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../context/auth-context";
 import { useLanguage } from "../../context/language-context";
 import { useShipments, type Shipment } from "../../context/shipments-context";
 import { db } from "../../lib/firebaseConfig";
 import { sendEmail } from "../../services/emailService";
-import EditShipmentModal from "../edit-shipment-modal/edit-shipment-modal";
 import { DocumentManager } from "../document-manager";
 import { DocumentViewer } from "../document-viewer";
+import EditShipmentModal from "../edit-shipment-modal/edit-shipment-modal";
 import { DropdownProvider } from "./dropdown-context";
 import ShippingFilters, { type FilterOptions } from "./shipping-filters";
 import "./shipping-table.css";
@@ -39,7 +36,7 @@ const ShippingTable = ({
     updateShipment,
     loading,
   } = useShipments();
-  const { isAdmin, currentUser } = useAuth();
+  const { isAdmin } = useAuth();
   const { translations } = useLanguage();
 
   const shipments = propShipments || contextShipments;
@@ -47,9 +44,11 @@ const ShippingTable = ({
   const [editingShipment, setEditingShipment] = useState<Shipment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
-  const [selectedShipmentForDocs, setSelectedShipmentForDocs] = useState<Shipment | null>(null);
+  const [selectedShipmentForDocs, setSelectedShipmentForDocs] =
+    useState<Shipment | null>(null);
   const [showDocumentViewer, setShowDocumentViewer] = useState(false);
-  const [selectedShipmentForViewer, setSelectedShipmentForViewer] = useState<Shipment | null>(null);
+  const [selectedShipmentForViewer, setSelectedShipmentForViewer] =
+    useState<Shipment | null>(null);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";
@@ -83,7 +82,7 @@ const ShippingTable = ({
       }
 
       // Aplicar filtro especial
-      if (initialFilters.filter === 'this-month') {
+      if (initialFilters.filter === "this-month") {
         const currentMonth = new Date().getMonth() + 1;
         newFilters.month = currentMonth.toString();
       }
@@ -97,7 +96,9 @@ const ShippingTable = ({
 
     // Aplicar filtro de status inicial
     if (initialFilters?.status) {
-      filtered = filtered.filter((shipment) => shipment.status === initialFilters.status);
+      filtered = filtered.filter(
+        (shipment) => shipment.status === initialFilters.status
+      );
     }
 
     // Aplicar filtro de mês
@@ -223,154 +224,158 @@ const ShippingTable = ({
     }
   };
 
-
-
   const canEditShipment = (shipment: Shipment) => {
     if (!isAdmin()) return false;
     if (shipment.status === "concluido") return false;
     return true;
   };
 
-  const exportToExcel = async (shipment: Shipment) => {
-    try {
-      console.log('🚀 Iniciando exportação individual para:', shipment.cliente, shipment.numeroBl);
+  // const exportToExcel = async (shipment: Shipment) => {
+  //   try {
+  //     console.log('🚀 Iniciando exportação individual para:', shipment.cliente, shipment.numeroBl);
 
-      // Criar workbook
-      const workbook = XLSX.utils.book_new();
+  //     // Criar workbook
+  //     const workbook = XLSX.utils.book_new();
 
-      // Dados do cabeçalho
-      const currentDate = new Date().toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      }).toUpperCase();
+  //     // Dados do cabeçalho
+  //     const currentDate = new Date().toLocaleDateString('pt-BR', {
+  //       day: '2-digit',
+  //       month: 'long',
+  //       year: 'numeric'
+  //     }).toUpperCase();
 
-      // Configurar dados da planilha com formatação
-      const sheetData = [
-        // Linha 1: Nome da empresa (mesclar células)
-        ['SEA LOGISTICS INTERNATIONAL', '', '', '', '', '', '', '', '', '', ''],
-        // Linha 2: Título do documento
-        [`FOLLOW UP (${shipment.cliente || 'NOME CLIENTE'}) - ${currentDate}`, '', '', '', '', '', '', '', '', '', ''],
-        // Linha 3: Espaçamento
-        ['', '', '', '', '', '', '', '', '', '', ''],
-        // Linha 4: Cabeçalho da primeira tabela
-        ['PROCESSO IM', 'CLIENTE', 'SHIPPER', 'OPERADOR', 'POL', 'POD', 'ETA', 'ETD', 'STATUS', 'INCOTERM', 'NAVIO'],
-        // Linha 5: Dados da primeira tabela
-        [
-          shipment.numeroBl || 'N/A',
-          shipment.cliente || 'N/A',
-          shipment.shipper || 'N/A',
-          shipment.operador || 'N/A',
-          shipment.pol || 'N/A',
-          shipment.pod || 'N/A',
-          formatDate(shipment.etaDestino),
-          formatDate(shipment.etdOrigem),
-          shipment.status || 'N/A',
-          'FOB',
-          shipment.armador || 'N/A'
-        ],
-        // Linha 6: Espaçamento
-        ['', '', '', '', '', '', '', '', '', '', ''],
-        // Linha 7: Cabeçalho da segunda tabela
-        ['BOOKING', 'NR DE CONTAINER', 'POSIÇÃO DO NAVIO', 'ARMADOR', 'QUANTIDADE', 'N° BL', 'FREE TIME', 'CE'],
-        // Linha 8: Dados da segunda tabela
-        [
-          shipment.booking || 'N/A',
-          'CAAU8164329',
-          'O navio porta-contêineres está atualmente localizado no Mar da China Oriental.',
-          shipment.armador || 'N/A',
-          `${shipment.quantBox || 1}X40HC`,
-          shipment.numeroBl || 'N/A',
-          '21 DIAS',
-          'A INFORMAR'
-        ]
-      ];
+  //     // Configurar dados da planilha com formatação
+  //     const sheetData = [
+  //       // Linha 1: Nome da empresa (mesclar células)
+  //       ['SEA LOGISTICS INTERNATIONAL', '', '', '', '', '', '', '', '', '', ''],
+  //       // Linha 2: Título do documento
+  //       [`FOLLOW UP (${shipment.cliente || 'NOME CLIENTE'}) - ${currentDate}`, '', '', '', '', '', '', '', '', '', ''],
+  //       // Linha 3: Espaçamento
+  //       ['', '', '', '', '', '', '', '', '', '', ''],
+  //       // Linha 4: Cabeçalho da primeira tabela
+  //       ['PROCESSO IM', 'CLIENTE', 'SHIPPER', 'OPERADOR', 'POL', 'POD', 'ETA', 'ETD', 'STATUS', 'INCOTERM', 'NAVIO'],
+  //       // Linha 5: Dados da primeira tabela
+  //       [
+  //         shipment.numeroBl || 'N/A',
+  //         shipment.cliente || 'N/A',
+  //         shipment.shipper || 'N/A',
+  //         shipment.operador || 'N/A',
+  //         shipment.pol || 'N/A',
+  //         shipment.pod || 'N/A',
+  //         formatDate(shipment.etaDestino),
+  //         formatDate(shipment.etdOrigem),
+  //         shipment.status || 'N/A',
+  //         'FOB',
+  //         shipment.armador || 'N/A'
+  //       ],
+  //       // Linha 6: Espaçamento
+  //       ['', '', '', '', '', '', '', '', '', '', ''],
+  //       // Linha 7: Cabeçalho da segunda tabela
+  //       ['BOOKING', 'NR DE CONTAINER', 'POSIÇÃO DO NAVIO', 'ARMADOR', 'QUANTIDADE', 'N° BL', 'FREE TIME', 'CE'],
+  //       // Linha 8: Dados da segunda tabela
+  //       [
+  //         shipment.booking || 'N/A',
+  //         'CAAU8164329',
+  //         'O navio porta-contêineres está atualmente localizado no Mar da China Oriental.',
+  //         shipment.armador || 'N/A',
+  //         `${shipment.quantBox || 1}X40HC`,
+  //         shipment.numeroBl || 'N/A',
+  //         '21 DIAS',
+  //         'A INFORMAR'
+  //       ]
+  //     ];
 
-      // Criar planilha a partir dos dados
-      const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
+  //     // Criar planilha a partir dos dados
+  //     const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
 
-      // Configurar largura das colunas
-      const colWidths = [
-        { wch: 18 }, // A - PROCESSO IM
-        { wch: 15 }, // B - CLIENTE
-        { wch: 18 }, // C - SHIPPER
-        { wch: 18 }, // D - OPERADOR
-        { wch: 12 }, // E - POL
-        { wch: 12 }, // F - POD
-        { wch: 12 }, // G - ETA
-        { wch: 12 }, // H - ETD
-        { wch: 15 }, // I - STATUS
-        { wch: 12 }, // J - INCOTERM
-        { wch: 18 }  // K - NAVIO
-      ];
-      worksheet['!cols'] = colWidths;
+  //     // Configurar largura das colunas
+  //     const colWidths = [
+  //       { wch: 18 }, // A - PROCESSO IM
+  //       { wch: 15 }, // B - CLIENTE
+  //       { wch: 18 }, // C - SHIPPER
+  //       { wch: 18 }, // D - OPERADOR
+  //       { wch: 12 }, // E - POL
+  //       { wch: 12 }, // F - POD
+  //       { wch: 12 }, // G - ETA
+  //       { wch: 12 }, // H - ETD
+  //       { wch: 15 }, // I - STATUS
+  //       { wch: 12 }, // J - INCOTERM
+  //       { wch: 18 }  // K - NAVIO
+  //     ];
+  //     worksheet['!cols'] = colWidths;
 
-      // Configurar altura das linhas
-      const rowHeights = [
-        { hpt: 30 }, // Linha 1 - Nome da empresa
-        { hpt: 25 }, // Linha 2 - Título
-        { hpt: 15 }, // Linha 3 - Espaçamento
-        { hpt: 25 }, // Linha 4 - Cabeçalho 1
-        { hpt: 25 }, // Linha 5 - Dados 1
-        { hpt: 15 }, // Linha 6 - Espaçamento
-        { hpt: 25 }, // Linha 7 - Cabeçalho 2
-        { hpt: 40 }  // Linha 8 - Dados 2 (mais alta para posição do navio)
-      ];
-      worksheet['!rows'] = rowHeights;
+  //     // Configurar altura das linhas
+  //     const rowHeights = [
+  //       { hpt: 30 }, // Linha 1 - Nome da empresa
+  //       { hpt: 25 }, // Linha 2 - Título
+  //       { hpt: 15 }, // Linha 3 - Espaçamento
+  //       { hpt: 25 }, // Linha 4 - Cabeçalho 1
+  //       { hpt: 25 }, // Linha 5 - Dados 1
+  //       { hpt: 15 }, // Linha 6 - Espaçamento
+  //       { hpt: 25 }, // Linha 7 - Cabeçalho 2
+  //       { hpt: 40 }  // Linha 8 - Dados 2 (mais alta para posição do navio)
+  //     ];
+  //     worksheet['!rows'] = rowHeights;
 
-      // Configurar mesclagem de células para o cabeçalho
-      worksheet['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Nome da empresa - linha inteira
-        { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Título - linha inteira
-      ];
+  //     // Configurar mesclagem de células para o cabeçalho
+  //     worksheet['!merges'] = [
+  //       { s: { r: 0, c: 0 }, e: { r: 0, c: 10 } }, // Nome da empresa - linha inteira
+  //       { s: { r: 1, c: 0 }, e: { r: 1, c: 10 } }, // Título - linha inteira
+  //     ];
 
-      // Adicionar planilha ao workbook
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Follow Up");
+  //     // Adicionar planilha ao workbook
+  //     XLSX.utils.book_append_sheet(workbook, worksheet, "Follow Up");
 
-      // Gerar arquivo Excel
-      const excelBuffer = XLSX.write(workbook, {
-        bookType: "xlsx",
-        type: "array",
-      });
+  //     // Gerar arquivo Excel
+  //     const excelBuffer = XLSX.write(workbook, {
+  //       bookType: "xlsx",
+  //       type: "array",
+  //     });
 
-      const fileData = new Blob([excelBuffer], {
-        type: "application/octet-stream",
-      });
+  //     const fileData = new Blob([excelBuffer], {
+  //       type: "application/octet-stream",
+  //     });
 
-      // Nome do arquivo baseado no número BL ou cliente
-      const fileName = shipment.numeroBl
-        ? `follow-up-${shipment.cliente}-${shipment.numeroBl}.xlsx`
-        : `follow-up-${shipment.cliente}-${new Date().toISOString().split('T')[0]}.xlsx`;
+  //     // Nome do arquivo baseado no número BL ou cliente
+  //     const fileName = shipment.numeroBl
+  //       ? `follow-up-${shipment.cliente}-${shipment.numeroBl}.xlsx`
+  //       : `follow-up-${shipment.cliente}-${new Date().toISOString().split('T')[0]}.xlsx`;
 
-      console.log('📁 Nome do arquivo gerado:', fileName);
-      console.log('💾 Iniciando download do arquivo...');
+  //     console.log('📁 Nome do arquivo gerado:', fileName);
+  //     console.log('💾 Iniciando download do arquivo...');
 
-      saveAs(fileData, fileName);
+  //     saveAs(fileData, fileName);
 
-      console.log('✅ Exportação individual concluída com sucesso!');
-    } catch (error) {
-      console.error('❌ Erro ao exportar para Excel:', error);
-      alert('Erro ao exportar para Excel. Tente novamente.');
-    }
-  };
+  //     console.log('✅ Exportação individual concluída com sucesso!');
+  //   } catch (error) {
+  //     console.error('❌ Erro ao exportar para Excel:', error);
+  //     alert('Erro ao exportar para Excel. Tente novamente.');
+  //   }
+  // };
 
   const exportToPDF = async (shipment: Shipment) => {
     try {
-      console.log('🚀 Iniciando exportação PDF para:', shipment.cliente, shipment.numeroBl);
+      console.log(
+        "🚀 Iniciando exportação PDF para:",
+        shipment.cliente,
+        shipment.numeroBl
+      );
 
       const doc = new jsPDF();
 
       // Título
       doc.setFontSize(16);
-      doc.text(`FOLLOW UP - ${shipment.cliente || 'NOME CLIENTE'}`, 14, 15);
+      doc.text(`FOLLOW UP - ${shipment.cliente || "NOME CLIENTE"}`, 14, 15);
 
       // Data
       doc.setFontSize(12);
-      const currentDate = new Date().toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      }).toUpperCase();
+      const currentDate = new Date()
+        .toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })
+        .toUpperCase();
       doc.text(`Data: ${currentDate}`, 14, 25);
 
       // Informações do envio
@@ -378,19 +383,19 @@ const ShippingTable = ({
       let yPosition = 40;
 
       const shipmentInfo = [
-        ['PROCESSO IM:', shipment.numeroBl || 'N/A'],
-        ['CLIENTE:', shipment.cliente || 'N/A'],
-        ['SHIPPER:', shipment.shipper || 'N/A'],
-        ['OPERADOR:', shipment.operador || 'N/A'],
-        ['POL:', shipment.pol || 'N/A'],
-        ['POD:', shipment.pod || 'N/A'],
-        ['ETA:', formatDate(shipment.etaDestino)],
-        ['ETD:', formatDate(shipment.etdOrigem)],
-        ['STATUS:', shipment.status || 'N/A'],
-        ['ARMADOR:', shipment.armador || 'N/A'],
-        ['BOOKING:', shipment.booking || 'N/A'],
-        ['QUANTIDADE:', `${shipment.quantBox || 1}X40HC`],
-        ['N° BL:', shipment.numeroBl || 'N/A']
+        ["PROCESSO IM:", shipment.numeroBl || "N/A"],
+        ["CLIENTE:", shipment.cliente || "N/A"],
+        ["SHIPPER:", shipment.shipper || "N/A"],
+        ["OPERADOR:", shipment.operador || "N/A"],
+        ["POL:", shipment.pol || "N/A"],
+        ["POD:", shipment.pod || "N/A"],
+        ["ETA:", formatDate(shipment.etaDestino)],
+        ["ETD:", formatDate(shipment.etdOrigem)],
+        ["STATUS:", shipment.status || "N/A"],
+        ["ARMADOR:", shipment.armador || "N/A"],
+        ["BOOKING:", shipment.booking || "N/A"],
+        ["QUANTIDADE:", `${shipment.quantBox || 1}X40HC`],
+        ["N° BL:", shipment.numeroBl || "N/A"],
       ];
 
       shipmentInfo.forEach(([label, value]) => {
@@ -402,7 +407,6 @@ const ShippingTable = ({
       });
 
       doc.save(`follow-up-${shipment.cliente}-${shipment.numeroBl}.pdf`);
-
     } catch (error) {
       console.error("Erro ao exportar para PDF:", error);
     }
@@ -440,9 +444,11 @@ const ShippingTable = ({
           <li><strong>Porto de Destino:</strong> ${shipment.pod}</li>
           <li><strong>ETD Origem:</strong> ${shipment.etdOrigem}</li>
           <li><strong>ETA Destino:</strong> ${shipment.etaDestino}</li>
-          <li><strong>Localização Atual:</strong> ${shipment.currentLocation
+          <li><strong>Localização Atual:</strong> ${
+            shipment.currentLocation
           }</li>
-          <li><strong>Quantidade de Containers:</strong> ${shipment.quantBox
+          <li><strong>Quantidade de Containers:</strong> ${
+            shipment.quantBox
           }</li>
           <li><strong>Status:</strong> ${shipment.status}</li>
           <li><strong>Armador:</strong> ${shipment.armador}</li>
@@ -515,7 +521,7 @@ const ShippingTable = ({
                   <th>{translations.blNumber}</th>
                   <th>{translations.carrier}</th>
                   <th>{translations.booking}</th>
-                  <th>{translations.invoice}</th>
+
                   <th>{translations.actions}</th>
                 </tr>
               </thead>
@@ -524,8 +530,12 @@ const ShippingTable = ({
                   <tr key={shipment.id}>
                     <td>{shipment.cliente}</td>
                     <td>
-                      <span className={`tipo-badge tipo-${shipment.tipo?.toLowerCase() || 'nao-especificado'}`}>
-                        {shipment.tipo || 'N/A'}
+                      <span
+                        className={`tipo-badge tipo-${
+                          shipment.tipo?.toLowerCase() || "nao-especificado"
+                        }`}
+                      >
+                        {shipment.tipo || "N/A"}
                       </span>
                     </td>
                     <td>{shipment.shipper}</td>
@@ -540,7 +550,6 @@ const ShippingTable = ({
                     <td>{shipment.invoice}</td>
                     <td>
                       <div className="action-icons">
-                        {/* Botões apenas para administradores */}
                         {isAdmin() && (
                           <>
                             <button
@@ -577,7 +586,6 @@ const ShippingTable = ({
                           </>
                         )}
 
-                        {/* Botão de visualizar documentos apenas para usuários comuns */}
                         {!isAdmin() && (
                           <button
                             className="action-icon view-documents-icon"
@@ -591,7 +599,6 @@ const ShippingTable = ({
                           </button>
                         )}
 
-                        {/* Botão de exportação direta para PDF */}
                         <button
                           className="action-icon export-icon"
                           onClick={() => exportToPDF(shipment)}
@@ -624,25 +631,23 @@ const ShippingTable = ({
           />
         )}
 
-        {/* Modal de Gerenciamento de Documentos */}
         {showDocumentsModal && selectedShipmentForDocs && (
           <DocumentManager
-            shipmentId={selectedShipmentForDocs.id || ''}
+            shipmentId={selectedShipmentForDocs.id || ""}
             shipmentNumber={selectedShipmentForDocs.numeroBl}
             clientName={selectedShipmentForDocs.cliente}
             isOpen={showDocumentsModal}
             onClose={() => setShowDocumentsModal(false)}
             onDocumentsUpdate={() => {
               // Recarregar dados se necessário
-              console.log('Documentos atualizados');
+              console.log("Documentos atualizados");
             }}
           />
         )}
 
-        {/* Modal de Visualização de Documentos */}
         {showDocumentViewer && selectedShipmentForViewer && (
           <DocumentViewer
-            shipmentId={selectedShipmentForViewer.id || ''}
+            shipmentId={selectedShipmentForViewer.id || ""}
             isOpen={showDocumentViewer}
             onClose={handleCloseDocumentViewer}
           />

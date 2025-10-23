@@ -3,12 +3,12 @@
 import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
+import ExcelIntegration from "../../components/excel-integration/excel-integration";
 import Navbar from "../../components/navbar/navbar";
 import { NavbarContext } from "../../components/navbar/navbar-context";
 import ShippingTable, {
   type Shipment,
 } from "../../components/shipping-table/shipping-table";
-import ExcelIntegration from "../../components/excel-integration/excel-integration";
 import "./envios-page.css";
 
 export const EnviosPage = () => {
@@ -16,15 +16,15 @@ export const EnviosPage = () => {
   const [searchParams] = useSearchParams();
   const [activeFilters, setActiveFilters] = useState({
     status: "",
-    filter: ""
+    filter: "",
   });
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [showExcelIntegration, setShowExcelIntegration] = useState(false);
 
   useEffect(() => {
     // Processar parâmetros da URL para aplicar filtros
-    const status = searchParams.get('status') || '';
-    const filter = searchParams.get('filter') || '';
+    const status = searchParams.get("status") || "";
+    const filter = searchParams.get("filter") || "";
 
     setActiveFilters({ status, filter });
   }, [searchParams]);
@@ -32,8 +32,8 @@ export const EnviosPage = () => {
   const handleShipmentUpdate = (updatedShipment: Shipment) => {
     console.log("Envio atualizado na página de envios:", updatedShipment);
     // Atualizar o shipment na lista local
-    setShipments(prev =>
-      prev.map(shipment =>
+    setShipments((prev) =>
+      prev.map((shipment) =>
         shipment.id === updatedShipment.id ? updatedShipment : shipment
       )
     );
@@ -55,10 +55,12 @@ export const EnviosPage = () => {
           <div className="excel-controls-header">
             <h3>📊 Integração com Excel</h3>
             <button
-              className={`excel-toggle-btn ${showExcelIntegration ? 'active' : ''}`}
+              className={`excel-toggle-btn ${
+                showExcelIntegration ? "active" : ""
+              }`}
               onClick={() => setShowExcelIntegration(!showExcelIntegration)}
             >
-              {showExcelIntegration ? 'Ocultar Excel' : 'Mostrar Excel'}
+              {showExcelIntegration ? "Ocultar Excel" : "Mostrar Excel"}
             </button>
           </div>
 
@@ -77,15 +79,18 @@ export const EnviosPage = () => {
             <div className="filter-tags">
               {activeFilters.status && (
                 <span className="filter-tag">
-                  Status: {activeFilters.status === 'em-transito' ? 'Em Trânsito' :
-                    activeFilters.status === 'concluido' ? 'Entregue' :
-                      activeFilters.status === 'documentacao' ? 'Pendente' : activeFilters.status}
+                  Status:{" "}
+                  {activeFilters.status === "em-transito"
+                    ? "Em Trânsito"
+                    : activeFilters.status === "concluido"
+                    ? "Entregue"
+                    : activeFilters.status === "documentacao"
+                    ? "Pendente"
+                    : activeFilters.status}
                 </span>
               )}
-              {activeFilters.filter === 'this-month' && (
-                <span className="filter-tag">
-                  Este Mês
-                </span>
+              {activeFilters.filter === "this-month" && (
+                <span className="filter-tag">Este Mês</span>
               )}
             </div>
           </div>
@@ -94,7 +99,6 @@ export const EnviosPage = () => {
         <ShippingTable
           onShipmentUpdate={handleShipmentUpdate}
           initialFilters={activeFilters}
-          shipments={shipments}
         />
       </div>
       <ChatAssistant />
