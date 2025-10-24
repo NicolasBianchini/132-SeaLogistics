@@ -141,12 +141,13 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
           errorCount > 0 ? ` (${errorCount} erros)` : ""
         }`
       );
-      if (errorCount === 0) {
-        setExcelData([]); // Limpar dados após salvar com sucesso
-      }
+      setExcelData([]);
+      onDataUpdate([]);
     } catch (error) {
       console.error("Erro ao salvar dados no banco:", error);
       setError("Erro ao salvar dados no banco de dados");
+      setExcelData([]);
+      onDataUpdate([]);
     } finally {
       setIsSavingToDb(false);
     }
