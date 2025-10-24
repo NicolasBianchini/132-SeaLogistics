@@ -3,8 +3,10 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -21,7 +23,10 @@ import {
   useState,
 } from "react";
 import { db } from "../lib/firebaseConfig";
-import { sendEmail, sendMaritimeShipmentUpdateEmail } from "../services/emailService";
+import {
+  sendEmail,
+  sendMaritimeShipmentUpdateEmail,
+} from "../services/emailService";
 import { UserRole } from "../types/user";
 import { useAuth } from "./auth-context";
 
@@ -59,6 +64,7 @@ interface ShipmentsContextType {
   updateShipment: (shipment: Shipment) => Promise<void>;
   canEditShipment: (shipment: Shipment) => boolean;
   canCreateShipment: () => boolean;
+  deleteAllShipments: () => Promise<void>;
   loading: boolean;
 }
 
@@ -191,21 +197,66 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                                     <h2>Novo envio criado</h2>
                                     <p>Um novo envio foi criado com os seguintes detalhes:</p>
                                     <ul>
-                                        <li><strong>Número BL:</strong> ${shipmentData.numeroBl}</li>
-                                        <li><strong>Cliente:</strong> ${shipmentData.cliente}</li>
-                                        <li><strong>Operador:</strong> ${shipmentData.operador}</li>
-                                        <li><strong>Tipo de Transporte:</strong> ${shipmentData.tipo || 'Não especificado'}</li>
-                                        <li><strong>${shipmentData.tipo === 'Aéreo' ? 'Aeroporto' : shipmentData.tipo === 'Terrestre' ? 'Local' : 'Porto'} de Origem:</strong> ${shipmentData.pol}</li>
-                                        <li><strong>${shipmentData.tipo === 'Aéreo' ? 'Aeroporto' : shipmentData.tipo === 'Terrestre' ? 'Local' : 'Porto'} de Destino:</strong> ${shipmentData.pod}</li>
-                                        <li><strong>ETD Origem:</strong> ${shipmentData.etdOrigem}</li>
-                                        <li><strong>ETA Destino:</strong> ${shipmentData.etaDestino}</li>
-                                        <li><strong>Localização Atual:</strong> ${shipmentData.currentLocation}</li>
-                                        <li><strong>Quantidade de Containers:</strong> ${shipmentData.quantBox}</li>
-                                        <li><strong>Status:</strong> ${shipmentData.status}</li>
-                                        <li><strong>Armador:</strong> ${shipmentData.armador}</li>
-                                        <li><strong>Booking:</strong> ${shipmentData.booking}</li>
-                                        <li><strong>Invoice:</strong> ${shipmentData.invoice}</li>
-                                        ${shipmentData.observacoes ? `<li><strong>Observações:</strong> ${shipmentData.observacoes}</li>` : ''}
+                                        <li><strong>Número BL:</strong> ${
+                                          shipmentData.numeroBl
+                                        }</li>
+                                        <li><strong>Cliente:</strong> ${
+                                          shipmentData.cliente
+                                        }</li>
+                                        <li><strong>Operador:</strong> ${
+                                          shipmentData.operador
+                                        }</li>
+                                        <li><strong>Tipo de Transporte:</strong> ${
+                                          shipmentData.tipo ||
+                                          "Não especificado"
+                                        }</li>
+                                        <li><strong>${
+                                          shipmentData.tipo === "Aéreo"
+                                            ? "Aeroporto"
+                                            : shipmentData.tipo === "Terrestre"
+                                            ? "Local"
+                                            : "Porto"
+                                        } de Origem:</strong> ${
+                  shipmentData.pol
+                }</li>
+                                        <li><strong>${
+                                          shipmentData.tipo === "Aéreo"
+                                            ? "Aeroporto"
+                                            : shipmentData.tipo === "Terrestre"
+                                            ? "Local"
+                                            : "Porto"
+                                        } de Destino:</strong> ${
+                  shipmentData.pod
+                }</li>
+                                        <li><strong>ETD Origem:</strong> ${
+                                          shipmentData.etdOrigem
+                                        }</li>
+                                        <li><strong>ETA Destino:</strong> ${
+                                          shipmentData.etaDestino
+                                        }</li>
+                                        <li><strong>Localização Atual:</strong> ${
+                                          shipmentData.currentLocation
+                                        }</li>
+                                        <li><strong>Quantidade de Containers:</strong> ${
+                                          shipmentData.quantBox
+                                        }</li>
+                                        <li><strong>Status:</strong> ${
+                                          shipmentData.status
+                                        }</li>
+                                        <li><strong>Armador:</strong> ${
+                                          shipmentData.armador
+                                        }</li>
+                                        <li><strong>Booking:</strong> ${
+                                          shipmentData.booking
+                                        }</li>
+                                        <li><strong>Invoice:</strong> ${
+                                          shipmentData.invoice
+                                        }</li>
+                                        ${
+                                          shipmentData.observacoes
+                                            ? `<li><strong>Observações:</strong> ${shipmentData.observacoes}</li>`
+                                            : ""
+                                        }
                                     </ul>
                                 `,
               });
@@ -298,10 +349,10 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                 companyData.contactEmail
               );
               // Usar o novo template de email para embarques marítimos
-              if (updatedShipment.tipo === 'Marítimo') {
+              if (updatedShipment.tipo === "Marítimo") {
                 await sendMaritimeShipmentUpdateEmail(
                   companyData.contactEmail,
-                  companyData.name || 'Cliente',
+                  companyData.name || "Cliente",
                   {
                     vessel: updatedShipment.armador,
                     originPort: updatedShipment.pol,
@@ -312,9 +363,13 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                     eta: updatedShipment.etaDestino,
                     currentLocation: updatedShipment.currentLocation,
                     status: updatedShipment.status,
-                    imo: updatedShipment.imo || '9735206',
-                    actualDeparture: updatedShipment.actualDeparture || `${updatedShipment.etdOrigem} 21:19 (UTC-5)`,
-                    reportedEta: updatedShipment.reportedEta || `${updatedShipment.etaDestino} 12:00 (UTC-3)`
+                    imo: updatedShipment.imo || "9735206",
+                    actualDeparture:
+                      updatedShipment.actualDeparture ||
+                      `${updatedShipment.etdOrigem} 21:19 (UTC-5)`,
+                    reportedEta:
+                      updatedShipment.reportedEta ||
+                      `${updatedShipment.etaDestino} 12:00 (UTC-3)`,
                   }
                 );
               } else {
@@ -326,15 +381,32 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
                                     <h2>Status do envio atualizado</h2>
                                     <p>O status do seu envio foi atualizado:</p>
                                     <ul>
-                                        <li><strong>Número BL:</strong> ${updatedShipment.numeroBl}</li>
+                                        <li><strong>Número BL:</strong> ${
+                                          updatedShipment.numeroBl
+                                        }</li>
                                         <li><strong>Status Anterior:</strong> ${oldStatus}</li>
-                                        <li><strong>Novo Status:</strong> ${updatedShipment.status}</li>
-                                        <li><strong>Cliente:</strong> ${updatedShipment.cliente}</li>
-                                        <li><strong>Tipo de Transporte:</strong> ${updatedShipment.tipo || 'Não especificado'}</li>
-                                        <li><strong>Porto de Origem:</strong> ${updatedShipment.pol}</li>
-                                        <li><strong>Porto de Destino:</strong> ${updatedShipment.pod}</li>
-                                        <li><strong>Localização Atual:</strong> ${updatedShipment.currentLocation}</li>
-                                        <li><strong>Observações:</strong> ${updatedShipment.observacoes}</li>
+                                        <li><strong>Novo Status:</strong> ${
+                                          updatedShipment.status
+                                        }</li>
+                                        <li><strong>Cliente:</strong> ${
+                                          updatedShipment.cliente
+                                        }</li>
+                                        <li><strong>Tipo de Transporte:</strong> ${
+                                          updatedShipment.tipo ||
+                                          "Não especificado"
+                                        }</li>
+                                        <li><strong>Porto de Origem:</strong> ${
+                                          updatedShipment.pol
+                                        }</li>
+                                        <li><strong>Porto de Destino:</strong> ${
+                                          updatedShipment.pod
+                                        }</li>
+                                        <li><strong>Localização Atual:</strong> ${
+                                          updatedShipment.currentLocation
+                                        }</li>
+                                        <li><strong>Observações:</strong> ${
+                                          updatedShipment.observacoes
+                                        }</li>
                                     </ul>
                                 `,
                 });
@@ -384,12 +456,47 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
     return isAdmin();
   };
 
+  const deleteAllShipments = async () => {
+    try {
+      if (!currentUser) {
+        throw new Error("Usuário não autenticado");
+      }
+
+      if (!isAdmin()) {
+        throw new Error(
+          "Apenas administradores podem deletar todos os shipments"
+        );
+      }
+
+      console.log("Deletando todos os shipments do banco de dados...");
+
+      // Query all shipments
+      const q = query(collection(db, "shipments"));
+      const querySnapshot = await getDocs(q);
+
+      // Delete each shipment
+      const deletePromises = querySnapshot.docs.map((document) =>
+        deleteDoc(doc(db, "shipments", document.id))
+      );
+
+      await Promise.all(deletePromises);
+
+      console.log(
+        `${querySnapshot.docs.length} shipments deletados com sucesso`
+      );
+    } catch (error) {
+      console.error("Error deleting all shipments: ", error);
+      throw error;
+    }
+  };
+
   const value: ShipmentsContextType = {
     shipments,
     addShipment,
     updateShipment,
     canEditShipment,
     canCreateShipment,
+    deleteAllShipments,
     loading,
   };
 

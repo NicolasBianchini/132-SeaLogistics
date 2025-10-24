@@ -21,7 +21,7 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
   const [syncInterval, setSyncInterval] = useState<NodeJS.Timeout | null>(null);
   const [excelData, setExcelData] = useState<any[]>([]);
   const [isSavingToDb, setIsSavingToDb] = useState(false);
-  const { addShipment } = useShipments();
+  const { addShipment, deleteAllShipments } = useShipments();
 
   useEffect(() => {
     if (config) {
@@ -106,6 +106,12 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
     let errorCount = 0;
 
     try {
+      console.log(
+        "Deletando todos os shipments existentes do banco de dados..."
+      );
+      await deleteAllShipments();
+      console.log("Shipments deletados com sucesso");
+
       for (const shipment of excelData) {
         try {
           // Preparar dados para salvar
