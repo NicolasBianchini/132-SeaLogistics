@@ -9,6 +9,13 @@ export interface ExcelTable {
   address: string;
   hasHeaders: boolean;
   rows: ExcelRow[];
+  columns?: ExcelColumn[];
+}
+
+export interface ExcelColumn {
+  id: string;
+  name: string;
+  // add other properties as needed
 }
 
 export interface ExcelRow {
