@@ -38,6 +38,7 @@ export interface ExcelWorkbook {
 export interface ExcelConfig {
   workbookId: string;
   worksheetName: string;
+  worksheetDisplayName?: string;
   tableName: string;
   headers: string[];
   mapping: Record<string, string>;
@@ -806,6 +807,14 @@ class ExcelService {
         );
       }
 
+      const tipoDetectado = config.worksheetDisplayName
+        ? this.detectTipoFromWorksheetName(config.worksheetDisplayName)
+        : "Marítimo";
+
+      console.log(
+        `[v0] Tipo detectado da planilha "${config.worksheetDisplayName}": ${tipoDetectado}`
+      );
+
       // Converte dados do Excel para formato do sistema
       const shipments = rows.slice(1).map((row, index) => {
         // Pula cabeçalho
@@ -816,6 +825,9 @@ class ExcelService {
             shipment[mappedField] = row.values[headerIndex] || "";
           }
         });
+
+        shipment.tipo = tipoDetectado;
+
         return shipment;
       });
 
@@ -1044,6 +1056,30 @@ class ExcelService {
       console.error("Erro ao obter planilha específica:", error);
       throw error;
     }
+  }
+
+  /**
+   * Detecta o tipo de transporte baseado no nome da planilha
+   */
+  private detectTipoFromWorksheetName(worksheetName: string): string {
+    const normalizedName = worksheetName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+
+    if (normalizedName.includes("aereo") || normalizedName.includes("aéreo")) {
+      return "Aéreo";
+    }
+
+    if (
+      normalizedName.includes("maritimo") ||
+      normalizedName.includes("marítimo")
+    ) {
+      return "Marítimo";
+    }
+
+    // Default para marítimo se não conseguir detectar
+    return "Marítimo";
   }
 }
 

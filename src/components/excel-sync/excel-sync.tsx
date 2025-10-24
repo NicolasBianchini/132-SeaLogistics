@@ -295,7 +295,9 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
         </div>
         <div className="sync-info-item">
           <span className="info-label">📋 Planilha:</span>
-          <span className="info-value">{config.worksheetName}</span>
+          <span className="info-value">
+            {config.worksheetDisplayName || config.worksheetName}
+          </span>
         </div>
         <div className="sync-info-item">
           <span className="info-label">📊 Tabela:</span>
