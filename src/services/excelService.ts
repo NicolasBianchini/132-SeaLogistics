@@ -45,7 +45,7 @@ export interface ExcelConfig {
 
 class ExcelService {
   private accessToken: string | null = null;
-  private isAuthenticating: boolean = false;
+  private isAuthenticating = false;
   private baseUrl = azureConfig.graphApiUrl;
 
   // URL da planilha específica do usuário
@@ -705,7 +705,7 @@ class ExcelService {
 
     try {
       const response = await fetch(
-        `${this.baseUrl}/me/drive/items/${workbookId}/workbook/worksheets/${tableId}/rows/${rowId}`,
+        `${this.baseUrl}/me/drive/items/${workbookId}/workbook/worksheets/${worksheetId}/tables/${tableId}/rows/${rowId}`,
         {
           method: "DELETE",
           headers: {
@@ -859,9 +859,8 @@ class ExcelService {
         );
       }
 
-      // Busca dados de uma faixa específica da planilha (ex: A1:K100)
       const response = await fetch(
-        `${this.baseUrl}/me/drive/items/${workbookId}/workbook/worksheets/${worksheetId}/range(address='A1:K100')`,
+        `${this.baseUrl}/me/drive/items/${workbookId}/workbook/worksheets/${worksheetId}/usedRange`,
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
@@ -885,13 +884,21 @@ class ExcelService {
 
       if (data.values && Array.isArray(data.values)) {
         data.values.forEach((rowValues: any[], index: number) => {
-          rows.push({
-            id: `row_${index}`,
-            values: rowValues || [],
-          });
+          // Verifica se a linha tem pelo menos um valor não vazio
+          const hasData = rowValues.some(
+            (cell) => cell !== null && cell !== undefined && cell !== ""
+          );
+
+          if (hasData) {
+            rows.push({
+              id: `row_${index}`,
+              values: rowValues || [],
+            });
+          }
         });
       }
 
+      console.log(`[v0] Dados carregados: ${rows.length} linhas com dados`);
       return rows;
     } catch (error) {
       console.error("Erro ao obter dados diretos da planilha:", error);

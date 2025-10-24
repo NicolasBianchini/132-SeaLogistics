@@ -28,7 +28,6 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>("");
 
-  // Campos disponíveis para mapeamento
   const availableFields = [
     { key: "shipmentNumber", label: "Número do Envio" },
     { key: "origin", label: "Origem" },
@@ -105,12 +104,10 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
         );
 
         if (worksheet) {
-          // Se há apenas uma tabela, seleciona automaticamente
           if (worksheet.tables.length === 1) {
             setSelectedTable(worksheet.tables[0].id);
             await handleTableChange(worksheet.tables[0].id);
           } else if (worksheet.tables.length === 0) {
-            // Se não há tabelas, cria uma estrutura padrão
             await createDefaultStructure(selectedWorkbook, worksheetId);
           }
         }
@@ -134,12 +131,10 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
         const table = worksheet?.tables.find((t) => t.id === tableId);
 
         if (table) {
-          // Para dados mock, usa as colunas como headers
           if (selectedWorkbook.startsWith("mock_") && table.columns) {
             const mockHeaders = table.columns.map((col) => col.name);
             setHeaders(mockHeaders);
 
-            // Mapeia automaticamente campos com nomes similares
             const autoMapping: Record<string, string> = {};
             mockHeaders.forEach((header: string, index: number) => {
               const field = availableFields.find(
@@ -153,11 +148,9 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
             });
             setMapping(autoMapping);
           } else if (table.rows && table.rows.length > 0) {
-            // Para dados reais, usa a primeira linha como cabeçalho
             const headerRow = table.rows[0];
             setHeaders(headerRow.values);
 
-            // Mapeia automaticamente campos com nomes similares
             const autoMapping: Record<string, string> = {};
             headerRow.values.forEach((header: string, index: number) => {
               const field = availableFields.find(
@@ -190,7 +183,6 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
     worksheetId: string
   ) => {
     try {
-      // Cria uma estrutura padrão baseada nas colunas esperadas
       const defaultHeaders = [
         "Cliente",
         "Tipo",
@@ -207,7 +199,6 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
 
       setHeaders(defaultHeaders);
 
-      // Mapeia automaticamente os campos
       const autoMapping: Record<string, string> = {};
       defaultHeaders.forEach((header) => {
         const field = availableFields.find(
@@ -221,7 +212,6 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
       });
       setMapping(autoMapping);
 
-      // Define uma tabela padrão
       setSelectedTable("default_table");
     } catch (error) {
       console.error("Erro ao criar estrutura padrão:", error);
@@ -234,7 +224,6 @@ const ExcelConfigModal: React.FC<ExcelConfigProps> = ({
       return;
     }
 
-    // Para dados mock, não exige headers
     if (!selectedWorkbook.startsWith("mock_") && headers.length === 0) {
       setError("Por favor, aguarde o carregamento dos cabeçalhos da tabela");
       return;
