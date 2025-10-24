@@ -108,13 +108,6 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
     try {
       for (const shipment of excelData) {
         try {
-          // Validar dados obrigatórios
-          if (!shipment.cliente || !shipment.numeroBl) {
-            console.warn("Shipment sem cliente ou número BL:", shipment);
-            errorCount++;
-            continue;
-          }
-
           // Preparar dados para salvar
           const shipmentToSave = {
             cliente: shipment.cliente || "",
