@@ -494,6 +494,7 @@ const ShippingTable = ({
                   <th>{translations.pod}</th>
                   <th>{translations.etdOrigin}</th>
                   <th>{translations.etaDestination}</th>
+                  <th>{translations.currentLocation}</th>
                   <th>{translations.quantBox}</th>
                   <th>{translations.blNumber}</th>
                   <th>{translations.carrier}</th>
@@ -519,7 +520,6 @@ const ShippingTable = ({
                       </span>
                     </td>
                     <td>{shipment.shipper}</td>
-                    <td>{shipment.operador || "-"}</td>
                     <td>{shipment.pol}</td>
                     <td>{shipment.pod}</td>
                     <td>{formatDate(shipment.etdOrigem)}</td>
@@ -527,7 +527,7 @@ const ShippingTable = ({
                     <td>{shipment.currentLocation || "-"}</td>
                     <td>{shipment.quantBox}</td>
                     <td>{shipment.numeroBl}</td>
-                    <td>{shipment.armador}</td>
+                    <td>{shipment.operador}</td>
                     <td>{shipment.booking}</td>
                     <td>{shipment.invoice || "-"}</td>
                     <td>

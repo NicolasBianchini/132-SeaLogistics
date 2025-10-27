@@ -249,6 +249,7 @@ export const translations = {
     customsDeclaration: "Customs Declaration",
     transportDocument: "Transport Document",
     other: "Other",
+    currentLocation: "Current Location",
   },
   pt: {
     // Login & Register
@@ -503,6 +504,8 @@ export const translations = {
     excelSyncError: "Erro na sincronização",
     excelDataLoaded: "Dados do Excel carregados",
     excelDataUpdated: "Dados do Excel atualizados",
+
+    currentLocation: "Local Atual",
 
     // Shipments
   },
@@ -759,5 +762,7 @@ export const translations = {
     excelSyncError: "Error en la sincronización",
     excelDataLoaded: "Datos de Excel cargados",
     excelDataUpdated: "Datos de Excel actualizados",
+
+    currentLocation: "Local Actual",
   },
 };
