@@ -502,7 +502,6 @@ const ShippingTable = ({
                   <th>{"Invoice"}</th>
                   <th>{translations.status || "Status"}</th>
                   <th>{"IMO"}</th>
-                  <th>{"Observações"}</th>
                   <th>{translations.actions}</th>
                 </tr>
               </thead>
@@ -541,16 +540,7 @@ const ShippingTable = ({
                       </span>
                     </td>
                     <td>{shipment.imo || "-"}</td>
-                    <td
-                      className="observations-cell"
-                      title={shipment.observacoes || "-"}
-                    >
-                      {shipment.observacoes
-                        ? shipment.observacoes.length > 50
-                          ? `${shipment.observacoes.substring(0, 50)}...`
-                          : shipment.observacoes
-                        : "-"}
-                    </td>
+
                     <td>
                       <div className="action-icons">
                         {isAdmin() && (
