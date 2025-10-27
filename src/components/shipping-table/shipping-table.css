@@ -5,9 +5,7 @@
   position: relative;
   overflow: visible;
   isolation: isolate;
-  /* Garantir contexto de empilhamento consistente */
   z-index: 1;
-  /* Garantir que o contexto de empilhamento seja estável */
   transform: translateZ(0);
 }
 
@@ -27,7 +25,11 @@
   align-items: center;
   gap: 8px;
   padding: 10px 16px;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    var(--secondary-color) 100%
+  );
   color: white;
   border: none;
   border-radius: 8px;
@@ -49,7 +51,7 @@
 
 .export-all-button:disabled {
   opacity: 0.6;
-  cursor:  not-allowed;
+  cursor: not-allowed;
   transform: none;
 }
 
@@ -64,9 +66,7 @@
   border: 1px solid rgba(0, 0, 0, 0.05);
   position: relative;
   isolation: isolate;
-  /* Garantir contexto de empilhamento consistente */
   z-index: 1;
-  /* Garantir que o contexto de empilhamento seja estável */
   transform: translateZ(0);
 }
 
@@ -75,6 +75,7 @@
   border-collapse: collapse;
   min-height: 180px;
   position: relative;
+  table-layout: fixed;
 }
 
 .shipping-table tbody {
@@ -83,10 +84,27 @@
 
 .shipping-table tbody tr {
   min-height: 36px;
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .shipping-table tbody tr:last-child {
   border-bottom: none;
+}
+
+.shipping-table tbody tr:nth-child(even) {
+  background-color: rgba(49, 88, 81, 0.03);
+}
+
+.shipping-table tbody tr:hover {
+  background-color: #f0f8ff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.shipping-table tbody tr:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .shipping-table th,
@@ -96,44 +114,9 @@
   vertical-align: middle;
   border-bottom: 1px solid #e9ecef;
   font-size: 13px;
-}
-
-.shipping-table td {
-  position: relative;
-  overflow: visible;
-  white-space: normal;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  line-height: 1.4;
-}
-
-/* Sistema de z-index hierárquico para a tabela */
-.shipping-table {
-  isolation: isolate;
-  /* Garantir contexto de empilhamento consistente */
+  box-sizing: border-box;
   position: relative;
   z-index: 1;
-}
-
-.shipping-table td {
-  isolation: isolate;
-  /* Garantir contexto de empilhamento consistente */
-  position: relative;
-  z-index: 1;
-}
-
-/* Permitir quebra de linha em células específicas */
-.shipping-table td.allow-wrap {
-  white-space: normal;
-  word-wrap: break-word;
-}
-
-/* Estilo para células com dados longos */
-.shipping-table td.truncate {
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .shipping-table th {
@@ -146,117 +129,12 @@
   padding: 8px 6px;
 }
 
-.shipping-table tr:nth-child(even) {
-  background-color: rgba(49, 88, 81, 0.03);
-}
-
-.shipping-table tr:hover {
-  background-color: #f0f8ff;
-  transition: all 0.2s ease;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.shipping-table tr {
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.shipping-table tr:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-@media screen and (max-width: 1900px) {
-  .shipping-table-container {
-    max-width: 1600px;
-  }
-}
-
-@media screen and (max-width: 1500px) {
-  .shipping-table-container {
-    max-width: 1200px;
-  }
-}
-
-@media screen and (max-width: 1300px) {
-  .shipping-table-container {
-    max-width: 1000px;
-  }
-}
-
-@media screen and (max-width: 1100px) {
-  .shipping-table-container {
-    max-width: 900px;
-  }
-}
-
-@media screen and (max-width: 1000px) {
-  .shipping-table-container {
-    max-width: 800px;
-  }
-}
-
-@media screen and (max-width: 900px) {
-  .shipping-table-container {
-    max-width: 700px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .shipping-table-container {
-    padding: 10px;
-  }
-
-  .shipping-table th,
-  .shipping-table td {
-    padding: 6px 8px;
-    font-size: 11px;
-  }
-  
-  .shipping-table-title {
-    font-size: 20px;
-  }
-}
-
-/* Estilos para telas muito grandes - tornar mais compacta */
-@media screen and (min-width: 1920px) {
-  .shipping-table th,
-  .shipping-table td {
-    padding: 6px 4px;
-    font-size: 11px;
-  }
-  
-  .shipping-table tbody tr {
-    min-height: 28px;
-  }
-  
-  .shipping-table-container {
-    padding: 12px;
-  }
-  
-  .shipping-table-title {
-    font-size: 22px;
-  }
-}
-
-/* Estilos para telas ultra-wide */
-@media screen and (min-width: 2560px) {
-  .shipping-table th,
-  .shipping-table td {
-    padding: 4px 3px;
-    font-size: 10px;
-  }
-  
-  .shipping-table tbody tr {
-    min-height: 24px;
-  }
-  
-  .action-button {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-  }
+.shipping-table td {
+  overflow: visible;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
 }
 
 .table-wrapper::-webkit-scrollbar {
@@ -271,314 +149,6 @@
 .table-wrapper::-webkit-scrollbar-thumb {
   background-color: var(--primary-dark);
   border-radius: 4px;
-}
-
-/* Estilos para botões de ação na tabela */
-.action-buttons {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  z-index: 10;
-}
-
-.action-button {
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 12px;
-}
-
-.action-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.action-button:active {
-  transform: scale(0.95);
-}
-
-/* Cores dos botões de ação */
-.action-button.edit {
-  background: #3b82f6;
-  color: white;
-}
-
-.action-button.copy {
-  background: #f59e0b;
-  color: white;
-}
-
-.action-button.confirm {
-  background: #10b981;
-  color: white;
-}
-
-.action-button.download {
-  background: #6366f1;
-  color: white;
-}
-
-/* Melhorar a responsividade da tabela */
-.shipping-table {
-  table-layout: fixed;
-  width: 100%;
-}
-
-.shipping-table th:nth-child(1), /* CLIENTE */
-.shipping-table td:nth-child(1) {
-  width: 11%;
-}
-
-.shipping-table th:nth-child(2), /* TIPO */
-.shipping-table td:nth-child(2) {
-  width: 8%;
-}
-
-.shipping-table th:nth-child(3), /* SHIPPER */
-.shipping-table td:nth-child(3) {
-  width: 6%;
-}
-
-.shipping-table th:nth-child(4), /* POL */
-.shipping-table td:nth-child(4) {
-  width: 11%;
-}
-
-.shipping-table th:nth-child(5), /* POD */
-.shipping-table td:nth-child(5) {
-  width: 11%;
-}
-
-.shipping-table th:nth-child(6), /* ETD */
-.shipping-table td:nth-child(6) {
-  width: 8%;
-}
-
-.shipping-table th:nth-child(7), /* ETA */
-.shipping-table td:nth-child(7) {
-  width: 8%;
-}
-
-.shipping-table th:nth-child(8), /* QUANT BOX */
-.shipping-table td:nth-child(8) {
-  width: 6%;
-}
-
-.shipping-table th:nth-child(9), /* N° BL */
-.shipping-table td:nth-child(9) {
-  width: 8%;
-}
-
-.shipping-table th:nth-child(10), /* ARMADOR */
-.shipping-table td:nth-child(10) {
-  width: 8%;
-}
-
-.shipping-table th:nth-child(11), /* BOOKING */
-.shipping-table td:nth-child(11) {
-  width: 8%;
-}
-
-.shipping-table th:nth-child(12), /* FATURA */
-.shipping-table td:nth-child(12) {
-  width: 8%;
-}
-
-.shipping-table th:nth-child(13), /* AÇÕES */
-.shipping-table td:nth-child(13) {
-  width: 16%;
-  position: relative;
-  z-index: 100;
-  overflow: visible;
-  /* Garantir espaçamento adequado */
-  padding-right: 12px !important;
-  /* Prevenir quebra de texto */
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-/* ===== CORREÇÃO CRÍTICA: PREVENIR SOBREPOSIÇÃO DE TEXTO ===== */
-
-/* Garantir que cada coluna tenha seu espaço bem definido */
-.shipping-table th,
-.shipping-table td {
-  /* Espaçamento interno consistente */
-  padding: 10px 8px !important;
-  /* Garantir que o texto não se sobreponha */
-  box-sizing: border-box !important;
-  /* Permitir quebra de linha para textos longos */
-  white-space: normal !important;
-  word-wrap: break-word !important;
-  overflow-wrap: break-word !important;
-  /* Garantir que cada coluna tenha seu espaço */
-  min-width: 0 !important;
-  max-width: none !important;
-}
-
-/* Permitir quebra de linha em células específicas quando necessário */
-.shipping-table td.allow-wrap {
-  white-space: normal !important;
-  word-wrap: break-word !important;
-  overflow-wrap: break-word !important;
-  /* Garantir que o texto quebre adequadamente */
-  line-height: 1.4 !important;
-}
-
-/* Estilo para células com dados longos */
-.shipping-table td.truncate {
-  max-width: 120px !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  /* Garantir que não haja sobreposição */
-  padding-right: 12px !important;
-}
-
-/* ===== GARANTIR ESPAÇAMENTO ENTRE COLUNAS ===== */
-
-/* Manter apenas espaçamento invisível entre colunas */
-.shipping-table th,
-.shipping-table td {
-  /* Sem bordas visíveis - apenas espaçamento interno */
-  border-right: none !important;
-}
-
-/* Última coluna sem borda direita */
-.shipping-table th:last-child,
-.shipping-table td:last-child {
-  border-right: none !important;
-}
-
-/* ===== RESPONSIVIDADE MELHORADA ===== */
-
-/* Para telas menores, ajustar larguras das colunas */
-@media screen and (max-width: 1200px) {
-  .shipping-table th:nth-child(1), /* CLIENTE */
-  .shipping-table td:nth-child(1) {
-    width: 12% !important;
-    padding-right: 8px !important;
-  }
-  
-  .shipping-table th:nth-child(4), /* POL */
-  .shipping-table td:nth-child(4) {
-    width: 12% !important;
-    padding-right: 8px !important;
-  }
-  
-  .shipping-table th:nth-child(5), /* POD */
-  .shipping-table td:nth-child(5) {
-    width: 12% !important;
-    padding-right: 8px !important;
-  }
-}
-
-/* Para telas muito pequenas, permitir quebra de linha */
-@media screen and (max-width: 768px) {
-  .shipping-table th,
-  .shipping-table td {
-    /* Permitir quebra de linha em telas pequenas */
-    white-space: normal !important;
-    word-wrap: break-word !important;
-    overflow-wrap: break-word !important;
-    /* Reduzir padding para economizar espaço */
-    padding: 6px 4px !important;
-  }
-  
-  .shipping-table th:nth-child(4), /* POL */
-  .shipping-table td:nth-child(4),
-  .shipping-table th:nth-child(5), /* POD */
-  .shipping-table td:nth-child(5) {
-    /* Aumentar largura para evitar sobreposição */
-    width: 15% !important;
-    padding-right: 6px !important;
-  }
-}
-
-/* ===== CORREÇÃO ESPECÍFICA PARA COLUNAS POL E POD ===== */
-
-/* Garantir que as colunas POL e POD tenham espaço suficiente */
-.shipping-table th:nth-child(4), /* POL */
-.shipping-table td:nth-child(4) {
-  /* Aumentar largura para evitar sobreposição */
-  width: 12% !important;
-  /* Garantir espaçamento adequado */
-  padding-right: 16px !important;
-  /* Prevenir quebra de texto */
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  /* Garantir que não haja sobreposição */
-  min-width: 120px !important;
-}
-
-.shipping-table th:nth-child(5), /* POD */
-.shipping-table td:nth-child(5) {
-  /* Aumentar largura para evitar sobreposição */
-  width: 12% !important;
-  /* Garantir espaçamento adequado */
-  padding-right: 16px !important;
-  /* Prevenir quebra de texto */
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  /* Garantir que não haja sobreposição */
-  min-width: 120px !important;
-}
-
-/* ===== GARANTIR SEPARAÇÃO VISUAL ENTRE COLUNAS ===== */
-
-/* Adicionar separadores visuais entre colunas críticas */
-.shipping-table th:nth-child(3), /* SHIPPER */
-.shipping-table td:nth-child(3) {
-  /* Remover bordas visíveis - manter apenas espaçamento invisível */
-  border-right: none !important;
-}
-
-.shipping-table th:nth-child(4), /* POL */
-.shipping-table td:nth-child(4) {
-  /* Remover bordas visíveis - manter apenas espaçamento invisível */
-  border-right: none !important;
-}
-
-.shipping-table th:nth-child(5), /* POD */
-.shipping-table td:nth-child(5) {
-  /* Remover bordas visíveis - manter apenas espaçamento invisível */
-  border-right: none !important;
-}
-
-/* ===== PREVENIR SOBREPOSIÇÃO EM TODAS AS COLUNAS ===== */
-
-/* Garantir que todas as colunas tenham espaço adequado */
-.shipping-table th,
-.shipping-table td {
-  /* Garantir que o texto não se sobreponha */
-  box-sizing: border-box !important;
-  /* Prevenir quebra de linha indesejada */
-  white-space: nowrap !important;
-  /* Garantir que o texto seja cortado se necessário */
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  /* Garantir que cada coluna tenha seu espaço */
-  min-width: 0 !important;
-  max-width: none !important;
-  /* Espaçamento interno consistente */
-  padding: 10px 8px !important;
-  /* Garantir que não haja sobreposição */
-  position: relative !important;
-  z-index: 1 !important;
-  /* Remover todas as bordas visíveis */
-  border-right: none !important;
-  border-left: none !important;
-  border-top: none !important;
-  border-bottom: 1px solid #e9ecef !important;
 }
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
@@ -608,7 +178,6 @@
   margin-top: 0;
 }
 
-/* Estilos para os ícones de ação */
 .action-icons {
   display: flex;
   gap: 10px;
@@ -653,7 +222,6 @@
 .check-icon:hover:not(:disabled) {
   background: #218838;
   border-color: #1e7e34;
-  color: #ffffff;
 }
 
 .edit-icon {
@@ -665,10 +233,8 @@
 .edit-icon:hover:not(:disabled) {
   background: #0056b3;
   border-color: #004085;
-  color: #ffffff;
 }
 
-/* Estilo para o botão de documentos */
 .documents-icon {
   color: #ffffff;
   background: #fd7e14;
@@ -678,10 +244,8 @@
 .documents-icon:hover:not(:disabled) {
   background: #e55a00;
   border-color: #cc4c00;
-  color: #ffffff;
 }
 
-/* Estilo para o botão de visualizar documentos */
 .view-documents-icon {
   color: #ffffff;
   background: #17a2b8;
@@ -691,25 +255,8 @@
 .view-documents-icon:hover:not(:disabled) {
   background: #138496;
   border-color: #117a8b;
-  color: #ffffff;
 }
 
-/* Estilo para o ícone de documento/arquivo (exportar Excel) */
-.action-icon:has(svg[data-lucide="file-text"]),
-.action-icon:has(svg[data-lucide="FileText"]) {
-  color: #ffffff;
-  background: #6f42c1;
-  border: 1px solid #6f42c1;
-}
-
-.action-icon:has(svg[data-lucide="file-text"]):hover:not(:disabled),
-.action-icon:has(svg[data-lucide="FileText"]):hover:not(:disabled) {
-  background: #5a32a3;
-  border-color: #4c2d8a;
-  color: #ffffff;
-}
-
-/* Fallback para navegadores que não suportam :has() */
 .file-icon {
   color: #ffffff;
   background: #6f42c1;
@@ -719,27 +266,8 @@
 .file-icon:hover:not(:disabled) {
   background: #5a32a3;
   border-color: #4c2d8a;
-  color: #ffffff;
 }
 
-/* Responsividade para os ícones */
-@media (max-width: 768px) {
-  .action-icons {
-    gap: 6px;
-  }
-
-  .action-icon {
-    width: 32px;
-    height: 32px;
-  }
-
-  .action-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-}
-
-/* Estilos para os badges de tipo de transporte */
 .tipo-badge {
   display: inline-block;
   padding: 4px 8px;
@@ -772,7 +300,65 @@
   color: white;
 }
 
-/* Modal de Gerenciamento de Documentos */
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+  min-width: 80px;
+  white-space: nowrap;
+}
+
+.status-documentacao,
+.status-pendente {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.status-em-transito,
+.status-em-trânsito {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.status-concluido,
+.status-entregue {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-atrasado,
+.status-delayed {
+  background-color: #dc3545;
+  color: white;
+}
+
+.status-unknown {
+  background-color: #6c757d;
+  color: white;
+}
+
+.observations-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: help;
+  position: relative;
+}
+
+.observations-cell:hover {
+  overflow: visible;
+  white-space: normal;
+  background-color: #f8f9fa;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 .documents-modal-overlay {
   position: fixed;
   top: 0;
@@ -874,108 +460,32 @@
   transition: all 0.2s ease;
 }
 
-.document-upload-area:hover {
-  border-color: #118ab2;
-  background: #e3f2fd;
-}
+@media screen and (max-width: 768px) {
+  .shipping-table-container {
+    padding: 10px;
+  }
 
-.document-upload-area input[type="file"] {
-  width: 100%;
-  margin-bottom: 1rem;
-}
+  .shipping-table th,
+  .shipping-table td {
+    padding: 6px 8px;
+    font-size: 11px;
+  }
 
-.upload-hint {
-  margin: 0;
-  color: #6c757d;
-  font-size: 0.9rem;
-}
+  .shipping-table-title {
+    font-size: 20px;
+  }
 
-.existing-documents {
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  text-align: center;
-}
+  .action-icons {
+    gap: 6px;
+  }
 
-.no-documents {
-  margin: 0;
-  color: #6c757d;
-  font-style: italic;
-}
+  .action-icon {
+    width: 32px;
+    height: 32px;
+  }
 
-.documents-modal-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  padding: 1.5rem 2rem;
-  border-top: 1px solid #e9ecef;
-  background: #f8f9fa;
-  border-radius: 0 0 16px 16px;
-}
-
-.btn-cancel,
-.btn-save {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel {
-  background: #6c757d;
-  color: white;
-}
-
-.btn-cancel:hover {
-  background: #5a6268;
-}
-
-.btn-save {
-  background: #28a745;
-  color: white;
-}
-
-.btn-save:hover {
-  background: #218838;
-}
-
-/* CORREÇÃO PRINCIPAL: Estilos para o botão de exportação direta */
-.action-icon.export-icon {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: #008080 !important;
-  color: white !important;
-  /* Garantir que não haja interferência */
-  z-index: 1000;
-  /* Garantir contexto de empilhamento estável */
-  isolation: isolate;
-  transform: translateZ(0);
-}
-
-.action-icon.export-icon:hover {
-  background: #006666 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 128, 128, 0.3);
-}
-
-.action-icon.export-icon:active {
-  transform: scale(0.95);
-}
-
-/* Remover estilos do dropdown que não são mais necessários */
-.export-dropdown-container,
-.export-dropdown,
-.export-option {
-  display: none !important;
+  .action-icon svg {
+    width: 16px;
+    height: 16px;
+  }
 }

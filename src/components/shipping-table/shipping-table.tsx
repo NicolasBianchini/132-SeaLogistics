@@ -74,7 +74,7 @@ const ShippingTable = ({
   // Aplicar filtros iniciais quando o componente carregar
   useEffect(() => {
     if (initialFilters) {
-      let newFilters = { ...filters };
+      const newFilters = { ...filters };
 
       // Aplicar filtro de status
       if (initialFilters.status) {
@@ -396,6 +396,9 @@ const ShippingTable = ({
         ["BOOKING:", shipment.booking || "N/A"],
         ["QUANTIDADE:", `${shipment.quantBox || 1}X40HC`],
         ["N° BL:", shipment.numeroBl || "N/A"],
+        ["LOCALIZAÇÃO ATUAL:", shipment.currentLocation || "N/A"],
+        ["IMO:", shipment.imo || "N/A"],
+        ["OBSERVAÇÕES:", shipment.observacoes || "N/A"],
       ];
 
       shipmentInfo.forEach(([label, value]) => {
@@ -434,34 +437,8 @@ const ShippingTable = ({
       await sendEmail({
         to: companyData.contactEmail,
         subject: `Informações do envio - ${shipment.numeroBl}`,
-        html: `
-        <h2>Informações do envio</h2>
-        <ul>
-          <li><strong>Número BL:</strong> ${shipment.numeroBl}</li>
-          <li><strong>Cliente:</strong> ${shipment.cliente}</li>
-          <li><strong>Operador:</strong> ${shipment.operador}</li>
-          <li><strong>Porto de Origem:</strong> ${shipment.pol}</li>
-          <li><strong>Porto de Destino:</strong> ${shipment.pod}</li>
-          <li><strong>ETD Origem:</strong> ${shipment.etdOrigem}</li>
-          <li><strong>ETA Destino:</strong> ${shipment.etaDestino}</li>
-          <li><strong>Localização Atual:</strong> ${
-            shipment.currentLocation
-          }</li>
-          <li><strong>Quantidade de Containers:</strong> ${
-            shipment.quantBox
-          }</li>
-          <li><strong>Status:</strong> ${shipment.status}</li>
-          <li><strong>Armador:</strong> ${shipment.armador}</li>
-          <li><strong>Booking:</strong> ${shipment.booking}</li>
-          <li><strong>Observações:</strong> ${shipment.observacoes || "-"}</li>
-        </ul>
-      `,
+        html: "",
       });
-
-      console.log(
-        "✅ Email enviado com sucesso para:",
-        companyData.contactEmail
-      );
     } catch (error) {
       console.error("Erro ao enviar email manual:", error);
     }
@@ -521,7 +498,7 @@ const ShippingTable = ({
                   <th>{translations.blNumber}</th>
                   <th>{translations.carrier}</th>
                   <th>{translations.booking}</th>
-
+                  <th>{translations.status || "Status"}</th>
                   <th>{translations.actions}</th>
                 </tr>
               </thead>
@@ -539,15 +516,38 @@ const ShippingTable = ({
                       </span>
                     </td>
                     <td>{shipment.shipper}</td>
+                    <td>{shipment.operador || "-"}</td>
                     <td>{shipment.pol}</td>
                     <td>{shipment.pod}</td>
                     <td>{formatDate(shipment.etdOrigem)}</td>
                     <td>{formatDate(shipment.etaDestino)}</td>
+                    <td>{shipment.currentLocation || "-"}</td>
                     <td>{shipment.quantBox}</td>
                     <td>{shipment.numeroBl}</td>
                     <td>{shipment.armador}</td>
                     <td>{shipment.booking}</td>
-                    <td>{shipment.invoice}</td>
+                    <td>{shipment.invoice || "-"}</td>
+                    <td>
+                      <span
+                        className={`status-badge status-${
+                          shipment.status?.toLowerCase().replace(/\s+/g, "-") ||
+                          "unknown"
+                        }`}
+                      >
+                        {shipment.status || "N/A"}
+                      </span>
+                    </td>
+                    <td>{shipment.imo || "-"}</td>
+                    <td
+                      className="observations-cell"
+                      title={shipment.observacoes || "-"}
+                    >
+                      {shipment.observacoes
+                        ? shipment.observacoes.length > 50
+                          ? `${shipment.observacoes.substring(0, 50)}...`
+                          : shipment.observacoes
+                        : "-"}
+                    </td>
                     <td>
                       <div className="action-icons">
                         {isAdmin() && (
