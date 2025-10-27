@@ -498,7 +498,10 @@ const ShippingTable = ({
                   <th>{translations.blNumber}</th>
                   <th>{translations.carrier}</th>
                   <th>{translations.booking}</th>
+                  <th>{"Invoice"}</th>
                   <th>{translations.status || "Status"}</th>
+                  <th>{"IMO"}</th>
+                  <th>{"Observações"}</th>
                   <th>{translations.actions}</th>
                 </tr>
               </thead>
