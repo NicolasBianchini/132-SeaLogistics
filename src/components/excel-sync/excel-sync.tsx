@@ -9,9 +9,14 @@ import "./excel-sync.css";
 interface ExcelSyncProps {
   config: ExcelConfig | null;
   onDataUpdate: (data: any[]) => void;
+  currentShipments?: any[];
 }
 
-const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
+const ExcelSync: React.FC<ExcelSyncProps> = ({
+  config,
+  onDataUpdate,
+  currentShipments = [],
+}) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<Date | null>(null);
@@ -159,18 +164,37 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
     }
   };
 
-  const syncToExcel = async (shipments: any[]) => {
-    if (!config || isSyncing) return;
+  const syncToExcel = async () => {
+    if (!config || isSyncing || currentShipments.length === 0) return;
 
     setIsSyncing(true);
     setSyncStatus("Enviando dados para Excel...");
     setError("");
 
     try {
-      await excelService.syncShipmentsToExcel(config, shipments);
+      const shipmentsToSync = currentShipments.map((shipment) => ({
+        cliente: shipment.cliente || "",
+        operador: shipment.operador || "",
+        shipper: shipment.shipper || "",
+        invoice: shipment.invoice || "",
+        pol: shipment.pol || "",
+        pod: shipment.pod || "",
+        etdOrigem: shipment.etdOrigem || "",
+        etaDestino: shipment.etaDestino || "",
+        currentLocation: shipment.currentLocation || "",
+        quantBox: shipment.quantBox || 0,
+        status: shipment.status || "pendente",
+        numeroBl: shipment.numeroBl || "",
+        armador: shipment.armador || "",
+        booking: shipment.booking || "",
+        tipo: shipment.tipo || "Marítimo",
+        observacoes: shipment.observacoes || "",
+      }));
+
+      await excelService.syncShipmentsToExcel(config, shipmentsToSync);
       setLastSync(new Date());
       setSyncStatus(
-        `Dados enviados com sucesso - ${shipments.length} registros`
+        `✅ Dados enviados com sucesso para Excel - ${shipmentsToSync.length} registros`
       );
     } catch (error) {
       console.error("Erro ao enviar dados para Excel:", error);
@@ -333,7 +357,30 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({ config, onDataUpdate }) => {
           ) : (
             <>
               <span>🔄</span>
-              Sincronizar Agora
+              Sincronizar do Excel
+            </>
+          )}
+        </button>
+
+        <button
+          className="sync-button primary"
+          onClick={syncToExcel}
+          disabled={isSyncing || !isConnected || currentShipments.length === 0}
+          title={
+            currentShipments.length === 0
+              ? "Nenhum dado no banco para enviar"
+              : "Enviar dados do banco de dados para o Excel"
+          }
+        >
+          {isSyncing ? (
+            <>
+              <div className="loading-spinner"></div>
+              Enviando...
+            </>
+          ) : (
+            <>
+              <span>📤</span>
+              Enviar para Excel ({currentShipments.length})
             </>
           )}
         </button>

@@ -9,6 +9,7 @@ import { NavbarContext } from "../../components/navbar/navbar-context";
 import ShippingTable, {
   type Shipment,
 } from "../../components/shipping-table/shipping-table";
+import { useShipments } from "../../context/shipments-context";
 import "./envios-page.css";
 
 export const EnviosPage = () => {
@@ -20,6 +21,8 @@ export const EnviosPage = () => {
   });
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [showExcelIntegration, setShowExcelIntegration] = useState(false);
+
+  const { shipments: dbShipments } = useShipments();
 
   useEffect(() => {
     // Processar parâmetros da URL para aplicar filtros
@@ -66,7 +69,7 @@ export const EnviosPage = () => {
 
           {showExcelIntegration && (
             <ExcelIntegration
-              shipments={shipments}
+              shipments={dbShipments}
               onShipmentsUpdate={handleShipmentsUpdate}
             />
           )}
