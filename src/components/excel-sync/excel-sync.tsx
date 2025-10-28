@@ -119,7 +119,6 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({
 
       for (const shipment of excelData) {
         try {
-          // Preparar dados para salvar
           const shipmentToSave = {
             cliente: shipment.cliente || "",
             operador: shipment.operador || "",
