@@ -228,6 +228,7 @@ export const Settings = () => {
                         handleInputChange("email", e.target.value)
                       }
                       placeholder="seu@email.com"
+                      disabled
                     />
                   </div>
 

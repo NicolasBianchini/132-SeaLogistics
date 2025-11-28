@@ -187,6 +187,51 @@ const ShippingTable = ({
     return filtered;
   }, [shipments, filters, initialFilters]);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
+  // total de páginas
+  const totalItems = filteredAndSortedShipments.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const paginatedShipments = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredAndSortedShipments.slice(start, start + itemsPerPage);
+  }, [filteredAndSortedShipments, currentPage, itemsPerPage]);
+
+  const generatePages = () => {
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, 4, "...", totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(
+          1,
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages
+        );
+      } else {
+        pages.push(
+          1,
+          "...",
+          currentPage - 1,
+          currentPage,
+          currentPage + 1,
+          "...",
+          totalPages
+        );
+      }
+    }
+
+    return pages;
+  };
+
   const handleFiltersChange = (newFilters: Partial<FilterOptions>) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
   };
@@ -506,7 +551,7 @@ const ShippingTable = ({
                 </tr>
               </thead>
               <tbody>
-                {filteredAndSortedShipments.map((shipment) => (
+                {paginatedShipments.map((shipment) => (
                   <tr key={shipment.id}>
                     <td>{shipment.cliente}</td>
                     <td>
@@ -605,6 +650,46 @@ const ShippingTable = ({
                 ))}
               </tbody>
             </table>
+            <div className="pagination-container">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Anterior
+              </button>
+
+              {generatePages().map((pg, index) => (
+                <button
+                  key={index}
+                  className={pg === currentPage ? "active" : ""}
+                  onClick={() => typeof pg === "number" && setCurrentPage(pg)}
+                  disabled={pg === "..."}
+                >
+                  {pg}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Próximo
+              </button>
+
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              >
+                <option value={10}>10</option>
+                <option value={20}>20</option>
+                <option value={50}>50</option>
+              </select>
+            </div>
           </div>
         )}
 

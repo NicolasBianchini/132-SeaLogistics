@@ -2,6 +2,7 @@ import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import ExcelSpecificTest from "../components/excel-specific-test/excel-specific-test";
 import { Footer } from "../components/footer/footer";
 import { NavbarProvider } from "../components/navbar/navbar-provider";
+import { AdminRoute, PrivateRoute } from "../components/protected-route";
 import { AuthProvider } from "../context/auth-context";
 import { LanguageProvider } from "../context/language-context";
 import { ShipmentsProvider } from "../context/shipments-context";
@@ -29,21 +30,87 @@ export const App = () => {
                 <Routes>
                   <Route path="/" element={<Login />} />
                   <Route path="/register" element={<Register />} />
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                  <Route path="/envios" element={<EnviosPage />} />
-                  <Route path="/novo-envio" element={<NovoEnvioPage />} />
-                  <Route path="/settings" element={<Settings />} />
+
+                  <Route
+                    path="/home"
+                    element={
+                      <PrivateRoute>
+                        <Home />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <PrivateRoute>
+                        <Dashboard />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/envios"
+                    element={
+                      <PrivateRoute>
+                        <EnviosPage />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/novo-envio"
+                    element={
+                      <AdminRoute>
+                        <NovoEnvioPage />
+                      </AdminRoute>
+                    }
+                  />
+                  <Route
+                    path="/settings"
+                    element={
+                      <PrivateRoute>
+                        <Settings />
+                      </PrivateRoute>
+                    }
+                  />
                   <Route
                     path="/excel-integration"
-                    element={<ExcelIntegrationPage />}
+                    element={
+                      <PrivateRoute>
+                        <ExcelIntegrationPage />
+                      </PrivateRoute>
+                    }
                   />
-                  <Route path="/excel-test" element={<ExcelSpecificTest />} />
-                  <Route path="/auth/callback" element={<ExcelCallback />} />
+                  <Route
+                    path="/excel-test"
+                    element={
+                      <PrivateRoute>
+                        <ExcelSpecificTest />
+                      </PrivateRoute>
+                    }
+                  />
+                  <Route
+                    path="/auth/callback"
+                    element={
+                      <PrivateRoute>
+                        <ExcelCallback />
+                      </PrivateRoute>
+                    }
+                  />
                   <Route
                     path="/excel-auth-callback"
-                    element={<ExcelCallback />}
+                    element={
+                      <PrivateRoute>
+                        <ExcelCallback />
+                      </PrivateRoute>
+                    }
+                  />
+
+                  <Route
+                    path="/admin-dashboard"
+                    element={
+                      <AdminRoute>
+                        <AdminDashboard />
+                      </AdminRoute>
+                    }
                   />
                 </Routes>
                 {/* Footer aparece em todas as páginas autenticadas */}

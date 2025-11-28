@@ -1,3 +1,5 @@
+"use client";
+
 import {
   AlertCircle,
   Calendar,
@@ -9,14 +11,14 @@ import {
   Ship,
   TrendingUp,
 } from "lucide-react";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
 import { DashboardCharts } from "../../components/dashboard-charts";
 import Navbar from "../../components/navbar/navbar";
 import { useAuth } from "../../context/auth-context";
 import { useLanguage } from "../../context/language-context";
-import { Shipment, useShipments } from "../../context/shipments-context";
+import { type Shipment, useShipments } from "../../context/shipments-context";
 import "./user-dashboard.css";
 
 interface DashboardStats {
@@ -61,16 +63,38 @@ export const Dashboard = () => {
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
 
+    const normalizeStatus = (status: string) => {
+      return (
+        status
+          ?.toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, "-") || ""
+      );
+    };
+
     const totalShipments = shipmentsToStat.length;
-    const inTransit = shipmentsToStat.filter(
-      (s) => s.status === "em-transito" || s.status === "agendado"
-    ).length;
-    const delivered = shipmentsToStat.filter(
-      (s) => s.status === "concluido"
-    ).length;
-    const pending = shipmentsToStat.filter(
-      (s) => s.status === "documentacao"
-    ).length;
+
+    const inTransit = shipmentsToStat.filter((s) => {
+      const status = normalizeStatus(s.status);
+      return ["em-transito", "agendado", "embarcado", "in-transit"].includes(
+        status
+      );
+    }).length;
+
+    const delivered = shipmentsToStat.filter((s) => {
+      const status = normalizeStatus(s.status);
+      return ["concluido", "entregue", "delivered", "finalizado"].includes(
+        status
+      );
+    }).length;
+
+    const pending = shipmentsToStat.filter((s) => {
+      const status = normalizeStatus(s.status);
+      return ["documentacao", "pendente", "pending", "analise"].includes(
+        status
+      );
+    }).length;
 
     const thisMonth = shipmentsToStat.filter((s) => {
       if (s.etdOrigem) {
@@ -92,29 +116,41 @@ export const Dashboard = () => {
     });
   }, []);
 
-  const generateRecentActivity = useCallback((shipmentsToProcess: Shipment[]) => {
-    const activities: RecentActivity[] = shipmentsToProcess
-      .slice(0, 5)
-      .map((shipment) => ({
-        id: shipment.id || "",
-        action: getActionText(shipment.status),
-        shipment: `${shipment.pol} → ${shipment.pod}`,
-        date: shipment.etdOrigem || "",
-        status: shipment.status,
-      }));
+  const generateRecentActivity = useCallback(
+    (shipmentsToProcess: Shipment[]) => {
+      const activities: RecentActivity[] = shipmentsToProcess
+        .slice(0, 5)
+        .map((shipment) => ({
+          id: shipment.id || "",
+          action: getActionText(shipment.status),
+          shipment: `${shipment.pol} → ${shipment.pod}`,
+          date: shipment.etdOrigem || "",
+          status: shipment.status,
+        }));
 
-    setRecentActivity(activities);
-  }, [translations]);
+      setRecentActivity(activities);
+    },
+    [translations]
+  );
 
   const getActionText = (status: string) => {
-    switch (status) {
-      case "documentação":
+    const normalizedStatus =
+      status
+        ?.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-") || "";
+
+    switch (normalizedStatus) {
+      case "documentacao":
+      case "pendente":
         return translations.statusPending;
       case "agendado":
+      case "em-transito":
+      case "embarcado":
         return translations.statusInTransit;
-      case "em-trânsito":
-        return translations.statusInTransit;
-      case "concluído":
+      case "concluido":
+      case "entregue":
         return translations.statusDelivered;
       default:
         return translations.statusUpdated;
@@ -135,14 +171,24 @@ export const Dashboard = () => {
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case "documentação":
+    const normalizedStatus =
+      status
+        ?.toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "-") || "";
+
+    switch (normalizedStatus) {
+      case "documentacao":
+      case "pendente":
         return "#073b4c";
       case "agendado":
         return "#118ab2";
-      case "em-trânsito":
+      case "em-transito":
+      case "embarcado":
         return "#ffd166";
-      case "concluído":
+      case "concluido":
+      case "entregue":
         return "#06d6a0";
       default:
         return "#6c757d";
@@ -170,7 +216,9 @@ export const Dashboard = () => {
       <div className="dashboard-content">
         <div className="dashboard-header">
           <h1>{translations.dashboard}</h1>
-          <p>{translations.welcomeUser} {currentUser?.displayName}!</p>
+          <p>
+            {translations.welcomeUser} {currentUser?.displayName}!
+          </p>
         </div>
 
         {/* Cards de Estatísticas - Primeira Linha */}
@@ -187,7 +235,10 @@ export const Dashboard = () => {
               </div>
             </div>
 
-            <div className="stat-card" onClick={() => navigate("/envios?status=em-transito")}>
+            <div
+              className="stat-card"
+              onClick={() => navigate("/envios?status=em-transito")}
+            >
               <div className="stat-icon in-transit">
                 <Package size={24} />
               </div>
@@ -197,7 +248,10 @@ export const Dashboard = () => {
               </div>
             </div>
 
-            <div className="stat-card" onClick={() => navigate("/envios?status=concluido")}>
+            <div
+              className="stat-card"
+              onClick={() => navigate("/envios?status=concluido")}
+            >
               <div className="stat-icon delivered">
                 <CheckCircle size={24} />
               </div>
@@ -207,7 +261,10 @@ export const Dashboard = () => {
               </div>
             </div>
 
-            <div className="stat-card" onClick={() => navigate("/envios?status=documentacao")}>
+            <div
+              className="stat-card"
+              onClick={() => navigate("/envios?status=documentacao")}
+            >
               <div className="stat-icon pending">
                 <Clock size={24} />
               </div>
@@ -217,7 +274,10 @@ export const Dashboard = () => {
               </div>
             </div>
 
-            <div className="stat-card" onClick={() => navigate("/envios?period=this-month")}>
+            <div
+              className="stat-card"
+              onClick={() => navigate("/envios?period=this-month")}
+            >
               <div className="stat-icon this-month">
                 <TrendingUp size={24} />
               </div>
@@ -233,7 +293,10 @@ export const Dashboard = () => {
         <div className="main-content-grid">
           {/* Coluna Esquerda - Atividades Recentes */}
           <div className="left-column">
-            <div className="recent-activity clickable-card" onClick={() => navigate("/envios")}>
+            <div
+              className="recent-activity clickable-card"
+              onClick={() => navigate("/envios")}
+            >
               <h2 className="section-title">{translations.shipmentsTitle}</h2>
               {recentActivity.length > 0 ? (
                 <div className="activity-list">

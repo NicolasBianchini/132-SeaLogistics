@@ -130,6 +130,9 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
             ...doc.data(),
           } as Shipment);
         });
+
+        console.log("📦 Shipments carregados do Firestore:", shipmentsData);
+
         setShipments(shipmentsData);
         setLoading(false);
       },
@@ -152,8 +155,24 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
         throw new Error("Usuário não autenticado");
       }
 
-      if (!isAdmin()) {
-        throw new Error("Apenas administradores podem criar novos shipments");
+      const isAdmin_ = isAdmin();
+      const isCompanyUser_ = currentUser.role === UserRole.COMPANY_USER;
+
+      if (!isAdmin_ && !isCompanyUser_) {
+        throw new Error("Você não tem permissão para criar novos shipments");
+      }
+
+      let companyIdToUse = shipmentData.companyId;
+
+      if (isCompanyUser_) {
+        // Company users must use their own companyId
+        if (
+          shipmentData.companyId &&
+          shipmentData.companyId !== currentUser.companyId
+        ) {
+          throw new Error("Você só pode criar envios para sua própria empresa");
+        }
+        companyIdToUse = currentUser.companyId;
       }
 
       const shipmentWithCompany: Record<string, unknown> = {
@@ -162,8 +181,8 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
         updatedAt: new Date(),
       };
 
-      if (shipmentData.companyId !== undefined) {
-        shipmentWithCompany.companyId = shipmentData.companyId;
+      if (companyIdToUse !== undefined) {
+        shipmentWithCompany.companyId = companyIdToUse;
       } else {
         delete shipmentWithCompany.companyId;
       }
@@ -175,12 +194,10 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
       console.log("Shipment added with ID: ", docRef.id);
 
       // Enviar email de notificação
-      if (shipmentData.companyId) {
+      if (companyIdToUse) {
         try {
           console.log("Buscando dados da empresa...");
-          const companyDoc = await getDoc(
-            doc(db, "companies", shipmentData.companyId)
-          );
+          const companyDoc = await getDoc(doc(db, "companies", companyIdToUse));
           if (companyDoc.exists()) {
             const companyData = companyDoc.data();
             console.log("Dados da empresa:", companyData);
@@ -452,8 +469,7 @@ export const ShipmentsProvider: React.FC<ShipmentsProviderProps> = ({
   };
 
   const canCreateShipment = (): boolean => {
-    // Apenas admins podem criar shipments
-    return isAdmin();
+    return isAdmin() || currentUser?.role === UserRole.COMPANY_USER;
   };
 
   const deleteAllShipments = async () => {

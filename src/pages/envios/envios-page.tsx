@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuth } from "@/context/auth-context";
+import { BarChart2 } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ChatAssistant from "../../components/chat-assistant/chat-assistant";
@@ -13,6 +15,7 @@ import { useShipments } from "../../context/shipments-context";
 import "./envios-page.css";
 
 export const EnviosPage = () => {
+  const { isAdmin } = useAuth();
   const { isCollapsed } = useContext(NavbarContext);
   const [searchParams] = useSearchParams();
   const [activeFilters, setActiveFilters] = useState({
@@ -53,27 +56,30 @@ export const EnviosPage = () => {
       <div
         className={`envios-content ${isCollapsed ? "navbar-collapsed" : ""}`}
       >
-        {/* Controles de Excel */}
-        <div className="excel-controls">
-          <div className="excel-controls-header">
-            <h3>📊 Integração com Excel</h3>
-            <button
-              className={`excel-toggle-btn ${
-                showExcelIntegration ? "active" : ""
-              }`}
-              onClick={() => setShowExcelIntegration(!showExcelIntegration)}
-            >
-              {showExcelIntegration ? "Ocultar Excel" : "Mostrar Excel"}
-            </button>
-          </div>
+        {isAdmin() && (
+          <div className="excel-controls">
+            <div className="excel-controls-header">
+              <h3>
+                <BarChart2 size={22} /> Integração com Excel
+              </h3>
+              <button
+                className={`excel-toggle-btn ${
+                  showExcelIntegration ? "active" : ""
+                }`}
+                onClick={() => setShowExcelIntegration(!showExcelIntegration)}
+              >
+                {showExcelIntegration ? "Ocultar Excel" : "Mostrar Excel"}
+              </button>
+            </div>
 
-          {showExcelIntegration && (
-            <ExcelIntegration
-              shipments={dbShipments}
-              onShipmentsUpdate={handleShipmentsUpdate}
-            />
-          )}
-        </div>
+            {showExcelIntegration && (
+              <ExcelIntegration
+                shipments={dbShipments}
+                onShipmentsUpdate={handleShipmentsUpdate}
+              />
+            )}
+          </div>
+        )}
 
         {/* Mostrar filtros ativos se houver */}
         {(activeFilters.status || activeFilters.filter) && (

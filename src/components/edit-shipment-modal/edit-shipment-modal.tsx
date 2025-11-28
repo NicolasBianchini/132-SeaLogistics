@@ -2,10 +2,13 @@
 
 import type React from "react";
 
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { FileText, MapPin, Package, Save, Ship, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Shipment } from "../../context/shipments-context";
+import { db } from "../../lib/firebaseConfig";
+import { Cliente } from "../../types/customer";
 import StatusSelector from "../shipping-table/status-selector";
 import "./edit-shipment-modal.css";
 
@@ -69,7 +72,42 @@ const EditShipmentModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [loadingClientes, setLoadingClientes] = useState(false);
 
+  useEffect(() => {
+    const fetchClientes = async () => {
+      setLoadingClientes(true);
+      try {
+        const usersQuery = query(
+          collection(db, "users"),
+          where("role", "!=", "admin")
+        );
+
+        const snapshot = await getDocs(usersQuery);
+
+        const clientesData: Cliente[] = snapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            nome: data.displayName || data.name || "Usuário",
+            empresa: data.companyName || "-",
+            email: data.email || "-",
+            companyId: data.companyId || undefined,
+          };
+        });
+
+        setClientes(clientesData);
+      } catch (error) {
+        console.error("Erro ao buscar clientes:", error);
+        setClientes([]);
+      } finally {
+        setLoadingClientes(false);
+      }
+    };
+
+    fetchClientes();
+  }, []);
 
   const armadores = [
     "MSC",
@@ -134,6 +172,16 @@ const EditShipmentModal = ({
     "Bruxelas, Bélgica",
   ];
 
+  const handleClienteChange = (clienteId: string) => {
+    const clienteSel = clientes.find((c) => c.id === clienteId);
+    if (!clienteSel) return;
+
+    setFormData((prev) => ({
+      ...prev,
+      cliente: clienteSel.nome,
+    }));
+  };
+
   // Carregar dados do shipment no formulário
   useEffect(() => {
     if (shipment) {
@@ -163,8 +211,6 @@ const EditShipmentModal = ({
       setFormData(newFormData);
     }
   }, [shipment]);
-
-
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -200,7 +246,7 @@ const EditShipmentModal = ({
       newErrors.tipo = "Tipo de transporte é obrigatório";
     }
     // Validação dos portos apenas se o tipo for marítimo
-    if (formData.tipo === 'Marítimo') {
+    if (formData.tipo === "Marítimo") {
       if (!formData.pol.trim()) {
         newErrors.pol = "Porto de origem é obrigatório";
       }
@@ -319,7 +365,10 @@ const EditShipmentModal = ({
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="tipo">
-                    <Package size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+                    <Package
+                      size={16}
+                      style={{ marginRight: "8px", verticalAlign: "middle" }}
+                    />
                     Tipo de Transporte *
                   </label>
                   <select
@@ -343,19 +392,27 @@ const EditShipmentModal = ({
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="cliente">Cliente *</label>
-                  <input
-                    type="text"
-                    id="cliente"
-                    name="cliente"
+                  <label htmlFor="clienteId">Cliente *</label>
+                  <select
+                    id="clienteId"
+                    name="clienteId"
                     value={formData.cliente}
-                    onChange={handleInputChange}
-                    disabled={!canEdit}
-                    placeholder="Nome do cliente"
-                  />
-                  {errors.cliente && (
-                    <span className="error-message">{errors.cliente}</span>
-                  )}
+                    onChange={(e) => handleClienteChange(e.target.value)}
+                    disabled={loadingClientes}
+                    required
+                  >
+                    <option value="">
+                      {loadingClientes
+                        ? "Carregando..."
+                        : "Selecione o cliente"}
+                    </option>
+
+                    {clientes.map((cliente) => (
+                      <option key={cliente.id} value={cliente.id}>
+                        {cliente.nome} - {cliente.empresa}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="form-group">
@@ -401,9 +458,12 @@ const EditShipmentModal = ({
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="pol">
-                    {formData.tipo === "Aéreo" ? "Aeroporto de Origem" :
-                      formData.tipo === "Terrestre" ? "Local de Origem" :
-                        "Porto de Origem"} (POL) *
+                    {formData.tipo === "Aéreo"
+                      ? "Aeroporto de Origem"
+                      : formData.tipo === "Terrestre"
+                      ? "Local de Origem"
+                      : "Porto de Origem"}{" "}
+                    (POL) *
                   </label>
                   <select
                     id="pol"
@@ -413,28 +473,29 @@ const EditShipmentModal = ({
                     disabled={!canEdit}
                   >
                     <option value="">
-                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto de origem" :
-                        formData.tipo === "Terrestre" ? "Selecione o local de origem" :
-                          "Selecione o porto de origem"}
+                      {formData.tipo === "Aéreo"
+                        ? "Selecione o aeroporto de origem"
+                        : formData.tipo === "Terrestre"
+                        ? "Selecione o local de origem"
+                        : "Selecione o porto de origem"}
                     </option>
-                    {formData.tipo === "Aéreo" ?
-                      aeroportos.map((aeroporto) => (
-                        <option key={aeroporto} value={aeroporto}>
-                          {aeroporto}
-                        </option>
-                      )) :
-                      formData.tipo === "Terrestre" ?
-                        locaisTerrestres.map((local) => (
+                    {formData.tipo === "Aéreo"
+                      ? aeroportos.map((aeroporto) => (
+                          <option key={aeroporto} value={aeroporto}>
+                            {aeroporto}
+                          </option>
+                        ))
+                      : formData.tipo === "Terrestre"
+                      ? locaisTerrestres.map((local) => (
                           <option key={local} value={local}>
                             {local}
                           </option>
-                        )) :
-                        portos.map((porto) => (
+                        ))
+                      : portos.map((porto) => (
                           <option key={porto} value={porto}>
                             {porto}
                           </option>
-                        ))
-                    }
+                        ))}
                   </select>
                   {errors.pol && (
                     <span className="error-message">{errors.pol}</span>
@@ -443,9 +504,12 @@ const EditShipmentModal = ({
 
                 <div className="form-group">
                   <label htmlFor="pod">
-                    {formData.tipo === "Aéreo" ? "Aeroporto de Destino" :
-                      formData.tipo === "Terrestre" ? "Local de Destino" :
-                        "Porto de Destino"} (POD) *
+                    {formData.tipo === "Aéreo"
+                      ? "Aeroporto de Destino"
+                      : formData.tipo === "Terrestre"
+                      ? "Local de Destino"
+                      : "Porto de Destino"}{" "}
+                    (POD) *
                   </label>
                   <select
                     id="pod"
@@ -455,28 +519,29 @@ const EditShipmentModal = ({
                     disabled={!canEdit}
                   >
                     <option value="">
-                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto de destino" :
-                        formData.tipo === "Terrestre" ? "Selecione o local de destino" :
-                          "Selecione o porto de destino"}
+                      {formData.tipo === "Aéreo"
+                        ? "Selecione o aeroporto de destino"
+                        : formData.tipo === "Terrestre"
+                        ? "Selecione o local de destino"
+                        : "Selecione o porto de destino"}
                     </option>
-                    {formData.tipo === "Aéreo" ?
-                      aeroportos.map((aeroporto) => (
-                        <option key={aeroporto} value={aeroporto}>
-                          {aeroporto}
-                        </option>
-                      )) :
-                      formData.tipo === "Terrestre" ?
-                        locaisTerrestres.map((local) => (
+                    {formData.tipo === "Aéreo"
+                      ? aeroportos.map((aeroporto) => (
+                          <option key={aeroporto} value={aeroporto}>
+                            {aeroporto}
+                          </option>
+                        ))
+                      : formData.tipo === "Terrestre"
+                      ? locaisTerrestres.map((local) => (
                           <option key={local} value={local}>
                             {local}
                           </option>
-                        )) :
-                        portos.map((porto) => (
+                        ))
+                      : portos.map((porto) => (
                           <option key={porto} value={porto}>
                             {porto}
                           </option>
-                        ))
-                    }
+                        ))}
                   </select>
                   {errors.pod && (
                     <span className="error-message">{errors.pod}</span>
@@ -516,9 +581,11 @@ const EditShipmentModal = ({
                 </div>
                 <div className="form-group">
                   <label htmlFor="currentLocation">
-                    {formData.tipo === "Aéreo" ? "Aeroporto Atual" :
-                      formData.tipo === "Terrestre" ? "Local Atual" :
-                        "Porto Atual"}
+                    {formData.tipo === "Aéreo"
+                      ? "Aeroporto Atual"
+                      : formData.tipo === "Terrestre"
+                      ? "Local Atual"
+                      : "Porto Atual"}
                   </label>
                   <select
                     id="currentLocation"
@@ -528,31 +595,34 @@ const EditShipmentModal = ({
                     disabled={!canEdit}
                   >
                     <option value="">
-                      {formData.tipo === "Aéreo" ? "Selecione o aeroporto atual" :
-                        formData.tipo === "Terrestre" ? "Selecione o local atual" :
-                          "Selecione o porto atual"}
+                      {formData.tipo === "Aéreo"
+                        ? "Selecione o aeroporto atual"
+                        : formData.tipo === "Terrestre"
+                        ? "Selecione o local atual"
+                        : "Selecione o porto atual"}
                     </option>
-                    {formData.tipo === "Aéreo" ?
-                      aeroportos.map((aeroporto) => (
-                        <option key={aeroporto} value={aeroporto}>
-                          {aeroporto}
-                        </option>
-                      )) :
-                      formData.tipo === "Terrestre" ?
-                        locaisTerrestres.map((local) => (
+                    {formData.tipo === "Aéreo"
+                      ? aeroportos.map((aeroporto) => (
+                          <option key={aeroporto} value={aeroporto}>
+                            {aeroporto}
+                          </option>
+                        ))
+                      : formData.tipo === "Terrestre"
+                      ? locaisTerrestres.map((local) => (
                           <option key={local} value={local}>
                             {local}
                           </option>
-                        )) :
-                        portos.map((porto) => (
+                        ))
+                      : portos.map((porto) => (
                           <option key={porto} value={porto}>
                             {porto}
                           </option>
-                        ))
-                    }
+                        ))}
                   </select>
                   {errors.currentLocation && (
-                    <span className="error-message">{errors.currentLocation}</span>
+                    <span className="error-message">
+                      {errors.currentLocation}
+                    </span>
                   )}
                 </div>
               </div>
@@ -588,7 +658,7 @@ const EditShipmentModal = ({
                   <StatusSelector
                     currentStatus={formData.status}
                     onStatusChange={(newStatus) => {
-                      setFormData(prev => ({ ...prev, status: newStatus }));
+                      setFormData((prev) => ({ ...prev, status: newStatus }));
                     }}
                     instanceId={`edit-modal-${shipment.id}`}
                     disabled={!canEdit}
@@ -722,7 +792,9 @@ const EditShipmentModal = ({
     </div>
   );
 
-  return typeof document !== 'undefined' ? createPortal(modalContent, document.body) : null;
+  return typeof document !== "undefined"
+    ? createPortal(modalContent, document.body)
+    : null;
 };
 
 export default EditShipmentModal;

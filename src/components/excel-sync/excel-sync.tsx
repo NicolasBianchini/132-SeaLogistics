@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useShipments } from "../../context/shipments-context";
 import { excelService, type ExcelConfig } from "../../services/excelService";
 import "./excel-sync.css";
@@ -28,6 +28,8 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({
   const [isSavingToDb, setIsSavingToDb] = useState(false);
   const { addShipment, deleteAllShipments } = useShipments();
 
+  const performSyncRef = useRef<any>(null);
+
   useEffect(() => {
     if (config) {
       checkConnection();
@@ -38,6 +40,26 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({
       }
     };
   }, [config]);
+
+  useEffect(() => {
+    performSyncRef.current = performSync;
+  });
+
+  useEffect(() => {
+    if (isConnected && !autoSync) {
+      console.log("[v0] Auto-starting sync due to active connection");
+
+      performSyncRef.current();
+
+      const interval = setInterval(() => {
+        performSyncRef.current();
+      }, 30000);
+
+      setSyncInterval(interval);
+      setAutoSync(true);
+      setSyncStatus("Sincronização automática ativada (30s)");
+    }
+  }, [isConnected]);
 
   const checkConnection = async () => {
     if (!config) return;
@@ -216,7 +238,7 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({
     } else {
       // Inicia sincronização automática (a cada 30 segundos)
       const interval = setInterval(() => {
-        performSync();
+        performSyncRef.current();
       }, 30000);
 
       setSyncInterval(interval);
@@ -224,7 +246,7 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({
       setSyncStatus("Sincronização automática ativada (30s)");
 
       // Faz primeira sincronização imediatamente
-      performSync();
+      performSyncRef.current();
     }
   };
 
@@ -402,7 +424,7 @@ const ExcelSync: React.FC<ExcelSyncProps> = ({
           ) : (
             <>
               <span>💾</span>
-              Salvar no BD ({excelData.length})
+              Salvar no Banco de Dados ({excelData.length})
             </>
           )}
         </button>

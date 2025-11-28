@@ -1,3 +1,13 @@
+import {
+  Check,
+  Link2,
+  PieChart,
+  RefreshCw,
+  Rocket,
+  Settings,
+  TrendingUp,
+  XCircle,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ExcelConfig, excelService } from "../../services/excelService";
 import ExcelConfigModal from "../excel-config/excel-config";
@@ -81,7 +91,9 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
     <div className="excel-integration">
       <div className="excel-integration-header">
         <div className="excel-integration-title">
-          <div className="excel-icon">📊</div>
+          <div className="excel-icon">
+            <PieChart size={24} />
+          </div>
           <h3>Integração Excel Online</h3>
         </div>
 
@@ -91,7 +103,9 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
               className="excel-button primary"
               onClick={() => setShowConfigModal(true)}
             >
-              <span>🔗</span>
+              <span>
+                <Link2 size={16} />
+              </span>
               Conectar Excell
             </button>
           ) : (
@@ -100,14 +114,18 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
                 className="excel-button secondary"
                 onClick={() => setShowConfigModal(true)}
               >
-                <span>⚙️</span>
+                <span>
+                  <Settings size={16} />
+                </span>
                 Configurar
               </button>
               <button
                 className="excel-button danger"
                 onClick={handleRemoveConfig}
               >
-                <span>❌</span>
+                <span>
+                  <XCircle size={16} />
+                </span>
                 Desconectar
               </button>
             </div>
@@ -123,19 +141,21 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
             <h4>Como funciona:</h4>
             <ul>
               <li>
-                ✅ <strong>Sincronização em tempo real:</strong> Dados são
+                <Check size={16} />{" "}
+                <strong>Sincronização em tempo real:</strong> Dados são
                 atualizados automaticamente
               </li>
               <li>
-                ✅ <strong>Mapeamento inteligente:</strong> Campos são mapeados
-                automaticamente
+                <Check size={16} /> <strong>Mapeamento inteligente:</strong>{" "}
+                Campos são mapeados automaticamente
               </li>
               <li>
-                ✅ <strong>Webhook:</strong> Recebe notificações quando Excel é
-                modificado
+                <Check size={16} /> <strong>Webhook:</strong> Recebe
+                notificações quando Excel é modificado
               </li>
               <li>
-                ✅ <strong>Bidirecional:</strong> Pode enviar e receber dados
+                <Check size={16} /> <strong>Bidirecional:</strong> Pode enviar e
+                receber dados
               </li>
             </ul>
           </div>
@@ -145,7 +165,9 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
       {!isExcelEnabled && (
         <div className="excel-integration-placeholder">
           <div className="placeholder-content">
-            <div className="placeholder-icon">📈</div>
+            <div className="placeholder-icon">
+              <TrendingUp size={48} />
+            </div>
             <h4>Use Excel como banco de dados vivo</h4>
             <p>
               Conecte sua planilha Excel Online para sincronização em tempo real
@@ -153,15 +175,21 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
             </p>
             <div className="placeholder-features">
               <div className="feature-item">
-                <span className="feature-icon">🔄</span>
+                <span className="feature-icon">
+                  <RefreshCw size={16} />
+                </span>
                 <span>Sincronização automática</span>
               </div>
               <div className="feature-item">
-                <span className="feature-icon">📊</span>
+                <span className="feature-icon">
+                  <PieChart size={16} />
+                </span>
                 <span>Dados em tempo real</span>
               </div>
               <div className="feature-item">
-                <span className="feature-icon">🔗</span>
+                <span className="feature-icon">
+                  <Link2 size={16} />
+                </span>
                 <span>Integração bidirecional</span>
               </div>
             </div>
@@ -169,7 +197,9 @@ const ExcelIntegration: React.FC<ExcelIntegrationProps> = ({
               className="excel-button primary large"
               onClick={() => setShowConfigModal(true)}
             >
-              <span>🚀</span>
+              <span>
+                <Rocket size={16} />
+              </span>
               Começar Integração
             </button>
           </div>
